@@ -298,7 +298,7 @@ sub write_hdlists {
         $h_hdlists = $hdlists;
     } else {
         $hdlists ||= "$distrib->{root}/$distrib->{infodir}/hdlists";
-        open(my $h_hdlists, ">", $hdlists) or return 0;
+        open($h_hdlists, ">", $hdlists) or return 0;
     }
     foreach my $media ($distrib->listmedia) {
         printf($h_hdlists "%s%s\t%s\t%s\t%s\n",
@@ -449,6 +449,9 @@ Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.5  2005/02/21 15:34:56  othauvin
+    Distribconf
+
     Revision 1.4  2005/02/21 13:14:19  othauvin
     - add doc for pubkey
 
