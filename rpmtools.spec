@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 18mdk
+%define release 19mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -65,6 +65,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Wed Feb 25 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 4.5-19mdk
+- rebuild for perl 5.8.3
+
 * Fri Jan 16 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 4.5-18mdk
 - Fix genhdlist without arg
 
