@@ -47,7 +47,7 @@ Options:
   --noclean           keep cache files
   --provides file     path of provides file (default media/media_info/provides)
   --nomediainfo       don't create per-media media_info subdirectories
-  --nomd5sum	      don't generate MD5SUM files
+  --nomd5sum          don't generate MD5SUM files
   -s                  silent mode
 EOF
 }
@@ -100,20 +100,20 @@ while (my ($k, $v) = each(%default_urpmfiles)) {
     $urpmfiles{$k} ||= $v;
 }
 
-$distrib->check(\*STDERR) unless($nooutput);
+$distrib->check(\*STDERR) unless $nooutput;
 
 my @hdlists;
 foreach ($distrib->listmedia) {
     $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
-    if (! -d $distrib->getfullpath($_, 'path')) {
+    if (! -d ($distrib->getfullpath($_, 'path'))) {
         if ($skipmissingdir) {
             printf STDERR "Skipping missing media %s\n", $distrib->getpath($_, 'path') unless $nooutput;
             next;
         } else {
-            die sprintf("Missing dir '%s'  for media '%s'", $distrib->getpath($_, 'path'), $distrib->getvalue($_, 'name'));
+            die sprintf("Missing dir '%s' for media '%s'", $distrib->getpath($_, 'path'), $distrib->getvalue($_, 'name'));
         }
     }
-     
+
     push @hdlists, {
         synthesis => $distrib->getfullpath($_, 'synthesis'),
         hdlist => $distrib->getfullpath($_, 'hdlist'),
@@ -207,17 +207,17 @@ foreach (0..$#hdlists) {
 			   synthesis => $e->{synthesis});
 
     unless ($nomediainfo && $nomd5sum) {
-        if (! -d $e->{mediainfo}) {
-        	mkdir $e->{mediainfo}, 0755
-	            or print STDERR qq(Can't create directory "$e->{mediainfo}": $!\n);
-        }
+	if (! -d $e->{mediainfo}) {
+	    mkdir $e->{mediainfo}, 0755
+		or print STDERR qq(Can't create directory "$e->{mediainfo}": $!\n);
+	}
     }
 
     unless ($nomediainfo) {
-    if (! -d $e->{thismediainfo}) {
-        mkdir $e->{thismediainfo}, 0755
-            or print STDERR qq(Can't create directory "$e->{thismediainfo}": $!\n);
-    }
+	if (! -d $e->{thismediainfo}) {
+	    mkdir $e->{thismediainfo}, 0755
+		or print STDERR qq(Can't create directory "$e->{thismediainfo}": $!\n);
+	}
 	print STDERR qq(link alternate locations of synthesis and hdlists\n) unless $nooutput;
 	unlink $e->{hdlist2}, $e->{synthesis2};
 	link $e->{hdlist}, $e->{hdlist2}
@@ -227,55 +227,54 @@ foreach (0..$#hdlists) {
     }
 
     unless ($nomd5sum) {
-	print STDERR qq(generate MD5SUM for media\n);
+	print STDERR qq(generate media-specific MD5SUM in $e->{thismediainfo}\n);
 	my $here = getcwd();
-	chdir $e->{mediainfo};
+	chdir $e->{thismediainfo};
 	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
-	chdir $here;
 	if (open my $md5sumfh, '>', $e->{md5sum}) {
 	    print $md5sumfh $md5sum;
 	    close $md5sumfh;
 	} else {
 	    print STDERR qq(Can't create "$e->{md5sum}": $!\n);
 	}
+	chdir $here;
     }
 }
 
 clean_cache();
 
 print STDERR "building base files\n" unless $nooutput;
-$urpm->build_base_files(depslist => $urpmfiles{depslist},
-			provides => $urpmfiles{provides},
-			compss   => $urpmfiles{compss});
+$urpm->build_base_files(
+    depslist => $urpmfiles{depslist},
+    provides => $urpmfiles{provides},
+    compss   => $urpmfiles{compss},
+);
 
-#compatibility
 if (-f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/media.cfg') {
     if (! -f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists' ||
         ((stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/media.cfg'))[9] >
             (stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists'))[9])) {
-            print STDERR "Write hdlists files\n" unless($nooutput);
+            print STDERR "Write hdlists file\n" unless($nooutput);
             $distrib->write_hdlists();
     }
 }
-    
-    
-        
+
 #- safety cleaning
 unlink $urpmfiles{md5sum};
 unless ($nomd5sum) {
     my $here = getcwd();
     chdir $distrib->getpath(undef, 'root') . "/" . $distrib->getpath(undef, 'infodir');
     my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
-    chdir $here;
     if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {
 	print $md5sumfh $md5sum;
 	close $md5sumfh;
     } else {
 	print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
     }
+    chdir $here;
 }
 
-print STDERR "Building Version file\n" unless($nooutput);
+print STDERR "Building version file\n" unless($nooutput);
 $distrib->write_version($urpmfiles{version});
 
 #- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
