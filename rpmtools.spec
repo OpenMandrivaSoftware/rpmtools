@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -79,6 +79,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/parsehdlist
 %{_bindir}/rpm2header
 %{_bindir}/genhdlist_cz2
+%{_bindir}/genbasefiles
 %dir %{perl_sitearch}/auto/rpmtools
 %{perl_sitearch}/auto/rpmtools/rpmtools.so
 %{perl_sitearch}/rpmtools.pm
@@ -86,7 +87,6 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root)
 %{_bindir}/genhdlists
-%{_bindir}/genbasefiles
 %{_bindir}/genfilelist
 
 %files compat
@@ -99,6 +99,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Aug 28 2000 François Pons <fpons@mandrakesoft.com> 1.2-4mdk
+- moved genbasefiles to rpmtools as it is used by urpmi.
+
 * Mon Aug 28 2000 François Pons <fpons@mandrakesoft.com> 1.2-3mdk
 - fixed ugly arch specific optimization in Makefile.PL.
 
