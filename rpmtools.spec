@@ -1,15 +1,17 @@
 %define name rpmtools
 %define version 1.0
-%define release 8mdk
+%define release 9mdk
 
 Summary: contains various rpm command-line tools
 Name: %{name}
 Version: %{version}
 Release: %{release}
-Source0: %{name}.tar.bz2
+# get the source from our cvs repository (see
+# http://www.linuxmandrake.com/en/cvs.php3)
+Source0: %{name}-%{version}.tar.bz2
 Copyright: GPL
 Group: System Environment/Base
-BuildRoot: /tmp/%{name}-buildroot
+BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 3.0.4
 
@@ -17,7 +19,7 @@ BuildRequires: rpm-devel >= 3.0.4
 Various rpmtools.
 
 %prep
-%setup -n %{name}
+%setup
 
 %build
 make
@@ -35,6 +37,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Feb 18 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0-9mdk
+- Really fix with rpm-3.0.4 (Pixel).
+
 * Thu Feb 17 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0-8mdk
 - rpmtools.spec (BuildRequires): rpm-3.0.4.
 - gendepslist.cc: port to rpm-3.0.4.
