@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 7mdk
+%define release 8mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -53,6 +53,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Jan 17 2001 François Pons <fpons@mandrakesoft.com> 2.1-8mdk
+- removed obsoleted genhdlists, genhdlist_cz2, genbasefiles by gendistrib.
+- new tools gendistrib which integrate all the obsoleted tools.
+- fixed volative cwd in rpmtools.pm when building hdlist, added noclean support.
+
 * Tue Jan 16 2001 François Pons <fpons@mandrakesoft.com> 2.1-7mdk
 - fixed white char in packdrake archive.
 - added output mode for parsehdlist.
