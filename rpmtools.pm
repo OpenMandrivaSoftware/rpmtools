@@ -462,7 +462,7 @@ sub read_provides_files {
     local $_;
     while (<$FILE>) {
 	chomp;
-	my ($k, @v) = split ':';
+	my ($k, @v) = split '@';
 	$k =~ /^\// and $params->{provides}{$k} ||= undef;
     }
     1;
@@ -512,7 +512,7 @@ sub read_provides {
     local $_;
     while (<$FILE>) {
 	chomp;
-	my ($k, @v) = split ':';
+	my ($k, @v) = split '@';
 	$params->{provides}{$k} = @v > 0 ? \@v : undef;
     }
 }
@@ -523,7 +523,7 @@ sub write_provides {
     my ($k, $v);
 
     while (($k, $v) = each %{$params->{provides}}) {
-	printf $FILE "%s\n", join ':', $k, @{$v || []};
+	printf $FILE "%s\n", join '@', $k, @{$v || []};
     }
 }
 
