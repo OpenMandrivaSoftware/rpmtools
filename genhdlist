@@ -67,6 +67,7 @@ rmtree($tmpdir) unless $noclean;
 mkpath($tmpdir);
 
 my @rpms;
+my %rpmslist;
 sub wanted {
     	if (-f $_ && $_ =~ /^.*\.rpm$/ ) {
         	push(@rpms, $File::Find::name);
@@ -77,13 +78,28 @@ sub wanted {
 open(LIST, "> list$suffix") or die "can't create list file: $!";
 foreach my $dir (@dir) {
 	print "parsing $dir\n" unless $nooutput;
-	@rpms=();
+	@rpms = ();
+    %rpmslist = ();
 	File::Find::find({wanted => \&wanted}, $dir);
-	$urpm->parse_rpms_build_headers(dir  => $tmpdir,
+	$urpm->parse_rpms_build_headers(
+                    dir  => $tmpdir,
 					rpms => \@rpms,
-			        	dontdie => $dontdie,
-					silent => $nooutput);
-	foreach my $rpm (@rpms) { print LIST "$rpm\n" };
+			        dontdie => $dontdie,
+					silent => $nooutput,
+                    callback => sub {
+                        my ($urpm, $id, %options) = @_;
+                        
+                        # This code need a fix in perl-URPM
+                        # print LIST "$options{file}\n";
+                        $rpmslist{scalar($urpm->{depslist}[$id]->fullname).".rpm"} = 1;
+                        $urpm->{depslist}[$id]->pack_header;
+                    },
+                );
+    # This code will become useless... see above
+    foreach my $rpm (@rpms) { 
+        $rpmslist{($rpm =~ m!.*/(.*)$!)[0]} or next;
+        print LIST "$rpm\n";
+    }
 }
 close(LIST);
 
