@@ -104,6 +104,9 @@ rm -rf $RPM_BUILD_ROOT
 - fixed compute_depslist to use only remove dobles in provides.
 - fixed genbasefiles to do 3 pass instead of 2, because provides is no more
   used in such a case.
+- moved version_compare in rpmtools perl package.
+- added relocation of packages to match the best ones (so that urpmi install
+  the most up-to-date version it finds).
 
 * Fri Sep 01 2000 François Pons <fpons@mandrakesoft.com> 1.2-8mdk
 - fixed read_provides with unresolved dependancies.
