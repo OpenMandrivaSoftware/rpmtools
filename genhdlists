@@ -8,20 +8,22 @@ $root && @ARGV == 0 or die
 ";
 
 $depslist = "$root/Mandrake/base/depslist.ordered";
-$hdlist = "$root/Mandrake/base/hdlist";
-@dirs = glob("$root/Mandrake/RPMS*");
+$hdlists = "$root/Mandrake/base/hdlists";
 
-open F, ">${hdlist}s" or die "unable to open ${hdlist}s";
-foreach my $dir (@dirs) {
-    my $ext = $dir =~ /RPMS(.*)$/ && "$1.cz2";
+open F, $hdlists or die "unable to open $hdlists";
+foreach (<F>) {
+    chomp;
+    s/\s*#.*$//;
+    /^\s*$/ and next;
+    m/^\s*(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 
+    my ($hdlist, $dir, $descr) = ($1, $2, $3);
     my $command = "genhdlist_cz2";
     $noclean and $command .= " --noclean";
     -e $depslist and $command .= " --ordered-depslist $depslist";
-    $command .= " -o $hdlist$ext $dir";
+    $command .= " -o $hdlist $root/$dir";
 
     system($command);
-
-    print F `basename $hdlist$ext`;
+    system("touch $root/Mandrake/base/$hdlist");
 }
 close F;
