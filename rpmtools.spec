@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 22mdk
+%define release 24mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -59,6 +59,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Thu Jun 08 2000 François Pons <fpons@mandrakesoft.com> 1.1-24mdk
+- fixed bug in genhdlist_cz2 for multi arch management.
+
+* Thu May 25 2000 François Pons <fpons@mandrakesoft.com> 1.1-23mdk
+- adding multi arch management (sparc and sparc64 need).
+
 * Tue May 02 2000 François Pons <fpons@mandrakesoft.com> 1.1-22mdk
 - fixed bug for extracting file if some of them are unknown.
 
