@@ -1,3 +1,21 @@
+2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - 5.0.13
+
+2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm: - add doc for pubkey
+
+2005-02-21 14:11  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm: - lowercase media name in file name - manage
+	  pubkey
+
+2005-02-21 13:47  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm: - avoid error message about non existing
+	  media.cfg
+
 2005-02-21 01:06  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* gendistrib: - s/getpath/getvalue/
