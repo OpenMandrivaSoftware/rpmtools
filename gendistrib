@@ -60,6 +60,7 @@ foreach (0..$#hdlists) {
     #- listed in the hdlist file.
     #- if the number of root is equal the number of medium, assume a medium
     #- foreach root, else try to find a valid root containing the medium.
+    $r ||= $root[0];
     if (scalar(@hdlists) == scalar(@root)) {
 	$r = $root[$_];
     } else {
@@ -67,11 +68,22 @@ foreach (0..$#hdlists) {
 	    -d "$_/$e->{dir}" and $r = $_, last;
 	}
     }
-    -d "$r/$e->{dir}" or die "unable to find a valid root directory which contains $e->{dir}\n";
+
+    #- fake build of architecture dependent directory.
+    my @files;
+    if ($e->{dir} =~ /%{ARCH}/) {
+	foreach my $arch (qw(i686 i586 i486 i386 k8 k7 k6 amd64 amd32 x86_64 x86_32 ia64 ia32 ppc sparc sparc32 sparc64 alpha)) {
+	    my $dir = $e->{dir};
+	    $dir =~ s|%{ARCH}|$arch|g;
+	    push @files, glob("$r/$dir/*.$arch.rpm");
+	}
+    } else {
+	push @files, glob("$r/$e->{dir}/*.rpm");
+    }
+    @files or die "unable to find rpm files in $e->{dir}\n";
 
     print STDERR "parsing rpm files in directory $r/$e->{dir}\n";
-    my @headers = $urpm->parse_rpms_build_headers(dir  => $headers_dir,
-						  rpms => [ glob("$r/$e->{dir}/*.rpm") ]);
+    my @headers = $urpm->parse_rpms_build_headers(dir  => $headers_dir, rpms => \@files);
     $e->{headers} = \@headers;
 }
 
@@ -108,6 +120,9 @@ print STDERR "building base files\n";
 $urpm->build_base_files(depslist => "$root/Mandrake/base/depslist.ordered",
 			provides => "$root/Mandrake/base/provides",
 			compss   => "$root/Mandrake/base/compss");
+
+#- safety cleaning
+unlink "$root/Mandrake/base/MD5SUM";
 
 #- check if there are NOTFOUND in dependancy, check if they are in other medium, warn the user.
 foreach (0 .. $#{$urpm->{depslist}}) {
