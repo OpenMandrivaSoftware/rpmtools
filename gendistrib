@@ -26,11 +26,10 @@ use URPM::Build;
 use Getopt::Long;
 
 my $urpm = new URPM;
-my ($noclean, $nohdlists, $nobasefiles, $nooutput, $dontdie, $nochkdep, $rootdistrib, @root, @hdlists) = (0, 0, 0, 0);
 my $headers_dir = (-d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp") . "/.build_hdlist";
 
 sub usage {
-	print <<EOF;
+    print <<EOF;
 Usage: $0 [options] dir
 dir should be the top level of distro
 Options:
@@ -45,6 +44,7 @@ Options:
   --noclean           keep cache files
   --provides file     path of provides file (default media/media_info/provides)
   --nomediainfo       don't create per-media media_info subdirectories
+  --nomd5sum	      don't generate MD5SUM files
   -s                  silent mode
 EOF
 }
@@ -55,18 +55,19 @@ GetOptions(
     'help|h' => sub { usage(); exit },
     'compss=s' => \$urpmfiles{compss},
     'depslist=s' => \$urpmfiles{depslist},
-    'distrib=s' => \$rootdistrib,
-    'fermetagueule|s' => \$nooutput,
+    'distrib=s' => \my $rootdistrib,
+    'fermetagueule|s' => \my $nooutput,
     'hdlists=s' => \$urpmfiles{hdlists},
     'headersdir=s' => \$headers_dir,
-    'nobadrpm' => \$dontdie,
-    'nochkdep' => \$nochkdep,
-    'noclean' => \$noclean,
+    'nobadrpm' => \my $dontdie,
+    'nochkdep' => \my $nochkdep,
+    'noclean' => \my $noclean,
     'provides=s' => \$urpmfiles{provides},
     'nomediainfo' => \my $nomediainfo,
+    'nomd5sum' => \my $nomd5sum,
 );
 
-@root = grep { $_ } ($rootdistrib, @ARGV);
+my @root = grep { $_ } ($rootdistrib, @ARGV);
 
 @root > 0 or do { usage(); exit 1 };
 
@@ -85,6 +86,7 @@ while (my ($k, $v) = each(%default_urpmfiles)) {
     $urpmfiles{$k} ||= $v;
 }
 
+my @hdlists;
 open my $fh, $urpmfiles{hdlists} or die "unable to open $urpmfiles{hdlists}";
 foreach (<$fh>) {
     chomp;
