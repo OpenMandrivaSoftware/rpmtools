@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 16mdk
+%define release 17mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -65,6 +65,10 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Fri Jan 16 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 4.5-17mdk
+- add --dest option to genhdlist
+- fix dir parsing (Thx Pascal Terjan)
+
 * Fri Jan 09 2004 Warly <warly@mandrakesoft.com> 4.5-16mdk
 - add provides perl(packdrake)
 
