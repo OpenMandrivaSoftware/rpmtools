@@ -382,7 +382,7 @@ sub extract_archive {
     #- of uncompress executable.
     foreach (sort { $a <=> $b } keys %extract_table) {
 	local *OUTPUT;
-	if (my $pid = open OUTPUT, "-|") {
+	if (open OUTPUT, "-|") {
 	    #- $curr_off is used to handle the reading in a pipe and simulating
 	    #- a seek on it as done by catsksz, so last file position is
 	    #- last byte not read (ie last block read start + last block read size).
@@ -394,14 +394,14 @@ sub extract_archive {
 		catsksz(\*OUTPUT, $off - $curr_off, $siz, \*FILE);
 		$curr_off = $off + $siz;
 	    }
-	    waitpid $pid, 0;
+	    close FILE;
 	} else {
 	    local *BUNZIP2;
 	    open BUNZIP2, "| $packer->{uncompress}";
 	    local *ARCHIVE;
 	    open ARCHIVE, "<$packer->{archive}" or die "packdrake: cannot open archive $packer->{archive}\n";
 	    catsksz(\*ARCHIVE, $_, $extract_table{$_}[0], \*BUNZIP2);
-	    exec 'true';
+	    exec 'true'; #- exit ala _exit
 	}
     }
 }
