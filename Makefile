@@ -16,8 +16,8 @@ all: $(ALL)
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
 	install -s $(ALL) $(PREFIX)/usr/bin
-	install genhdlist_cz2 genhdlists genfilelist packdrake $(PREFIX)/usr/bin
-	$(MAKE) -f Makefile_core $@
+	install genhdlist_cz2 genhdlists genbasefiles genfilelist packdrake $(PREFIX)/usr/bin
+	$(MAKE) -f Makefile_core PREFIX=$(PREFIX)/usr $@
 
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) $< $(LIBRPM) -o $@

@@ -81,8 +81,8 @@ sub compute_depslist {
 		#- this could be nothing if the provides is a file not found.
 		#- and this has been fixed above.
 		foreach (@$req) {
-		    my $info = $params->{info}{$_}; $info or next;
-		    $required_packages{$_} = undef;
+		    my $info = $params->{info}{$_};
+		    $required_packages{$_} = undef; $info or next;
 		    if ($info->{deps} && !$info->{requires}) {
 			#- the package has been read from an ordered depslist file, and need
 			#- to rebuild its requires tags, so it can safely be used here.
