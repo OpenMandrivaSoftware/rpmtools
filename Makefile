@@ -14,7 +14,7 @@ all: $(ALL)
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
 	install -s $(ALL) $(PREFIX)/usr/bin
-	install genhdlist_cz2 genhdlists genbasefiles genfilelist packdrake $(PREFIX)/usr/bin
+	install gendistrib packdrake $(PREFIX)/usr/bin
 
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
