@@ -99,6 +99,8 @@ void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 t
 
   if (list) {
     for(i = 0; i < count; i++) {
+      /* skip internal deps from the rpmlib */
+      if (strncmp(list[i], "rpmlib(", 7) == 0) continue;
       if (sep && i > 0) printf("%c%s", sep, list[i]);
       else printf(format, name, list[i]);
       if (list_evr[i] && list_evr[i][0]) {
