@@ -202,9 +202,8 @@ sub gzip_uncompress {
     # get magic
         if (sysread($pack->{handle}, $buf, 2) == 2) {
             my @magic = unpack("C*", $buf);
-            printf(STDERR "%x %x != %x %x\n", @magic ,Compress::Zlib::MAGIC1, Compress::Zlib::MAGIC2);
             $magic[0] == Compress::Zlib::MAGIC1 && $magic[1] == Compress::Zlib::MAGIC2 or do {
-                warn("Wrong magic found");
+                warn("Wrong magic header found");
                 return -1;
             };
         } else {
@@ -243,14 +242,16 @@ sub gzip_uncompress {
     my $byteswritten = 0;
     my $read = 0;
     while ($byteswritten < $fileinfo->{size}) {
-        my $l=sysread($pack->{handle}, my $buf, $pack->{bufsize});
-        # or do {
-        #    warn "Not enought bytes read";
-        #    return -1;
-        #};
+        my $l=sysread($pack->{handle}, my $buf, $pack->{bufsize}) or do {
+            warn("Enexpected end of file");
+            return -1;
+        };
         $cread += $l;
         my ($out, $status) = $x->inflate(\$buf);
-        #$status == Z_OK || $status == Z_STREAM_END or return -1;
+        $status == Z_OK || $status == Z_STREAM_END or do {
+            warn("Unable to uncompress data");
+            return -1;
+        };
         if ($read < $fileinfo->{off} && $read + $l > $fileinfo->{off}) {
             $out = substr($out, $fileinfo->{off} - $read);    
         }
@@ -318,20 +319,32 @@ sub add {
     }
 }
 
+sub extract_virtual {
+    my ($pack, $destfh, $filename) = @_;
+    defined($pack->{files}{$filename}) or return -1;
+    $pack->gzip_uncompress($destfh, $pack->{files}{$filename});
+}
+
 sub extract_files {
     my ($pack, $dir, @file) = @_;
     foreach my $f (@file) {
         if (exists($pack->{dir}{$f})) {
-            -d "$dir/$f" or mkpath("$dir/$f");
+            -d "$dir/$f" || mkpath("$dir/$f")
+                or warn "Unable to create dir $f";
             next;
         } elsif (exists($pack->{'symlink'}{$f})) {
-            symlink("$dir/$f", $pack->{'symlink'}{$f});
+            symlink("$dir/$f", $pack->{'symlink'}{$f}) 
+                or warn "Unable to extract symlink $f";
+            next;
         } elsif (exists($pack->{files}{$f})) {
             sysopen(my $destfh, "$dir/$f", O_CREAT | O_TRUNC | O_WRONLY);
-            my $written = $pack->gzip_uncompress($destfh, $pack->{files}{$f});
+            my $written = $pack->extract_virtual($destfh, $f);
+            $written == -1 and warn "Unable to extract file $f";
             printf(STDERR "Writen size for %s: %d / %d\n", $f, $written, $pack->{files}{$f}{size}) if ($debug);
             close($destfh);
-            
+            next;
+        } else {
+            warn "Can't find $f in archive";
         }
     }
 }
