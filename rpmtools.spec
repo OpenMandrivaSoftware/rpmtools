@@ -15,7 +15,7 @@ License: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel
+BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel libbzip2-devel db1-devel db2-devel db3-devel perl-devel
 Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
@@ -55,9 +55,10 @@ rm -rf $RPM_BUILD_ROOT
 - added support for LD_LOADER in packdrake module and
   parsehdlist executable.
 - removed explicit requires of db2 and db3.
+- added BuildRequires for db[123]-devel and libbzip2-devel.
 
-* Mon Mar 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-11mdk
-- 
+* Fri Mar 09 2001 Francis Galiegue <fg@mandrakesoft.com> 2.3-11mdk
+- BuildRequires: perl-devel db2-devel
 
 * Thu Mar  8 2001 François Pons <fpons@mandrakesoft.com> 2.3-10mdk
 - fixed duplicate choices in depslist.ordered file.
