@@ -7,6 +7,10 @@
 #include <unistd.h>
 #include <rpmlib.h>
 
+#ifdef RPM_42
+#include <rpm/rpmts.h>
+#endif
+
 #define FILENAME_TAG 1000000
 #define FILESIZE_TAG 1000001
 
@@ -35,9 +39,14 @@ int main(int argc, char **argv) {
   for (i = 1; i < argc; i++) {
     FD_t fd;
     Header h;
-    int isSource;
     int_32 size;
     const char *name = basename(argv[i]);
+#ifdef RPM_42
+    rpmts ts;
+    /* rpmVSFlags vsflags, ovsflags; */
+#else
+    int isSource;
+#endif
     
     fprintf(stderr, "%s\n", argv[i]);
     
@@ -47,7 +56,13 @@ int main(int argc, char **argv) {
     }
     size = FD_size(fd);
 
+#ifdef RPM_42
+    ts = rpmtsCreate();
+    rpmtsSetVSFlags(ts, _RPMVSF_NOSIGNATURES);
+    if (rpmReadPackageFile(ts, fd, argv[1], &h) == 0) {
+#else
     if (rpmReadPackageHeader(fd, &h, &isSource, NULL, NULL) == 0) {
+#endif
       headerRemoveEntry(h, RPMTAG_POSTIN);
       headerRemoveEntry(h, RPMTAG_POSTUN);
       headerRemoveEntry(h, RPMTAG_PREIN);
