@@ -1,3 +1,7 @@
+2000-04-04 François Pons <fpons@mandrakesoft.com>
+
+	* extract_archive: allow bad file in filelist, print error but continue.
+
 2000-03-31 François Pons <fpons@mandrakesoft.com>
 
 	* genfilelist: new tool to build a filelist from a RPMS repository.
@@ -5,6 +9,7 @@
 2000-03-28  Pixel  <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: fix silly bug
+
 2000-03-26  Pixel  <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: add ability to handle files (was only

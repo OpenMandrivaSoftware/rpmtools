@@ -197,10 +197,10 @@ sub main {
     #- compute closure.
     @file = compute_closure(@file);
 
-    #- check all file given are in the archive before continuing.
-    foreach (@file) { $data{$_} or die "unable to find file $_ in archive $archivename\n"; }
-
     foreach my $file (@file) {
+	#- check for presence of file, but do not abort, continue with others.
+	$data{$_} or print STDERR "unable to find file $_ in archive $archivename\n";
+
 	my $newfile = "$dir/$file";
 
 	print "extracting $file\n";
