@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 12mdk
+%define release 13mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Mar 23 2001 François Pons <fpons@mandrakesoft.com> 2.3-13mdk
+- semi-fixed hashes subscript error (workaround).
+- added --compact option to parsehdlist.
+
 * Mon Mar 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-12mdk
 - added support for LD_LOADER in packdrake module and
   parsehdlist executable.
