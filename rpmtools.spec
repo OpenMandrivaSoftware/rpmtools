@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -99,6 +99,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Aug 29 2000 François Pons <fpons@mandrakesoft.com> 1.2-6mdk
+- fixed hdlist2groups with wrong invocations of parsehdlist.
+
 * Mon Aug 28 2000 François Pons <fpons@mandrakesoft.com> 1.2-5mdk
 - fixed packdrake to not use absolute pathname by default for uncompression
   method, else this breaks DrakX as software are not in same place.
