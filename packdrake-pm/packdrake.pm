@@ -416,7 +416,7 @@ sub extract_archive {
 sub build_archive {
     my ($f, $srcdir, $archivename, $maxsiz, $compress, $uncompress, $tmpz) = @_;
     my ($off1, $siz1, $off2, $siz2) = ('', '', 0, 0, 0, 0);
-    my @filelist = ();
+    my @filelist;
     my $packer = new packdrake;
 
     $packer->{archive} = $archivename;
@@ -480,9 +480,9 @@ sub build_archive {
     open OUTPUT, ">>$packer->{archive}";
 
     my ($toc_str, $toc_data) = ('', '');
-    my @data_d = ();
-    my @data_l = ();
-    my @data_f = ();
+    my @data_d;
+    my @data_l;
+    my @data_f;
 
     foreach my $file (@{$packer->{files}}) {
 	$packer->{data}{$file} or die "packdrake: internal error on $_\n";
