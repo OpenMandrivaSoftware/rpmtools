@@ -266,7 +266,9 @@ sub parse_hdlists {
     $distrib->{cfg} = new Config::IniFiles( -default => 'media_info', -allowcontinue => 1);
     my $i = 0;
     foreach (<$h_hdlists>) {
+        s/#.*//;
         chomp;
+        length or next;
         my ($options, %media);
         ($options, @media{qw/hdlist path name size/}) =
             $_ =~ m/^\s*(?:(.*):)?(\S+)\s+(\S+)\s+([^(]*)(?:\s+\((\w+)\))?$/;
@@ -278,41 +280,26 @@ sub parse_hdlists {
         }
     }
     close($h_hdlists);
+    
     return 1;
 }
 
-=head2 write_hdlists($hdlists)
-
-Write the hdlists file into the media information directory, or into the
-$hdlists given as argument. $hdlists can be a file path, or a glob reference
-(\*STDOUT for example).
-
-Return 1 on success, 0 on error.
+=head2 parse_version($version)
 
 =cut
 
-sub write_hdlists {
-    my ($distrib, $hdlists) = @_;
-    my $h_hdlists;
-    if (ref($hdlists) eq 'GLOB') {
-        $h_hdlists = $hdlists;
-    } else {
-        $hdlists ||= "$distrib->{root}/$distrib->{infodir}/hdlists";
-        open($h_hdlists, ">", $hdlists) or return 0;
-    }
-    foreach my $media ($distrib->listmedia) {
-        printf($h_hdlists "%s%s\t%s\t%s\t%s\n",
-            join('', map { "$_:" } grep { $distrib->getvalue($media, $_) } qw/askmedia suppl noauto/) || "",
-            $distrib->getvalue($media, 'hdlist'),
-            $distrib->getpath($media, 'path'),
-            $distrib->getvalue($media, 'name'),
-            $distrib->getvalue($media, 'size') ? '('.$distrib->getvalue($media, 'size'). ')' : "",
-        ) or return 0;
-    }
-    
-    if (ref($hdlists) ne 'GLOB') {
-        close($h_hdlists);
-    }
+sub parse_version {
+    my ($distrib, $fversion) = @_;
+    $fversion ||= $distrib->getfullpath(undef, 'VERSION');
+    open(my $h_ver, "<", $fversion) or return 0;
+    my $l = <$h_ver>;
+    chomp($l);
+    my ($version, $branch, $product, $arch) = $l =~ /^mandrake ?linux\s+(\w+)\s+([^- ]*)-([^- ]*)-([^- ]*)/i;
+    $distrib->{cfg}->newval('media_info', 'version', $version);
+    $distrib->{cfg}->newval('media_info', 'branch', $branch);
+    $distrib->{cfg}->newval('media_info', 'product', $product);
+    $distrib->{cfg}->newval('media_info', 'arch', $arch);
+    close($h_ver);
     return 1;
 }
 
@@ -332,22 +319,6 @@ sub parse_mediacfg {
         ($distrib->{cfg} = new Config::IniFiles( -file => $mediacfg, -default => 'media_info', -allowcontinue => 1)) 
             or return 0;
     return 1;
-}
-
-=head2 write_mediacfg($mediacfg)
-
-Write the media.cfg file into the media information directory, or into the
-$mediacfg given as argument. $mediacfg can be a file path, or a glob reference
-(\*STDOUT for example).
-
-Return 1 on success, 0 on error.
-
-=cut
-
-sub write_mediacfg {
-    my ($distrib, $hdlistscfg) = @_;
-    $hdlistscfg ||= "$distrib->{root}/$distrib->{infodir}/media.cfg";
-    $distrib->{cfg}->WriteConfig($hdlistscfg);
 }
 
 =head2 listmedia
@@ -387,31 +358,13 @@ sub getvalue {
         $default =~ s![/ ]+!_!g;
         /^path$/      and return $media;
         /^root$/      and return $distrib->{root};
+        /^VERSION$/   and do { $default = 'VERSION'; last; };
+        /^product$/   and do { $default = 'Download'; last; };
+        /^tag$/   and do { $default = ''; last; };
+        /^branch$/   and do { $default = ''; last; };
         /^mediadir$|^infodir$/  and do { $default = $distrib->{$var}; last; };
     }
     return $distrib->{cfg}->val($media, $var, $default);
-}
-
-=head2 setvalue($media, $var, $val)
-
-Set or add $var parameter from $media to $val.
-
-If $media does not exists, it is implicitly created.
-If $var is not defined, a new media is create without parameters defined.
-
-=cut
-
-sub setvalue {
-    my ($distrib, $media, $var, $val) = @_;
-    if ($var) {
-        $var =~ /^mediadir$|^infodir$/ and do {
-            $distrib->{$var} = $val;
-            return;
-        };
-        $distrib->{cfg}->newval($media, $var, $val) or die "Can't set value";
-    } else {
-        $distrib->{cfg}->AddSection($media);
-    }
 }
 
 =head2 getpath($media, $var)
@@ -428,7 +381,7 @@ sub getpath {
     my ($distrib, $media, $var) = @_;
 
     my $val = $distrib->getvalue($media, $var);
-    $var =~ /^root$/ and return $val;
+    $var =~ /^root$|^VERSION$/ and return $val;
     return ($val =~ m!/! ? "" : ($var eq 'path' ? $distrib->{mediadir} : $distrib->{infodir} ) . "/") . $val;
 }
 
@@ -448,49 +401,6 @@ sub getfullpath {
 
 1;
 
-=head2 check
-
-=cut
-
-sub check {
-    my ($distrib, $out) = @_;
-    $out ||= \*STDOUT;
-    
-    $distrib->listmedia or print $out "W: No media found in this config\n";
-
-    # Checking no overlap
-    foreach my $var (qw/name hdlist synthesis path/) {
-        my %e;
-        foreach ($distrib->listmedia) {
-            my $v = $var eq 'name' ? $distrib->getvalue($_, $var) : $distrib->getpath($_, $var);
-            push @{$e{$v}}, $_;
-        }
-
-        foreach my $key (keys %e) {
-            if (@{$e{$key}} > 1) {
-                printf $out "E: medium %s have same %s (%s)\n",
-                    join (", ", @{$e{$key}}),
-                    $var,
-                    $key;
-            }
-        }
-    }
-    
-    foreach my $media ($distrib->listmedia) {
-        -d $distrib->getfullpath($media, 'path') or
-            printf $out "E: dir %s don't exist for media '%s'\n", 
-                $distrib->getpath($media, 'path'),
-                $media;
-
-        foreach (qw/hdlist synthesis pubkey/) {
-            -f $distrib->getfullpath($media, $_) or 
-                printf $out "E: $_ %s don't exist for media '%s'\n", 
-                    $distrib->getpath($media, $_),
-                    $media;
-        }
-    }
-}
-
 __END__
 
 =head1 AUTHOR
@@ -507,6 +417,10 @@ Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.8  2005/02/22 20:12:31  othauvin
+    - split Distribconf with Build
+    - add write_VERSION
+
     Revision 1.7  2005/02/22 12:52:51  othauvin
     - don't add a 'm' to size in hdlists
 
