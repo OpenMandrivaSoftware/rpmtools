@@ -196,6 +196,17 @@ print_header_flag_interactive(char *in_tag, Header header)
 					       get_name(header, RPMTAG_ARCH));
 }
 
+char *
+printable_header(int quiet, char *name, char sep, char* final)
+{
+  static char buff[128];
+  int n = sprintf(buff, "%%s%c", sep ? sep : ':');
+  if (!quiet) n += sprintf(buff + n, "%s%c", name, sep ? sep : ':');
+  n += sprintf(buff + n, "%%s");
+  if (final) n += sprintf(buff + n, "%s", final);
+  return buff; /* static string, this means to use result before calling again */
+}
+
 int main(int argc, char **argv) 
 {
   int i;
@@ -212,7 +223,7 @@ int main(int argc, char **argv)
       } else if (strcmp(argv[i], "--raw") == 0)       raw_hdlist = 1;
       else if (strcmp(argv[i], "--interactive") == 0) interactive_mode = 1;
       else if (strcmp(argv[i], "--quiet") == 0)       print_quiet = 1;
-      else if (strcmp(argv[i], "--compact") == 0)     print_sep = ':';
+      else if (strcmp(argv[i], "--compact") == 0)     print_sep = '@';
       else if (strcmp(argv[i], "--name") == 0)        print_name = 1;
       else if (strcmp(argv[i], "--group") == 0)       print_group = 1;
       else if (strcmp(argv[i], "--provides") == 0)    print_provides = 1;
@@ -275,7 +286,7 @@ int main(int argc, char **argv)
 	      unpacker[ip++] = ld_loader;
 	    }
 
-	    dup2(fdno[1], STDOUT_FILENO);
+	    dup2(fdno[1], STDOUT_FILENO); close(fdno[1]);
 	    fda = open(argv[i], O_RDONLY);
 	    if (fda < 0) { perror("parsehdlist"); exit(1); }
 	    lseek(fda, -sizeof(buf), SEEK_END);
@@ -296,9 +307,9 @@ int main(int argc, char **argv)
 	    unpacker[ip] = NULL; /* needed for execlp */
 
 	    lseek(fda, 0, SEEK_SET);
-	    dup2(fda, STDIN_FILENO);
+	    dup2(fda, STDIN_FILENO); close(fda);
 	    fdn = open("/dev/null", O_WRONLY);
-	    dup2(fdn, STDERR_FILENO);
+	    dup2(fdn, STDERR_FILENO); close(fdn);
 	    execvp(unpacker[0], unpacker);
 	    exit(2);
 	  }
@@ -325,19 +336,20 @@ int main(int argc, char **argv)
 
 	    ++count_headers;
 	  } else {
-	    if (print_provides) print_list(header, RPMTAG_PROVIDENAME, print_quiet ? "%s:%s" : "%s:provides:%s", print_sep, name);
+	    if (print_provides) print_list_flags(header, RPMTAG_PROVIDENAME, RPMTAG_PROVIDEFLAGS, RPMTAG_PROVIDEVERSION,
+						 printable_header(print_quiet, "provides", print_sep, 0), print_sep, name);
 	    if (print_requires) print_list_flags(header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS, RPMTAG_REQUIREVERSION,
-						 print_quiet ? "%s:%s" : "%s:requires:%s", print_sep, name);
+						 printable_header(print_quiet, "requires", print_sep, 0), print_sep, name);
 	    if (print_conflicts) print_list_flags(header, RPMTAG_CONFLICTNAME, RPMTAG_CONFLICTFLAGS, RPMTAG_CONFLICTVERSION,
-						  print_quiet ? "%s:%s" : "%s:conflicts:%s", print_sep, name);
+						  printable_header(print_quiet, "conflicts", print_sep, 0), print_sep, name);
 	    if (print_obsoletes) print_list_flags(header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS, RPMTAG_OBSOLETEVERSION,
-						  print_quiet ? "%s:%s" : "%s:obsoletes:%s", print_sep, name);
-	    if (print_files) print_list_files(header, print_quiet ? "%s:%s\n" : "%s:files:%s\n", name);
-	    if (print_prereqs) print_list_prereqs(header, print_quiet ? "%s:%s\n" : "%s:prereqs:%s\n", name);
-	    if (print_group) printf(print_quiet ? "%s:%s\n" : "%s:group:%s\n", name, get_name(header, RPMTAG_GROUP));
+						  printable_header(print_quiet, "obsoletes", print_sep, 0), print_sep, name);
+	    if (print_files) print_list_files(header, printable_header(print_quiet, "files", print_sep, "\n"), name);
+	    if (print_prereqs) print_list_prereqs(header, printable_header(print_quiet, "prereqs", print_sep, "\n"), name);
+	    if (print_group) printf(printable_header(print_quiet, "group", print_sep, "\n"), name, get_name(header, RPMTAG_GROUP));
 	    if (print_name || (print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs |
 			       print_group) == 0) {
-	      if (print_name) printf(print_quiet ? "%s:" : "%s:name:", name);
+	      if (print_name) printf(printable_header(print_quiet, "name", print_sep, 0), name);
 	      printf("%s-%s-%s.%s.rpm\n", 
 		     name,
 		     get_name(header, RPMTAG_VERSION),
@@ -351,7 +363,6 @@ int main(int argc, char **argv)
       }
       fdClose(fd);
       if (pid) {
-	kill(pid, SIGTERM);
 	waitpid(pid, NULL, 0);
 	pid = 0;
       }
