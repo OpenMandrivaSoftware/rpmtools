@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 4mdk
+%define release 5mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.0
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Jun 27 2001 François Pons <fpons@mandrakesoft.com> 3.0-5mdk
+- fix problem interpreting serial.
+
 * Wed Jun 27 2001 François Pons <fpons@mandrakesoft.com> 3.0-4mdk
 - take care of epoch (serial) for version comparison.
 
