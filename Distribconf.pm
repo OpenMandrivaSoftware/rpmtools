@@ -75,6 +75,11 @@ Few values have specific signification:
     the path or basename of the synthesis, by default is hdlist name
     prefixed by 'synthesis',
 
+=item B<pubkey>
+
+    the path or basename of the gpg public key file, by default the
+    the media name prefixed by 'pubkey_',
+    
 =item B<name>
 
     the name of the media, by default is media path, '/' character are
@@ -444,6 +449,9 @@ Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.4  2005/02/21 13:14:19  othauvin
+    - add doc for pubkey
+
     Revision 1.3  2005/02/21 13:11:01  othauvin
     - lowercase media name in file name
     - manage pubkey
