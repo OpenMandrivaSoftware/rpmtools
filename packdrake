@@ -1,0 +1,530 @@
+#!/usr/bin/perl
+
+#- Mandrake Simple Archive Extracter/Builder.
+#- Copyright (C) 2000 MandrakeSoft <fpons@mandrakesoft.com>
+#-
+#- This program is free software; you can redistribute it and/or modify
+#- it under the terms of the GNU General Public License as published by
+#- the Free Software Foundation; either version 2, or (at your option)
+#- any later version.
+#-
+#- This program is distributed in the hope that it will be useful,
+#- but WITHOUT ANY WARRANTY; without even the implied warranty of
+#- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#- GNU General Public License for more details.
+#-
+#- You should have received a copy of the GNU General Public License
+#- along with this program; if not, write to the Free Software
+#- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+#- Simple cat archive with gzip/bzip2 for perl.
+#- This new version is merging of the extract_achive and build_archive.
+#-
+#- uncompressing sheme is:
+#-         | |
+#-         | |                                        | |
+#-  $off1 =|*| }                                      | |
+#-         |*| }                               $off2 =|+| }
+#-         |*| } $siz1   =>   'gzip/bzip2 -d'   =>    |+| } $siz2  => $filename
+#-         |*| }                                      |+| }
+#-         |*| }                                      | |
+#-         | |                                        | |
+#-         | |                                        | |
+#-         | |
+#- where %data has the following format:
+#-   { 'filename' => [ 'f', $off1, $siz1, $off2, $siz2 ] }
+#- except for symbolink link where it is:
+#-   { 'filename_symlink' => [ 'l', $symlink_value ] }
+#- and directory where it is only
+#-   { 'filename_directory' => [ 'd' ] }
+#- as you can see, there is no owner, group, filemode... an extension could be
+#- made with 'F' (instead of 'f'), 'L' instead of 'l' for exemple.
+#- we do not need them as it is used for DrakX for fast archive extraction and
+#- owner/filemode is for user running only (ie root).
+#-
+#- archive file contains concatenation of all bzip2'ed group of files whose
+#- filenames are on input,
+#- then a TOC (describing %data, concatenation of toc_line) follow and a
+#- TOC_TRAILER for summary.
+
+#+use strict qw(subs vars refs);
+
+#- general information.
+my $VERSION = "0.1";
+my $default_size = 400000;
+my $default_tmpdir = "/tmp";
+my $default_ratio = 6;
+
+#- used for uncompressing archive and listing.
+my %toc_trailer;
+my @data;
+my %data;
+
+#- used for compression, always set in main.
+my $tmpz = '';
+
+#- taken from DrakX common stuff, for conveniance and modified to match our expectation.
+sub dirname { @_ == 1 or die "packdrake: usage: dirname <name>\n"; local $_ = shift; s|[^/]*/*\s*$||; s|(.)/*$|$1|; $_ || '.' }
+sub basename { @_ == 1 or die "packdrake: usage: basename <name>\n"; local $_ = shift; s|/*\s*$||; s|.*/||; $_ }
+sub mkdir_ {
+    my $root = dirname $_[0];
+    if (-e $root) {
+	-d $root or die "packdrake: mkdir: error creating directory $_[0]: $root is a file and i won't delete it\n";
+    } else {
+	mkdir_($root);
+    }
+    -d $_[0] and return;
+    mkdir $_[0], 0755 or die "packdrake: mkdir: error creating directory $_: $!\n";
+}
+sub symlink_ { mkdir_ dirname($_[1]); unlink $_[1]; symlink $_[0], $_[1] }
+
+#- for building an archive.
+sub toc_line {
+    my ($file, $data) = @_;
+
+    for ($data->[0]) {
+	return(/l/ && pack("anna*", 'l', length($file), length($data->[1]), "$file$data->[1]") ||
+	       /d/ && pack("ana*", 'd', length($file), $file) ||
+	       /f/ && pack("anNNNNa*", 'f', length($file), $data->[1], $data->[2], $data->[3], $data->[4], $file) ||
+	       die "packdrake: unknown extension $_\n");
+    }
+}
+
+sub cat_compress {
+    my ($compress, @filenames) = @_;
+    local *F;
+    open F, "| $compress >$tmpz" or die "packdrake: cannot start \"$compress\"\n";
+    foreach (@filenames) {
+	my ($buf, $siz, $sz);
+	local *FILE;
+	open FILE, $_ or die "packdrake: cannot open $_: $!\n";
+	$siz = -s $_;
+	while (($sz = sysread(FILE, $buf, $siz > 16384 ? 16384 : $siz))) {
+	    $siz -= $sz;
+	    syswrite(F, $buf);
+	    last unless $siz > 0;
+	}
+	close FILE;
+    }
+    close F;
+    -s $tmpz;
+}
+
+sub toc_trailer {
+    my ($toc_d_count, $toc_l_count, $toc_f_count, $toc_str_size, $uncompress) = @_;
+
+    #- 'cz[0' is toc_trailer header where 0 is version information, only 0 now.
+    #- '0]cz' is toc_trailer trailer that match the corresponding header for information.
+    return pack "a4NNNNa40a4", 'cz[0', $toc_d_count, $toc_l_count, $toc_f_count, $toc_str_size, $uncompress, '0]cz';
+}
+
+#- compute the closure of filename list according to symlinks or directory
+#- contents inside the archive.
+sub compute_closure {
+    my %file;
+    my @file;
+
+    #- keep in mind when a filename already exist and remove doublons.
+    @file{@_} = ();
+
+    #- navigate through filename list to follow symlinks.
+    do {
+	@file = grep { !$file{$_} } keys %file;
+	foreach (@file) {
+	    my $file = $_;
+
+	    #- keep in mind this one has been processed and does not need
+	    #- to be examined again.
+	    $file{$file} = 1;
+
+	    exists $data{$file} or next;
+
+	    for ($data{$file}[0]) {
+		#- on symlink, try to follow it and mark %file if
+		#- it is still inside the archive contents.
+		/l/ && do {
+		    my ($source, $target) = ($file, $data{$file}[1]);
+
+		    $source =~ s|[^/]*$||; #- remove filename to navigate directory.
+		    if ($source) {
+			while ($target =~ s|^\./|| || $target =~ s|//+|/| || $target =~ s|/$|| or
+			       $source and $target =~ s|^\.\./|| and $source =~ s|[^/]*/$||) {}
+		    }
+
+		    #- FALL THROUGH with new selection.
+		    $file = $target =~ m|^/| ? $target : $source.$target;
+		};
+
+		#- on directory, try all files on data starting with
+		#- this directory, provided they are not already taken
+		#- into account.
+		/[ld]/ && do {
+		    @file{grep { !$file{$_} && m|^$file$| || m|^$file/| } keys %data} = ();
+		    last;
+		};
+	    }
+	}
+    } while (@file > 0);
+
+    keys %file;
+}
+
+#- degraded reading of toc at end of archive, do not check filelist.
+sub read_toc_trailer {
+    my ($file) = @_;
+    my $toc_trailer;
+
+    local *ARCHIVE;
+    open ARCHIVE, "<$file" or die "packdrake: cannot open archive file $file\n";
+
+    #- seek to end of file minus 64, size of trailer.
+    #- read toc_trailer, check header/trailer for version 0.
+    seek ARCHIVE, -64, 2;
+    read ARCHIVE, $toc_trailer, 64 or die "packdrake: cannot read toc_trailer of archive file $file\n";
+    @toc_trailer{qw(header toc_d_count toc_l_count toc_f_count toc_str_size uncompress trailer)} =
+	unpack "a4NNNNZ40a4", $toc_trailer;
+    $toc_trailer{header} eq 'cz[0' && $toc_trailer{trailer} eq '0]cz' or die "packdrake: bad toc_trailer in archive file $file\n";
+
+    close ARCHIVE;
+}
+
+#- read toc at end of archive.
+sub read_toc {
+    my ($file) = @_;
+    my ($toc, $toc_trailer, $toc_size);
+    my @toc_str;
+    my @toc_data;
+
+    local *ARCHIVE;
+    open ARCHIVE, "<$file" or die "packdrake: cannot open archive file $file\n";
+
+    #- seek to end of file minus 64, size of trailer.
+    #- read toc_trailer, check header/trailer for version 0.
+    seek ARCHIVE, -64, 2;
+    read ARCHIVE, $toc_trailer, 64 or die "packdrake: cannot read toc_trailer of archive file $file\n";
+    @toc_trailer{qw(header toc_d_count toc_l_count toc_f_count toc_str_size uncompress trailer)} =
+	unpack "a4NNNNZ40a4", $toc_trailer;
+    $toc_trailer{header} eq 'cz[0' && $toc_trailer{trailer} eq '0]cz' or die "packdrake: bad toc_trailer in archive file $file\n";
+
+    #- read toc, extract data hashes.
+    $toc_size = $toc_trailer{toc_str_size} + 16*$toc_trailer{toc_f_count};
+    seek ARCHIVE, -64-$toc_size, 2;
+
+    #- read strings separated by \n, so this char cannot be inside filename, oops.
+    read ARCHIVE, $toc, $toc_trailer{toc_str_size} or die "packdrake: cannot read toc of archive file $file\n";
+    @toc_str = split "\n", $toc;
+
+    #- read data for file.
+    read ARCHIVE, $toc, 16*$toc_trailer{toc_f_count} or die "packdrake: cannot read toc of archive file $file\n";
+    @toc_data = unpack "N". 4*$toc_trailer{toc_f_count}, $toc;
+
+    close ARCHIVE;
+
+    foreach (0..$toc_trailer{toc_d_count}-1) {
+	my $file = $toc_str[$_];
+	push @data, $file;
+	$data{$file} = [ 'd' ];
+    }
+    foreach (0..$toc_trailer{toc_l_count}-1) {
+	my ($file, $symlink) = ($toc_str[$toc_trailer{toc_d_count}+2*$_],
+				$toc_str[$toc_trailer{toc_d_count}+2*$_+1]);
+	push @data, $file;
+	$data{$file} = [ 'l', $symlink ];
+    }
+    foreach (0..$toc_trailer{toc_f_count}-1) {
+	my $file = $toc_str[$toc_trailer{toc_d_count}+2*$toc_trailer{toc_l_count}+$_];
+	push @data, $file;
+	$data{$file} = [ 'f', @toc_data[4*$_ .. 4*$_+3] ];
+    }
+
+    scalar keys %data == $toc_trailer{toc_d_count}+$toc_trailer{toc_l_count}+$toc_trailer{toc_f_count} or
+	die "packdrake: mismatch count when reading toc, bad archive file $file\n";
+}
+
+sub catsksz {
+    my ($input, $seek, $siz, $output) = @_;
+    my ($buf, $sz);
+
+    while (($sz = sysread($input, $buf, $seek > 65536 ? 65536 : $seek))) {
+	$seek -= $sz;
+	last unless $seek > 0;
+    }
+    while (($sz = sysread($input, $buf, $siz > 65536 ? 65536 : $siz))) {
+	$siz -= $sz;
+	syswrite($output, $buf);
+	last unless $siz > 0;
+    }
+}
+
+sub cat_archive {
+    my $pid;
+
+    foreach (@_)  {
+	#- update %data according to TOC_TRAILER of each archive.
+	read_toc_trailer($_);
+
+	#- dump all the file according to 
+	if (my $pid = fork()) {
+	    waitpid $pid, 0;
+	} else {
+	    open STDIN, "<$_" or die "packdrake: unable to open archive $_\n";
+	    open STDERR, ">/dev/null" or die "packdrake: unable to open archive $_\n";
+
+	    exec split " ", $toc_trailer{uncompress};
+
+	    die "packdrake: unable to cat the archive\n";
+	}
+    }
+}
+
+sub extract_archive {
+    my ($archivename, $dir, @file) = @_;
+    my %extract_table;
+
+    #- update %data according to TOC of archive.
+    read_toc($archivename);
+
+    #- as a special features, if both $dir and $file are empty, list contents of archive.
+    if (!$dir && !@file) {
+	my $count = scalar keys %data;
+	print "$count files in archive, uncompression method is \"$toc_trailer{uncompress}\"\n";
+	foreach my $file (@data) {
+	    for ($data{$file}[0]) {
+		/l/ && do { printf "l %13c %s -> %s\n", ' ', $file, $data{$file}[1]; last; };
+		/d/ && do { printf "d %13c %s\n", ' ', $file; last; };
+		/f/ && do { printf "f %12d %s\n", $data{$file}[4], $file; last; };
+	    }
+	}
+	exit 0;
+    }
+
+    #- compute closure.
+    @file = compute_closure(@file);
+
+    foreach my $file (@file) {
+	#- check for presence of file, but do not abort, continue with others.
+	$data{$file} or do { print STDERR "packdrake: unable to find file $file in archive $archivename\n"; next };
+
+	my $newfile = "$dir/$file";
+
+	print "extracting $file\n";
+	for ($data{$file}[0]) {
+	    /l/ && do { symlink_ $data{$file}[1], $newfile; last; };
+	    /d/ && do { mkdir_ $newfile; last; };
+	    /f/ && do {
+		mkdir_ dirname $newfile;
+		$extract_table{$data{$file}[1]} ||= [ $data{$file}[2], [] ];
+		push @{$extract_table{$data{$file}[1]}[1]}, [ $newfile, $data{$file}[3], $data{$file}[4] ];
+		$extract_table{$data{$file}[1]}[0] == $data{$file}[2] or die "packdrake: mismatched relocation in toc\n";
+		last;
+	    };
+	    die "packdrake: unknown extension \"$_\" when uncompressing archive $archivename\n";
+	}
+    }
+
+    #- delayed extraction is done on each block for a single  execution
+    #- of uncompress executable.
+    foreach (sort { $a <=> $b } keys %extract_table) {
+	local *OUTPUT;
+	if (open OUTPUT, "-|") {
+	    #- $curr_off is used to handle the reading in a pipe and simulating
+	    #- a seek on it as done by catsksz, so last file position is
+	    #- last byte not read (ie last block read start + last block read size).
+	    my $curr_off = 0;
+	    foreach (sort { $a->[1] <=> $b->[1] } @{$extract_table{$_}[1]}) {
+		my ($newfile, $off, $siz) = @$_;
+		local *FILE;
+		open FILE, $dir ? ">$newfile" : ">&STDOUT";
+		catsksz(\*OUTPUT, $off - $curr_off, $siz, \*FILE);
+		$curr_off = $off + $siz;
+	    }
+	} else {
+	    local *BUNZIP2;
+	    open BUNZIP2, "| $toc_trailer{uncompress}";
+	    local *ARCHIVE;
+	    open ARCHIVE, "<$archivename" or die "packdrake: cannot open archive $archivename\n";
+	    catsksz(\*ARCHIVE, $_, $extract_table{$_}[0], \*BUNZIP2);
+	    exit 0;
+	}
+    }
+}
+
+sub build_archive {
+    my ($archivename, $maxsiz, $compress, $uncompress) = @_;
+    my ($off1, $siz1, $off2, $siz2) = ('', '', 0, 0, 0, 0);
+    my @filelist = ();
+    my @data = ();
+    my %data = ();
+
+    print "choosing compression method with \"$compress\" for archive $archivename\n";
+
+    unlink "$archivename";
+    unlink $tmpz;
+
+    foreach (<STDIN>) {
+	chomp;
+
+	my $file = $_; -e $file or die "packdrake: unable to find file $file\n";
+
+	push @data, $file;
+	#- now symbolic link and directory are supported, extension is
+	#- available with the first field of $data{$file}.
+	if (-l $file) {
+	    $data{$file} = [ 'l', readlink $file ];
+	} elsif (-d $file) {
+	    $data{$file} = [ 'd' ];
+	} else {
+	    $siz2 = -s $file;
+
+	    push @filelist, $file;
+	    $data{$file} = [ 'f', -1, -1, $off2, $siz2 ];
+
+	    if ($off2 + $siz2 > $maxsiz) { #- need compression.
+		$siz1 = cat_compress($compress, @filelist);
+
+		foreach (@filelist) { $data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] }
+
+		system "cat $tmpz >>$archivename";
+		$off1 += $siz1;
+		$off2 = 0; $siz2 = 0;
+		@filelist = ();
+	    }
+	    $off2 += $siz2;
+	}
+    }
+    if (scalar @filelist) {
+	$siz1 = cat_compress($compress, @filelist);
+
+	foreach (@filelist) { $data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] }
+
+	system "cat $tmpz >>$archivename";
+	$off1 += $siz1;
+	print "real archive size of $archivename is $off1\n";
+    }
+
+    #- produce a TOC directly at the end of the file, follow with
+    #- a trailer with TOC summary and archive summary.
+    local *OUTPUT;
+    open OUTPUT, ">>$archivename";
+
+    my ($toc_str, $toc_data) = ('', '');
+    my @data_d = ();
+    my @data_l = ();
+    my @data_f = ();
+
+    foreach (@data) {
+	my $file = $_;
+	$data{$file} or die "packdrake: internal error on $_\n";
+
+	#- specific according to type.
+	#- with this version, only f has specific data other than strings.
+	for ($data{$file}[0]) {
+	    /d/ && do { push @data_d, $file; last; };
+	    /l/ && do { push @data_l, $file; last; };
+	    /f/ && do { push @data_f, $file; $toc_data .= pack("NNNN",
+							       $data{$file}[1],
+							       $data{$file}[2],
+							       $data{$file}[3],
+							       $data{$file}[4]); last; };
+	    die "packdrake: unknown extension $_\n";
+	}
+    }
+
+    foreach (@data_d) { $toc_str .= $_ . "\n" }
+    foreach (@data_l) { $toc_str .= $_ . "\n" . $data{$_}[1] . "\n" }
+    foreach (@data_f) { $toc_str .= $_ . "\n" }
+
+    print OUTPUT $toc_str;
+    print OUTPUT $toc_data;
+    print OUTPUT toc_trailer(scalar(@data_d), scalar(@data_l), scalar(@data_f),
+			     length($toc_str), $uncompress);
+    close OUTPUT;
+
+    unlink $tmpz;
+}
+
+sub usage {
+    die "packdrake version $VERSION
+Copyright (C) 2000 MandrakeSoft.
+This is free software and may be redistributed under the terms of the GNU GPL.
+
+usage:
+  --help                 - print this help message.
+  --build <file>         - build archive <file> with filenames given on
+                           standard input.
+    -[1..9]              - select appropriate compression ratio, $default_ratio by default.
+    --size <cmd>         - set maximun chunk size, $default_size by default.
+    --method <cmd>       - select standard compression command method, default
+                           is set according to archive filename, example is
+                           /bin/gzip or /usr/bin/bzip2.
+    --compress <cmd>     - select compression command.
+    --uncompress <cmd>   - select uncompression command.
+    --tmpdir             - select a specific tempory directory for operation,
+                           default to $default_tmpdir.
+  --extract <file> <dir> - extract archive <file> contents to directory <dir>,
+                           specific file to extract are given on command line.
+    --uncompress <cmd>   - override uncompression method in archive <file>.
+  --list <file>          - list contents of archive.
+  --cat <file>           - dump archive, only supported with gzip and bzip2,
+                           this write the contents of all file in archive.
+";
+}
+
+sub main {
+    my ($file, $mode, $dir, $size, $method, $compress, $uncompress, $tmpdir, $ratio);
+    my @nextargv = (\$file);
+    my @list = ();
+
+    #- some quite usefull error message.
+    my $error_mode = "packdrake: choose only --build, --extract, --list or --cat\n";
+    for (@_) {
+	/^--help$/       and do { usage; next };
+	/^--build$/      and do { $mode and die $error_mode; $mode = "build"; @nextargv = (\$file); next };
+	/^--extract$/    and do { $mode and die $error_mode; $mode = "extract"; @nextargv = (\$file, \$dir); next };
+	/^--list$/       and do { $mode and die $error_mode; $mode = "list"; @nextargv = (\$file); next };
+	/^--cat$/        and do { $mode and die $error_mode; $mode = "cat"; @nextargv = (); next };
+	/^--size$/       and do { push @nextargv, \$size; next };
+	/^--method$/     and do { push @nextargv, \$method; next };
+	/^--compress$/   and do { push @nextargv, \$compress; next };
+	/^--uncompress$/ and do { push @nextargv, \$uncompress; next };
+	/^--tmpdir$/     and do { push @nextargv, \$tmpdir; next };
+	/^-(.*)$/ and do { foreach (split //, $1) {
+	    /[1-9]/  and do { $ratio = $_; next };
+	    /b/      and do { $mode and die $error_mode; $mode = "build"; @nextargv = (\$file); next };
+	    /x/      and do { $mode and die $error_mode; $mode = "extract"; @nextargv = (\$file, \$dir); next };
+	    /l/      and do { $mode and die $error_mode; $mode = "list"; @nextargv = (\$file); next };
+	    /c/      and do { $mode and die $error_mode; $mode = "cat"; @nextargv = (); next };
+	    /s/      and do { push @nextargv, \$size; next };
+	    /m/      and do { push @nextargv, \$method; next };
+	    die "packdrake: unknown option \"-$1\", check usage with --help\n"; } next };
+	$mode =~ /extract|cat/ or @nextargv or die "packdrake: unknown option \"$_\", check usage with --help\n";
+	my $ref = shift @nextargv; $ref ? $$ref = $_ : push @list, $_;
+	$mode ||= "list";
+    }
+
+    #- examine and lauch.
+    $mode =~ /cat/ or $file or die "packdrake: no archive filename given, check usage with --help\n";
+    $size ||= 400000;
+    $tmpdir ||= "/tmp";
+    $ratio ||= 6;
+
+    $tmpz = "$tmpdir/packdrake-tmp.$$";
+    unless ($method) {
+	$file =~ /\.cz$/  and $method = "/bin/gzip";
+	$file =~ /\.cz2$/ and $method = "/usr/bin/bzip2";
+    }
+
+    $compress ||= "$method -$ratio";
+    $uncompress ||= "$method -d";
+
+    for ($mode) {
+	/build/   and do { build_archive($file, $size, $compress, $uncompress); last };
+	/extract/ and do { extract_archive($file, $dir, @list); last };
+	/list/    and do { extract_archive($file); last };
+	/cat/     and do { cat_archive(@list); last };
+	die "packdrake: internal error, unable to select right mode?\n";
+    }
+}
+
+#- start the stuff.
+main(@ARGV);
