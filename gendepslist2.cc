@@ -253,7 +253,7 @@ map<string, set<string> > closure(const map<string, set<string> > &names) {
 //};
 
 inline int verif(int npack, int ndep, const string &package, const string &dep) {
-  if (ndep > npack) cerr << package << " requires " << dep << " which is not in the same hdlist\n";
+  if (ndep > npack) cerr << package << " requires " << dep << " which is not in the same hdlist " << ndep << " > " << npack << "\n";
   return ndep;
 }
 
