@@ -162,7 +162,7 @@ void print_list_name(Header header, char *format, char print_sep, int extension)
   char *version = get_name(header, RPMTAG_VERSION);
   char *release = get_name(header, RPMTAG_RELEASE);
   char *arch = get_name(header, RPMTAG_ARCH);
-  char *buff = alloca(strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 4);
+  char *buff = alloca(strlen(name) + strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 5);
 
   printf(format, name, "");
 
@@ -206,7 +206,7 @@ void print_help(void) {
 	  "  --compact      - print compact provides, requires, conflicts, obsoletes flags.\n"
 	  "  --all          - print all tags (incompatible with interactive mode).\n"
 	  "  --name         - print tag name and rpm filename if needed.\n"
-	  "  --info         - print tag name, serial, group and rpm filename if needed\n"
+	  "  --info         - print tag name, serial and rpm filename if needed\n"
 	  "  --group        - print tag group: group.\n"
 	  "  --size         - print tag size: size.\n"
 	  "  --serial       - print tag serial: serial.\n"
