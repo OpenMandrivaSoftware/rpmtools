@@ -102,4 +102,6 @@ sub main {
     closedir DIR;
 }
 
-main(@ARGV);
+foreach (@ARGV) {
+    main($_);
+}
