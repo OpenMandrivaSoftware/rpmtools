@@ -189,7 +189,17 @@ int main(int argc, char **argv)
       else if (strcmp(argv[i], "--conflicts") == 0)   print_conflicts = 1;
       else if (strcmp(argv[i], "--obsoletes") == 0)   print_obsoletes = 1;
       else if (strcmp(argv[i], "--prereqs") == 0)     print_prereqs = 1;
-      else if (strcmp(argv[i], "--all") == 0) {
+      else if (strcmp(argv[i], "--output") == 0) {
+	if (i+1 >= argc || !argv[i+1] || !argv[i+1][0]) {
+	  fprintf(stderr, "option --output need a valid filename after it\n");
+	  exit(1);
+	}
+	if (!freopen(argv[i+1], "w", stdout)) {
+	  unlink(argv[i+1]);
+	  fprintf(stderr, "unable to redirect output to [%s]\n", argv[i+1]);
+	  exit(1);
+	} else ++i; /* avoid parsing filename as an argument */
+      } else if (strcmp(argv[i], "--all") == 0) {
 	print_name = 1;
 	print_group = 1;
 	print_provides = 1;
