@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 24mdk
+%define release 25mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -66,6 +66,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Thu Sep 02 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-25mdk
+- Make rpm tools handle new keywords in hdlists file.
+
 * Wed Aug 18 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-24mdk
 - Add rpm2cpio.pl
 
