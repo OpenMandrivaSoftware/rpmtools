@@ -10,7 +10,7 @@ use_ok('Packdrakeng');
 
 -d "test" || mkdir "test" or die "Can't create directory test";
 
-my $coin = "
+my $coin = q{
  ___________
 < Coin coin >
  -----------
@@ -20,7 +20,7 @@ my $coin = "
        ( (   . /
         \ '-' /
     ~'`~'`~'`~'`~
-";
+};
 
 sub clean_test_files {
     -d "test" or return;
