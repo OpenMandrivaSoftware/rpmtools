@@ -1,6 +1,8 @@
 %define name rpmtools
-%define version 1.0
-%define release 9mdk
+%define release 1mdk
+
+# do not modify here, see Makefile in the CVS
+%define version 1.1
 
 Summary: contains various rpm command-line tools
 Name: %{name}
@@ -10,13 +12,20 @@ Release: %{release}
 # http://www.linuxmandrake.com/en/cvs.php3)
 Source0: %{name}-%{version}.tar.bz2
 Copyright: GPL
-Group: System Environment/Base
+Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 3.0.4
+Requires: /usr/bin/perl
 
 %description
 Various rpmtools.
+
+%package devel
+Summary: contains various rpm command-line tools for development
+Group: Development/System
+%description devel
+Various devel rpm tools.
 
 %prep
 %setup
@@ -33,10 +42,20 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-/usr/bin/*
+/usr/bin/gendepslist2
+/usr/bin/hdlist2files
+/usr/bin/hdlist2names
+/usr/bin/rpm2header
+/usr/bin/genhdlist_cz2
 
+%files devel
+%defattr(-,root,root)
+/usr/bin/hdlist2prereq
 
 %changelog
+* Tue Mar  7 2000 Pixel <pixel@mandrakesoft.com> 1.1-1mdk
+- new version (gendepslist2 instead of gendepslist, hdlist2prereq)
+
 * Fri Feb 18 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0-9mdk
 - Really fix with rpm-3.0.4 (Fredl).
 

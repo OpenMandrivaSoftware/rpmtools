@@ -55,7 +55,7 @@ int main(int argc, char **argv)
 
 	if (baseNames && dirNames && dirIndexes) {
 	  for(i = 0; i < count; i++) {
-	    printf("%s:%s\n", name, dirNames[dirIndexes[i]], baseNames[i]);
+	    printf("%s:%s%s\n", name, dirNames[dirIndexes[i]], baseNames[i]);
 	  }
 	}
       }

@@ -1,15 +1,16 @@
-VERSION = 1.0
+VERSION = 1.1
 NAME = rpmtools
 FROMC = rpm2header #rpm-find-leaves
-FROMCC = gendepslist hdlist2names hdlist2files
+FROMCC = gendepslist2 hdlist2names hdlist2files hdlist2prereq
 ALL = $(FROMC) $(FROMCC)
+CFLAGS = -Wall -g
 LIBRPM = /usr/lib/librpm.so.0 -ldb1 -lz -I/usr/include/rpm -lpopt
 
 all: $(ALL)
 
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
-	install -s $(ALL) $(PREFIX)/usr/bin
+	install -s $(ALL) genhdlist_cz2 $(PREFIX)/usr/bin
 
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) $< $(LIBRPM) -o $@
