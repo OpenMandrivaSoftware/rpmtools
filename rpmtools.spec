@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 23mdk
+%define release 24mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -61,10 +61,14 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_bindir}/gendistrib
 %{_bindir}/distriblint
 %{_bindir}/genhdlist
+%{_bindir}/rpm2cpio.pl
 %{compat_perl_vendorlib}/packdrake.pm
 %{_mandir}/*/*
 
 %changelog
+* Wed Aug 18 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-24mdk
+- Add rpm2cpio.pl
+
 * Wed Aug 11 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-23mdk
 - Don't include internal dependencies of the rpmlib in the parsehdlist output
 
