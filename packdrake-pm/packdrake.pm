@@ -106,7 +106,7 @@ sub build_toc_line {
     for ($data->[0]) {
 	return(/l/ && pack("anna*", 'l', length($file), length($data->[1]), "$file$data->[1]") ||
 	       /d/ && pack("ana*", 'd', length($file), $file) ||
-	       /f/ && pack("anNNNNa*", 'f', length($file), @{$data}[1..4], $file) ||
+	       /f/ && pack("anNNNNa*", 'f', length($file), @$data[1..4], $file) ||
 	       die "packdrake: unknown extension $_\n");
     }
 }
@@ -135,7 +135,7 @@ sub read_toc_trailer {
     #- read toc_trailer, check header/trailer for version 0.
     seek ARCHIVE, -64, 2;
     read ARCHIVE, $toc_trailer, 64 or die "packdrake: cannot read toc_trailer of archive file $file\n";
-    @{$packer}{qw(header toc_d_count toc_l_count toc_f_count toc_str_size uncompress trailer)} =
+    @$packer{qw(header toc_d_count toc_l_count toc_f_count toc_str_size uncompress trailer)} =
       unpack "a4NNNNZ40a4", $toc_trailer;
     $packer->{header} eq 'cz[0' && $packer->{trailer} eq '0]cz' or die "packdrake: bad toc_trailer in archive file $file\n";
 
@@ -157,7 +157,7 @@ sub read_toc {
     #- read toc_trailer, check header/trailer for version 0.
     seek ARCHIVE, -64, 2;
     read ARCHIVE, $toc_trailer, 64 or die "packdrake: cannot read toc_trailer of archive file $file\n";
-    @{$packer}{qw(header toc_d_count toc_l_count toc_f_count toc_str_size uncompress trailer)} =
+    @$packer{qw(header toc_d_count toc_l_count toc_f_count toc_str_size uncompress trailer)} =
       unpack "a4NNNNZ40a4", $toc_trailer;
     $packer->{header} eq 'cz[0' && $packer->{trailer} eq '0]cz' or die "packdrake: bad toc_trailer in archive file $file\n";
 
@@ -258,7 +258,7 @@ sub compute_closure {
 	    for ($packer->{data}{$file}[0]) {
 		#- on symlink, try to follow it and mark %file if
 		#- it is still inside the archive contents.
-		/l/ && do {
+		/l/ and do {
 		    my ($source, $target) = ($file, $packer->{data}{$file}[1]);
 
 		    $source =~ s|[^/]*$||; #- remove filename to navigate directory.
@@ -344,8 +344,8 @@ sub list_archive {
 	print "$count files in archive, uncompression method is \"$packer->{uncompress}\"\n";
 	foreach my $file (@{$packer->{files}}) {
 	    for ($packer->{data}{$file}[0]) {
-		/l/ && do { printf "l %13c %s -> %s\n", ' ', $file, $packer->{data}{$file}[1]; last };
-		/d/ && do { printf "d %13c %s\n", ' ', $file; last };
+		/l/ and do { printf "l %13c %s -> %s\n", ' ', $file, $packer->{data}{$file}[1]; last };
+		/d/ and do { printf "d %13c %s\n", ' ', $file; last };
 		/f/ && do { printf "f %12d %s\n", $packer->{data}{$file}[4], $file; last };
 	    }
 	}
@@ -370,9 +370,9 @@ sub extract_archive {
 
 	$packer->{log}->("extracting $file");
 	for ($packer->{data}{$file}[0]) {
-	    /l/ && do { symlink_ $packer->{data}{$file}[1], $newfile; last };
-	    /d/ && do { $dir and mkdir_ $newfile; last };
-	    /f/ && do {	$dir and mkdir_ dirname $newfile;
+	    /l/ and do { symlink_ $packer->{data}{$file}[1], $newfile; last };
+	    /d/ and do { $dir and mkdir_ $newfile; last };
+	    /f/ and do {	$dir and mkdir_ dirname $newfile;
 			my $data = $packer->{data}{$file};
 			$extract_table{$data->[1]} ||= [ $data->[2], [] ];
 			push @{$extract_table{$data->[1]}[1]}, [ $newfile, $data->[3], $data->[4] ];
@@ -488,9 +488,9 @@ sub build_archive {
 	#- specific according to type.
 	#- with this version, only f has specific data other than strings.
 	for ($packer->{data}{$file}[0]) {
-	    /d/ && do { push @data_d, $file; last };
-	    /l/ && do { push @data_l, $file; last };
-	    /f/ && do { push @data_f, $file; $toc_data .= pack("NNNN", @{$packer->{data}{$file}}[1..4]); last };
+	    /d/ and do { push @data_d, $file; last };
+	    /l/ and do { push @data_l, $file; last };
+	    /f/ and do { push @data_f, $file; $toc_data .= pack("NNNN", @{$packer->{data}{$file}}[1..4]); last };
 	    die "packdrake: unknown extension $_\n";
 	}
     }
@@ -499,7 +499,7 @@ sub build_archive {
     foreach (@data_l) { $toc_str .= $_ . "\n" . $packer->{data}{$_}[1] . "\n" }
     foreach (@data_f) { $toc_str .= $_ . "\n" }
 
-    @{$packer}{qw(toc_d_count toc_l_count toc_f_count toc_str_size uncompress)} =
+    @$packer{qw(toc_d_count toc_l_count toc_f_count toc_str_size uncompress)} =
       (scalar(@data_d), scalar(@data_l), scalar(@data_f), length($toc_str), $uncompress);
 
     print OUTPUT $toc_str;
