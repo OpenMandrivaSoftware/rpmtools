@@ -525,7 +525,7 @@ sub extract_bloc {
 
 ##################################
 # Really working functions       #
-# Aka function poeple should use #
+# Aka function people should use #
 ##################################
 
 sub add_virtual {
@@ -720,7 +720,7 @@ Packdrakeng - Simple Archive Extractor/Builder
 C<Packdrakeng> is a simple indexed archive builder and extractor using
 standard compression method.
 
-This module is a rewrite from scratch of original packdrake, used format is
+This module is a rewrite from scratch of the original packdrake, his format is
 fully compatible with old packdrake.
 
 =head1 IMPLEMENTATION
@@ -763,15 +763,15 @@ Follow the files sizes, 4 values for each files are stored:
 offset into archive of compressed bloc, size of compressed bloc,
 offset into bloc of the file and the file's size.
 
-Finally the archive contain a trailer, of 64 bytes length, about the
+Finally the archive contain a 64 bytes length trailer, about the
 toc and the archive itself:
 'cz[0', strings 4 bytes
 number of directory, 4 bytes
 number of symlinks, 4 bytes
 number of files, 4 bytes
 the toc size, 4 bytes
-the uncompressed command, strings of 40 bytes length
-'0]cz', strings 4 bytes
+the uncompression command, string of 40 bytes length
+'0]cz', string 4 bytes
 
 =head1 FUNCTIONS
 
@@ -786,45 +786,45 @@ Options:
 
 =item archive
 
-The file name of the archive. If the file don't exists, it is create, else it is owerwritten.
+The file name of the archive. If the file doesn't exist, it will be created, else it will be owerwritten.
 see C<open>.
 
 =item compress
 
-The application to use to compress, if unset, gzip is used.
+The application to use to compress, if unspecified, gzip is used.
 
 =item uncompress
 
-The application to use to extract data from archive. This option is useless if
-you're opening an existing archive (except you want to force it).
+The application used to extract data from archive. This option is useless if
+you're opening an existing archive (unless you want to force it).
 If unset, this value is based on compress command followed by '-d' argument.
 
 =item extern
 
-If you're using gzip, by default packdrakeng use perl-zlib to limit system
-coast. This options force packdrakeng to use the extern gzip command. This
-has no with other compress programs until internal functions are not implement
+If you're using gzip, by default packdrakeng will use perl-zlib to save system
+ressources. This option force packdrakeng to use the external gzip command. This
+has no meaning with other compress programs as internal functions are not implemented
 yet.
 
 =item comp_level
 
-The compression level passed as argument to the compress program. By default
+The compression level passed as an argument to the compression program. By default,
 this is set to 6.
 
 =item bloc_size
 
-The limit size from which we start a new compressed bloc. The default value is
-400KB. Setting it to 0 to be sure a new bloc will be started for each packed
-files, -1 to never start a new bloc. Be aware a big size of bloc will slower
+The limit size after which we start a new compressed bloc. The default value is
+400KB. Set it to 0 to be sure a new bloc will be started for each packed
+files, and -1 to never start a new bloc. Be aware a big size of bloc will slow
 the file extraction.
 
 =item quiet
 
-Do not ouput anythings, shut up.
+Do not ouput anything, shut up.
 
 =item debug
 
-Print debug messages
+Print debug messages.
 
 =back
 
@@ -832,12 +832,12 @@ Print debug messages
 
 Open an existing archive for extracting or adding files.
 
-The uncompressed command is found into the archive, the compressed command is
-found from it.
+The uncompression command is found into the archive, and the compression command is
+deduced from it.
 
-In case you add files, an new compressed bloc will be started regardless the
-latest bloc is smaller than the bloc_size. All compression options can't be
-find in the archive, so new preference will be applied.
+If you add files, a new compressed bloc will be started even if the
+last bloc is smaller than C<bloc_size>. If some compression options can't be
+found in the archive, the new preference will be applied.
 
 Options are same than the C<new()> function.
 
