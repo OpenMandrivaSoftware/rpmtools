@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 2mdk
+%define release 3mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -19,7 +19,7 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
-Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
+Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -55,6 +55,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Wed Oct 16 2002 François Pons <fpons@mandrakesoft.com> 4.5-3mdk
+- fixed bad error message for packdrake.
+- fixed gendistrib with multiple directory given.
+
 * Mon Aug  5 2002 Pixel <pixel@mandrakesoft.com> 4.5-2mdk
 - have packdrake.pm in non-arch dependent directory
 

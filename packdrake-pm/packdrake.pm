@@ -95,7 +95,7 @@ sub mkdir_ {
 	mkdir_($root);
     }
     -d $_[0] and return;
-    mkdir $_[0], 0755 or die "packdrake: mkdir: error creating directory $_: $!\n";
+    mkdir $_[0], 0755 or die "packdrake: mkdir: error creating directory $_[0]: $!\n";
 }
 sub symlink_ { mkdir_ dirname($_[1]); unlink $_[1]; symlink $_[0], $_[1] }
 

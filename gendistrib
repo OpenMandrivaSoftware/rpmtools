@@ -54,23 +54,24 @@ clean_cache();
 
 for (0..$#hdlists) {
     my $e = $hdlists[$_];
+    my $r;
 
     #- try to find the right repository where can be found the directory
     #- listed in the hdlist file.
     #- if the number of root is equal the number of medium, assume a medium
     #- foreach root, else try to find a valid root containing the medium.
     if (scalar(@hdlists ) == scalar(@root)) {
-	$root = $root[$_];
+	$r = $root[$_];
     } else {
 	foreach (@root) {
-	    -d "$_/$e->{dir}" and $root = $_, last;
+	    -d "$_/$e->{dir}" and $r = $_, last;
 	}
     }
-    -d "$root/$e->{dir}" or die "unable to find a valid root directory which contains $e->{dir}\n";
+    -d "$r/$e->{dir}" or die "unable to find a valid root directory which contains $e->{dir}\n";
 
-    print STDERR "parsing rpm files in directory $root/$e->{dir}\n";
+    print STDERR "parsing rpm files in directory $r/$e->{dir}\n";
     my @headers = $urpm->parse_rpms_build_headers(dir  => $headers_dir,
-						  rpms => [ glob("$root/$e->{dir}/*.rpm") ]);
+						  rpms => [ glob("$r/$e->{dir}/*.rpm") ]);
     $e->{headers} = \@headers;
 }
 
