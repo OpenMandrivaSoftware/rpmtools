@@ -282,102 +282,122 @@ HV* get_info(Header header, int bflag, HV* provides) {
   return header_info;
 }
 
+void callback_empty(void) {}
 
 MODULE = rpmtools			PACKAGE = rpmtools
 
 
+void*
+db_open(prefix)
+  char *prefix
+  CODE:
+  rpmdb db;
+  rpmErrorCallBackType old_cb;
+  old_cb = rpmErrorSetCallback(callback_empty);
+  rpmSetVerbosity(RPMMESS_FATALERROR);
+  RETVAL = rpmReadConfigFiles(NULL, NULL) == 0 && rpmdbOpen(prefix, &db, O_RDONLY, 0644) == 0 ? db : NULL;
+  rpmErrorSetCallback(old_cb);
+  rpmSetVerbosity(RPMMESS_NORMAL);
+  OUTPUT:
+  RETVAL
+
+void
+db_close(db)
+  void *db
+  CODE:
+  rpmdbClose((rpmdb)db);
+
+void
+_exit(code)
+  int code
+
 int
-get_packages_installed(prefix, packages, lnames, ...)
-  char* prefix
-  SV* packages
-  SV* lnames
+db_traverse_names(db, flags, names, callback)
+  void *db
+  SV *flags
+  SV *names
+  SV *callback
   PREINIT:
-  SV* flags = &PL_sv_undef;
   int count = 0;
   CODE:
-  if (items > 3)
-    flags = ST(3);
-  if (SvROK(packages) && SvTYPE(SvRV(packages)) == SVt_PVAV &&
-      SvROK(lnames) && SvTYPE(SvRV(lnames)) == SVt_PVAV) {
-    AV* pkgs = (AV*)SvRV(packages);
-    AV* names = (AV*)SvRV(lnames);
+  if (SvROK(flags) && SvTYPE(SvRV(flags)) == SVt_PVAV &&
+      SvROK(names) && SvTYPE(SvRV(names)) == SVt_PVAV) {
+    AV* flags_av = (AV*)SvRV(flags);
+    AV* names_av = (AV*)SvRV(names);
+    int bflag = get_bflag(flags_av);
+    int len = av_len(names_av);
     HV* info;
     SV** isv;
-    rpmdb db;
-    dbiIndexSet matches;
-    int bflag, num, i, j, rc, len;
+    int i;
+    STRLEN str_len;
     char *name;
     Header header;
     rpmdbMatchIterator mi;
 
-    if (rpmReadConfigFiles(NULL, NULL) == 0) {
-      if (rpmdbOpen(prefix, &db, O_RDONLY, 0644) == 0) {
-	bflag = SvROK(flags) && SvTYPE(SvRV(flags)) ?
-	  get_bflag((AV*)SvRV(flags)) : (HDFLAGS_NAME | HDFLAGS_VERSION | HDFLAGS_RELEASE);
-	len = av_len(names);
-	for (j = 0; j <= len; ++j) {
-	  isv = av_fetch(names, j, 0);
-	  name = SvPV_nolen(*isv);
-	  mi = rpmdbInitIterator(db, RPMTAG_NAME, name, 0);
-	  count=0;
-          while (header = rpmdbNextIterator(mi)) {
-	    count++;
-	    info = get_info(header, bflag, NULL);
+    for (i = 0; i <= len; ++i) {
+      isv = av_fetch(names_av, i, 0);
+      name = SvPV(*isv, str_len);
+      mi = rpmdbInitIterator((rpmdb)db, RPMTAG_NAME, name, str_len);
+      while (header = rpmdbNextIterator(mi)) {
+	count++;
+	info = get_info(header, bflag, NULL);
 
-	    if (info != 0) av_push(pkgs, newRV_noinc((SV*)info));
-
-	    headerFree(header);
-	  }
+	if (info != 0 && callback != &PL_sv_undef && SvROK(callback)) {
+	  dSP;
+	  ENTER;
+	  SAVETMPS;
+	  PUSHMARK(SP);
+	  XPUSHs(sv_2mortal(newRV_noinc((SV*)info)));
+	  PUTBACK;
+	  call_sv(callback, G_DISCARD | G_SCALAR);
+	  FREETMPS;
+	  LEAVE;
 	}
-	rpmdbClose(db);
-      } else croak("unable to open database");
-    } else croak("cannot read rpm config files");
+      }
+      rpmdbFreeIterator(mi);
+    }
   } else croak("bad arguments list");
   RETVAL = count;
   OUTPUT:
   RETVAL
-
 
 int
-get_all_packages_installed(prefix, packages, ...)
-  char* prefix
-  SV* packages
+db_traverse(db, flags, callback)
+  void *db
+  SV *flags
+  SV *callback
   PREINIT:
-  SV* flags = &PL_sv_undef;
   int count = 0;
   CODE:
-  if (items > 2)
-    flags = ST(2);
-  if (SvROK(packages) && SvTYPE(SvRV(packages)) == SVt_PVAV) {
-    AV* pkgs = (AV*)SvRV(packages);
+  if (SvROK(flags) && SvTYPE(SvRV(flags)) == SVt_PVAV) {
+    AV* flags_av = (AV*)SvRV(flags);
+    int bflag = get_bflag(flags_av);
     HV* info;
-    rpmdb db;
-    int bflag, num;
     Header header;
     rpmdbMatchIterator mi;
-    
-    if (rpmReadConfigFiles(NULL, NULL) == 0) {
-      if (rpmdbOpen(prefix, &db, O_RDONLY, 0644) == 0) {
-	bflag = SvROK(flags) && SvTYPE(SvRV(flags)) ?
-	  get_bflag((AV*)SvRV(flags)) : (HDFLAGS_NAME | HDFLAGS_VERSION | HDFLAGS_RELEASE);
-	mi = rpmdbInitIterator(db, RPMDBI_PACKAGES, NULL, 0);
-	
-	while (header = rpmdbNextIterator(mi)) {
-	  info = get_info(header, bflag, NULL);
 
-	  if (info != 0) av_push(pkgs, newRV_noinc((SV*)info));
+    mi = rpmdbInitIterator(db, RPMDBI_PACKAGES, NULL, 0);
+    while (header = rpmdbNextIterator(mi)) {
+      info = get_info(header, bflag, NULL);
 
-	  headerFree(header);
-	  ++count;
-	}
-	rpmdbClose(db);
-      } else croak("unable to open database");
-    } else croak("cannot read rpm config files");
+      if (info != 0 && callback != &PL_sv_undef && SvROK(callback)) {
+	dSP;
+	ENTER;
+	SAVETMPS;
+	PUSHMARK(SP);
+	XPUSHs(sv_2mortal(newRV_noinc((SV*)info)));
+	PUTBACK;
+	call_sv(callback, G_DISCARD | G_SCALAR);
+	FREETMPS;
+	LEAVE;
+      }
+      ++count;
+    }
+    rpmdbFreeIterator(mi);
   } else croak("bad arguments list");
   RETVAL = count;
   OUTPUT:
   RETVAL
-
 
 void
 _parse_(fileno_or_rpmfile, flag, info, ...)

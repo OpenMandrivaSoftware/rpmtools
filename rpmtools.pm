@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.03';
+$VERSION = '0.04';
 
 bootstrap rpmtools $VERSION;
 
@@ -25,8 +25,21 @@ rpmtools - Mandrake perl tools to handle rpm files and hdlist files
     $params->read_rpms("/RPMS/rpmtools-2.1-5mdk.i586.rpm");
     $params->compute_depslist();
 
-    $params->get_packages_installed("", \@packages, \@names);
-    $params->get_all_packages_installed("", \@packages);
+    my $db = $params->db_open("");
+    $params->db_traverse_names($db,
+                               [ qw(name version release) ],
+                               \@names,
+                               sub {
+        my ($p) = @_;
+        print "$p->{name}-$p->{version}-$p->{release}\n";
+    });
+    $params->db_traverse($db,
+                         [ qw(name version release) ],
+                         sub {
+        my ($p) = @_;
+        print "$p->{name}-$p->{version}-$p->{release}\n";
+    });
+    $params->db_close($db);
 
     $params->read_depslist(\*STDIN);
     $params->write_depslist(\*STDOUT);
@@ -194,7 +207,7 @@ sub compute_depslist {
 			#- the package has been read from an ordered depslist file, and need
 			#- to rebuild its requires tags, so it can safely be used here.
 			my @rebuild_requires;
-			foreach (split /\s+/, $info->{deps}) {
+			foreach (split ' ', $info->{deps}) {
 			    if (/\|/) {
 				push @rebuild_requires, [ map { $params->{depslist}[$_]{name} || $_ } split /\|/, $_ ];
 			    } else {
@@ -343,7 +356,7 @@ sub read_depslist {
     #- safely be removed from requires of others packages.
     if ($params->{info}{basesystem} && ! exists $params->{info}{basesystem}{base}) {
 	my @requires_id;
-	foreach (split /\s+/, $params->{info}{basesystem}{deps}) {
+	foreach (split ' ', $params->{info}{basesystem}{deps}) {
 	    /\|/ or push @requires_id, $_;
 	}
 	foreach (@requires_id) {
@@ -530,4 +543,19 @@ sub version_compare {
     }
 }
 
+#- compability function which should be removed soon, do not use anymore and replace code.
+sub get_packages_installed {
+    my ($prefix, $packages, $names, $flags) = @_; $flags ||= [ qw(name version release)];
+    my $db = db_open($prefix);
+    my $count = db_traverse_names($db, $flags, $names, sub { my ($p) = @_; push @$packages, $p; });
+    db_close($db);
+    $count;
+}
+sub get_all_packages_installed {
+    my ($prefix, $packages, $flags) = @_; $flags ||= [ qw(name version release)];
+    my $db = db_open($prefix);
+    my $count = db_traverse($db, $flags, sub { my ($p) = @_; push @$packages, $p; });
+    db_close($db);
+    $count;
+}
 1;

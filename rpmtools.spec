@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 10mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 2.1
+%define version 2.2
 
 Summary: Contains various rpm command-line tools
 Name: %{name}
@@ -51,6 +51,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Sat Feb 10 2001 François Pons <fpons@mandrakesoft.com> 2.2-1mdk
+- added faster method to access rpm db to rpmtools.xs
+  as in DrakX.
+- rpmtools.pm to 0.04.
+
 * Tue Jan 30 2001 François Pons <fpons@mandrakesoft.com> 2.1-10mdk
 - fixed bug of NOTFOUND_6 in depslist computation.
 - fixed depslist relocation bug.
