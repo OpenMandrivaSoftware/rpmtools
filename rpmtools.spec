@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 4mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 4.1
+%define version 4.2
 
 %{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
@@ -54,6 +54,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Feb  8 2002 François Pons <fpons@mandrakesoft.com> 4.2-1mdk
+- fixed --descriptions and --summary of parsehdlist for multiline
+  output by adding prefix after each linefeed.
+- fixed management of source package.
+
 * Tue Feb  5 2002 François Pons <fpons@mandrakesoft.com> 4.1-4mdk
 - added possible fixes for using build_hdlist in specific
   environment.

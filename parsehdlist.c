@@ -164,7 +164,7 @@ void print_list_name(Header header, char *format, char print_sep, int extension)
   char *name = get_name(header, RPMTAG_NAME);
   char *version = get_name(header, RPMTAG_VERSION);
   char *release = get_name(header, RPMTAG_RELEASE);
-  char *arch = get_name(header, RPMTAG_ARCH);
+  char *arch = headerIsEntry(header, RPMTAG_SOURCEPACKAGE) ? "src" : get_name(header, RPMTAG_ARCH);
   char *buff = alloca(strlen(name) + strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 5);
 
   printf(format, name, "");
@@ -188,6 +188,21 @@ void print_list_name(Header header, char *format, char print_sep, int extension)
     else
       printf("%s-%s-%s.%s%c%s\n", name, version, release, arch,
 	     print_sep ? print_sep : ':', get_name(header, FILENAME_TAG));
+  }
+}
+
+static
+void print_multiline(char *format, char *name, char *multiline_str) {
+  char *s, *e;
+  if ((e = strchr(multiline_str, '\n'))) {
+    char buf[4096];
+    for (s = multiline_str;(e = strchr(s, '\n')); s = e+1) {
+      if (e-s >= sizeof(buf)-1) continue; /* else it will fails */
+      memcpy(buf, s, e-s); buf[e-s] = 0;
+      printf(format, name, buf);
+    }
+  } else {
+    printf(format, name, multiline_str);
   }
 }
 
@@ -423,10 +438,10 @@ int main(int argc, char **argv)
 	    if (print_size) printf(printable_header(print_quiet, "size", print_sep, "\n"), name, get_int(header, RPMTAG_SIZE));
 	    if (print_serial) printf(printable_header(print_quiet, "serial", print_sep, "\n"),
 				     name, get_int(header, RPMTAG_EPOCH));
-	    if (print_summary) printf(printable_header(print_quiet, "summary", print_sep, "\n"),
-				      name, get_name(header, RPMTAG_SUMMARY));
-	    if (print_description) printf(printable_header(print_quiet, "description", print_sep, "\n"),
-					  name, get_name(header, RPMTAG_DESCRIPTION));
+	    if (print_summary) print_multiline(printable_header(print_quiet, "summary", print_sep, "\n"),
+					       name, get_name(header, RPMTAG_SUMMARY));
+	    if (print_description) print_multiline(printable_header(print_quiet, "description", print_sep, "\n"),
+						   name, get_name(header, RPMTAG_DESCRIPTION));
 	    if (print_name) print_list_name(header, printable_header(print_quiet, "name", print_sep, 0), print_sep, 0);
 	    if (print_info) print_list_name(header, printable_header(print_quiet, "info", print_sep, 0), print_sep, 1);
 	    if ((print_name | print_info | print_group | print_size | print_serial | print_summary | print_description |

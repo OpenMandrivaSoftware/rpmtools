@@ -1,4 +1,4 @@
-VERSION = 4.1
+VERSION = 4.2
 NAME = rpmtools
 FROMC = parsehdlist rpm2header #rpm-find-leaves
 FROMCC = #gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups
