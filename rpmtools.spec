@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 22mdk
+%define release 23mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -65,6 +65,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Wed Aug 11 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-23mdk
+- Don't include internal dependencies of the rpmlib in the parsehdlist output
+
 * Thu Jul 22 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-22mdk
 - Updates for the new media layout in cooker
 
