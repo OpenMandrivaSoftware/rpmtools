@@ -317,7 +317,7 @@ sub new {
 sub cat_archive {
     my $pid;
 
-    foreach (@_)  {
+    foreach (@_) {
 	my $packer = new packdrake;
 
 	#- update %data according to TOC_TRAILER of each archive.
@@ -342,7 +342,7 @@ sub list_archive {
 	my $packer = new packdrake($_);
 	my $count = scalar keys %{$packer->{data}};
 
-	$packer->{log}("processing archive \"$_\"");
+	$packer->{log}->("processing archive \"$_\"");
 	print "$count files in archive, uncompression method is \"$packer->{uncompress}\"\n";
 	foreach my $file (@{$packer->{files}}) {
 	    for ($packer->{data}{$file}[0]) {
@@ -364,13 +364,13 @@ sub extract_archive {
     foreach my $file (@file) {
 	#- check for presence of file, but do not abort, continue with others.
 	unless ($packer->{data}{$file}) {
-	    $packer->{log}("packdrake: unable to find file $file in archive $packer->{archive}");
+	    $packer->{log}->("packdrake: unable to find file $file in archive $packer->{archive}");
 	    next;
 	}
 
 	my $newfile = "$dir/$file";
 
-	$packer->{log}("extracting $file");
+	$packer->{log}->("extracting $file");
 	for ($packer->{data}{$file}[0]) {
 	    /l/ && do { symlink_ $packer->{data}{$file}[1], $newfile; last; };
 	    /d/ && do { mkdir_ $newfile; last; };
@@ -423,7 +423,7 @@ sub build_archive {
     $compress && $uncompress and ($packer->{compress}, $packer->{uncompress}) = ($compress, $uncompress);
     $tmpz and $packer->{tmpz} = $tmpz;
 
-    $packer->{log}("choosing compression method with \"$packer->{compress}\" for archive $packer->{archive}");
+    $packer->{log}->("choosing compression method with \"$packer->{compress}\" for archive $packer->{archive}");
 
     unlink $packer->{archive};
     unlink $packer->{tmpz};
@@ -472,7 +472,7 @@ sub build_archive {
 	system "$ENV{LD_LOADER} cat '$packer->{tmpz}' >>'$packer->{archive}'";
 	$off1 += $siz1;
     }
-    $packer->{log}("real archive size of $packer->{archive} is $off1");
+    $packer->{log}->("real archive size of $packer->{archive} is $off1");
 
     #- produce a TOC directly at the end of the file, follow with
     #- a trailer with TOC summary and archive summary.

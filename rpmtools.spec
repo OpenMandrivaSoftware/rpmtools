@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 9mdk
+%define release 10mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
@@ -53,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Apr 10 2002 François Pons <fpons@mandrakesoft.com> 4.2-10mdk
+- make .pm file compatible with perl 5.005 and above (instead of
+  perl 5.6.0 and above).
+
 * Wed Mar 20 2002 Frederic Lepied <flepied@mandrakesoft.com> 4.2-9mdk
 - rebuild for rpm 4.0.4
 

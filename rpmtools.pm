@@ -198,11 +198,15 @@ sub build_hdlist {
     open B, "| $ENV{LD_LOADER} packdrake -b${ratio}ds '$hdlist' '$dir' 400000";
     foreach (@{$params->{depslist}}) {
 	if (my $keys = delete $names{$_->{name}}) {
-	    print B "$_\n" foreach @$keys;
+	    foreach (@$keys) {
+		print B "$_\n";
+	    }
 	}
     }
     foreach (values %names) {
-	print B "$_\n" foreach @$_;
+	foreach (@$_) {
+	    print B "$_\n";
+	}
     }
     close B or die "packdrake failed\n";
 
@@ -555,7 +559,9 @@ sub read_provides {
     while (<$FILE>) {
 	chomp;
 	my ($k, @v) = split '@';
-	$params->{provides}{$k}{$_} = undef foreach @v;
+	foreach (@v) {
+	    $params->{provides}{$k}{$_} = undef;
+	}
     }
 }
 
