@@ -10,7 +10,7 @@ ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
 CFLAGS = -Wall -g
 LIBRPM = -lrpm -lrpmio `perl -e 'local $$_ = qx(rpm -q --qf %{VERSION} rpm); /^4\.0\s*$$/ or print "-lrpmdb"'` -lz -lbz2 -I/usr/include/rpm -lpopt
 LIBRPM_STATIC = 
-RPM=$(HOME)/rpm
+RPM = `rpm --eval %_topdir`
 
 all: $(ALL)
 	echo $(INSTALLVENDORLIB)
@@ -45,7 +45,7 @@ dis: clean
 	bzip2 -9f ../$(NAME)-$(VERSION).tar
 	rm -rf $(NAME)-$(VERSION)
 
-rpm: dis ../$(NAME)-$(VERSION).tar.bz2 $(RPM)
+rpm: dis ../$(NAME)-$(VERSION).tar.bz2
 	cp -f ../$(NAME)-$(VERSION).tar.bz2 $(RPM)/SOURCES
 	cp -f $(NAME).spec $(RPM)/SPECS/
 	-rpmbuild -ba --clean --rmsource $(NAME).spec
