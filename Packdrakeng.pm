@@ -63,9 +63,11 @@ sub _new {
         use_extern => 1, # default behaviour, informative only
         noargs => $options{noargs},
 
-        level => $options{comp_level} || 6, # compression level, aka -X gzip or bzip option
+        # compression level, aka -X gzip or bzip option
+        level => defined($options{comp_level}) ? $options{comp_level} : 6,
 
-        block_size => $options{block_size} || 400 * 1024, # A compressed block will contain 400k of compressed data
+        # A compressed block will contain 400k of compressed data
+        block_size => defined($options{block_size}) ? $options{block_size} : 400 * 1024, 
         bufsize => $options{bufsize} || 65536, # Arbitrary buffer size to read files
 
         # Internal data

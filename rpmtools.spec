@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.7
+%define version 5.0.8
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -21,6 +21,7 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
 BuildRequires: perl-devel
+BuildRequires: perl-Compress-Zlib
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94 perl-base >= 5.8.4
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
@@ -74,6 +75,10 @@ is fully compatible with old packdrake.
 %{_mandir}/*/*
 
 %changelog
+* Mon Jan 03 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.8-1mdk
+- Fix the previous speedup
+- BuildRequires perl-Compress-Zlib
+
 * Thu Dec 30 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.7-1mdk
 - speedup uncompress function
 
