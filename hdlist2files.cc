@@ -35,10 +35,29 @@ int main(int argc, char **argv)
       Header header;
       int_32 type, count;
       char **list;
+      char ** baseNames, ** dirNames;
+      int_32 * dirIndexes;
+
       while ((header=headerRead(fd, HEADER_MAGIC_YES))) {
 	char *name = get_name(header, RPMTAG_NAME);
+
 	headerGetEntry(header, RPMTAG_OLDFILENAMES, &type, (void **) &list, &count);
-	if (list) for (i = 0; i < count; i++) printf("%s:%s\n", name, list[i]);
+
+	if (list) {
+	  for (i = 0; i < count; i++) printf("%s:%s\n", name, list[i]);
+	}
+
+	headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, 
+		       &count);
+	headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, 
+		       NULL);
+	headerGetEntry(header, RPMTAG_DIRNAMES, &type, (void **) &dirNames, NULL);
+
+	if (baseNames && dirNames && dirIndexes) {
+	  for(i = 0; i < count; i++) {
+	    printf("%s:%s\n", name, dirNames[dirIndexes[i]], baseNames[i]);
+	  }
+	}
       }
     }
     fdClose(fd);

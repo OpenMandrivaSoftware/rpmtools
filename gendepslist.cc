@@ -40,6 +40,30 @@ vector<string> get_info(Header header, int_32 tag) {
   return r;
 }
 
+vector<string> get_files(Header header) {
+  int_32 type, count, i;
+  vector<string> r;
+  char **list;
+  char ** baseNames, ** dirNames;
+  int_32 * dirIndexes;
+
+  headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, 
+		 &count);
+  headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, 
+		 NULL);
+  headerGetEntry(header, RPMTAG_DIRNAMES, &type, (void **) &dirNames, NULL);
+  
+  if (baseNames && dirNames && dirIndexes) {
+    r.reserve(count);
+    for(i = 0; i < count; i++) {
+      string s(dirNames[dirIndexes[i]]);
+      s += baseNames[i];
+      r.push_back(s);
+    }
+  }
+  return r;
+}
+
 template<class V, class C> C sum(const V &v, const C &join = C()) {
   typename V::const_iterator p, q;
   C s = C();
@@ -105,6 +129,10 @@ struct pack {
     vector<string> files = get_info(header, RPMTAG_OLDFILENAMES);
     for (IT p = provide.begin(); p != provide.end(); p++) map_insert(provides, *p, name);
     for (IT p = files.begin(); p != files.end(); p++) map_insert(provides, *p, name);
+
+    vector<string> newfiles = get_files(header);
+    for (IT p = newfiles.begin(); p != newfiles.end(); p++) map_insert(provides, *p, name);
+
     headerFree(header);
     return 1;
   }
