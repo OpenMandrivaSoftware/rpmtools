@@ -446,7 +446,7 @@ sub build_archive {
 		    $packer->{data}{$_} = [ 'f', $off1, $siz1, $packer->{data}{$_}[3], $packer->{data}{$_}[4] ];
 		}
 
-		system "cat $packer->{tmpz} >>$packer->{archive}";
+		system "cat '$packer->{tmpz}' >>'$packer->{archive}'";
 		$off1 += $siz1;
 		$off2 = 0; $siz2 = 0;
 		@filelist = ();
@@ -461,7 +461,7 @@ sub build_archive {
 	    $packer->{data}{$_} = [ 'f', $off1, $siz1, $packer->{data}{$_}[3], $packer->{data}{$_}[4] ];
 	}
 
-	system "cat $packer->{tmpz} >>$packer->{archive}";
+	system "cat '$packer->{tmpz}' >>'$packer->{archive}'";
 	$off1 += $siz1;
     }
     print STDERR "real archive size of $packer->{archive} is $off1\n";
