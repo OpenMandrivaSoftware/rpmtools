@@ -74,8 +74,10 @@ sub new {
 	   info          => {},
 	   depslist      => [],
 	   provides      => {},
-	   tmpdir        => $ENV{TMPDIR} || "/tmp",
-	   noclean       => 0,
+	   options       => {
+			     tmpdir  => $ENV{TMPDIR} || "/tmp",
+			     noclean => 0,
+			    },
 	  }, $class;
 }
 
@@ -107,11 +109,11 @@ sub read_hdlists {
 #- build an hdlist from a list of files.
 sub build_hdlist {
     my ($params, $hdlist, @rpms) = @_;
-    my ($work_dir, %names) = "$params->{tmpdir}/.build_hdlist";
+    my ($work_dir, %names) = "$params->{options}{tmpdir}/.build_hdlist";
 
     #- build a working directory which will hold rpm headers.
     -d $work_dir or mkdir $work_dir, 0755 or die "cannot create working directory $work_dir\n";
-    chdir $work_dir;
+    my $cwd = `pwd`; chdir $work_dir;
 
     foreach (@rpms) {
 	my ($key, $name) = /(([^\/]*)-[^-]*-[^-]*\.[^\/\.]*)\.rpm$/ or next;
@@ -131,6 +133,8 @@ sub build_hdlist {
 	print B "$_\n" foreach @$_;
     }
     close B or die "packdrake failed\n";
+
+    chdir $cwd; system("rm", "-rf", $work_dir) unless $params->{options}{noclean};
 }
 
 #- read one or more rpm files.
