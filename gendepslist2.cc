@@ -48,6 +48,9 @@ template<class A> bool in(const A &a, const vector<A> &v) {
   for (p = v.begin(); p != v.end(); p++) if (*p == a) return 1;
   return 0;
 }
+template<class A> bool in(const A &a, const set<A> &m) {
+  return m.find(a) != m.end();
+}
 template<class A, class B> bool in(const A &a, const map<A,B> &m) {
   return m.find(a) != m.end();
 }
@@ -142,7 +145,8 @@ vector<string> get_files(Header header) {
 /********************************************************************************/
 int nb_hdlists;
 vector<string> packages;
-map<string, int> sizes, which_hdlist;
+map<string, int> sizes;
+map<int, set<string> > hdlist2names;
 map<string, string> name2fullname;
 map<string, vector<string> > requires, frequires;
 map<string, vector<string> > provided_by, fprovided_by;
@@ -176,7 +180,7 @@ void getProvides(FD_t fd, int current_hdlist) {
 
     packages.push_back(name);
     name2fullname[s_name] = name;
-    which_hdlist[name] = current_hdlist;
+    hdlist2names[current_hdlist].insert(name);
     sizes[name] = get_int(header, RPMTAG_SIZE);
 
     if (in(s_name, provided_by)) provided_by[s_name].push_back(name);
@@ -250,10 +254,9 @@ map<string, set<string> > closure(const map<string, set<string> > &names) {
 //  }
 //};
 
-inline int verif(const string &dep, int i, const string &package, int hdlist, map<string,int> &where) {
-  if (which_hdlist[dep] > hdlist) 
-    cerr << package << " requires " << dep << " which is in hdlist " << which_hdlist[dep] << " > " << hdlist << "\n";
-  return where[dep];
+inline int verif(int num, int max, const string &package, const string &dep) {
+  if (num >= max) cerr << package << " requires " << dep << " which is not in the same hdlist\n";
+  return num;
 }
 
 void printDepslist(ofstream *out1, ofstream *out2) {
@@ -280,25 +283,30 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 
   vector<string> put_first_ = split(' ', put_first);
   vector<string> packages;
-  while (names.begin() != names.end()) {
-    string n;
-    unsigned int l_best = 9999;
+  int hdlist2nbsep[nb_hdlists];
+  for (int i = 0; i < nb_hdlists; i++) {
+    set<string> list = hdlist2names[i];
+    while (list.begin() != list.end()) {
+      string n;
+      unsigned int l_best = 9999;
 
-    for (ITv p = put_first_.begin(); p != put_first_.end(); p++)
-      if (in(name2fullname[*p], names))	{ n = name2fullname[*p]; goto found; }
+      for (ITv p = put_first_.begin(); p != put_first_.end(); p++)
+	if (in(name2fullname[*p], list)) { n = name2fullname[*p]; goto found; }
 
-    for (ITms p = names.begin(); p != names.end(); p++) 
-      if (p->second.size() < l_best) {
-	l_best = p->second.size();
-	n = p->first;
-	if (l_best == 0) break;
-      }
-  found:
-    names.erase(n);
-    packages.push_back(n);
-    for (ITms p = names.begin(); p != names.end(); p++) p->second.erase(n);
+      for (ITs p = list.begin(); p != list.end(); p++) 
+	if (names[*p].size() < l_best) {
+	  l_best = names[*p].size();
+	  n = *p;
+	  if (l_best == 0) break;
+	}
+    found:
+      names.erase(n);
+      list.erase(n);
+      packages.push_back(n);
+      for (ITms p = names.begin(); p != names.end(); p++) p->second.erase(n);
+    }
+    hdlist2nbsep[i] = packages.size();
   }
-
 
   int i = 0;
   map<string,int> where;
@@ -306,22 +314,21 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 
   for (int hdlist = 0; hdlist < nb_hdlists; hdlist++) {
     i = 0;
-    for (ITv p = packages.begin(); p != packages.end(); p++, i++) 
-      if (which_hdlist[*p] == hdlist) {
-	set<string> dep = closed[*p];
-	*out2 << *p << " " << sizes[*p];
-	for (ITs q = dep.begin(); q != dep.end(); q++) {
-	  if (q->find('|') != string::npos) {
-	    vector<string> l = split('|', *q);
-	    for (ITv k = l.begin(); k != l.end(); k++) *out2 << " " << verif(*k, i, *p, hdlist, where);
-	  } else if (q->compare("NOTFOUND_") > 1) {
-	    *out2 << " " << *q;
-	  } else {
-	    *out2 << " " << verif(*q, i, *p, hdlist, where);
-	  }
+    for (ITv p = packages.begin(); p != packages.end(); p++, i++) {
+      set<string> dep = closed[*p];
+      *out2 << *p << " " << sizes[*p];
+      for (ITs q = dep.begin(); q != dep.end(); q++) {
+	if (q->find('|') != string::npos) {
+	  vector<string> l = split('|', *q);
+	  for (ITv k = l.begin(); k != l.end(); k++) *out2 << " " << verif(where[*k], hdlist2nbsep[hdlist], *p, *k);
+	} else if (q->compare("NOTFOUND_") > 1) {
+	  *out2 << " " << *q;
+	} else {
+	  *out2 << " " << verif(where[*q], hdlist2nbsep[hdlist], *p, *q);
 	}
-	*out2 << "\n";
       }
+      *out2 << "\n";
+    }
   }
 }
 
