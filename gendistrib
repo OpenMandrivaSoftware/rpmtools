@@ -4,7 +4,7 @@
 # $Id$
 #
 
-#- Copyright (C) 1999 MandrakeSoft (fpons@mandrakesoft.com)
+#- Copyright (C) 1999-2004 Mandrakesoft (fpons@mandrakesoft.com)
 #-
 #- This program is free software; you can redistribute it and/or modify
 #- it under the terms of the GNU General Public License as published by
@@ -67,12 +67,12 @@ GetOptions(
 my $root = $root[0];
 
 my %default_urpmfiles = (
-	depslist =>  "$root/Mandrake/base/depslist.ordered",
-	provides => "$root/Mandrake/base/provides",
-	compss =>   "$root/Mandrake/base/compss",
-	hdlists =>  "$root/Mandrake/base/hdlists",
-	version =>  "$root/VERSION",
-	md5sum =>   "$root/Mandrake/base/MD5SUM",	
+    depslist => "$root/media/media_info/depslist.ordered",
+    provides => "$root/media/media_info/provides",
+    compss =>   "$root/media/media_info/compss",
+    hdlists =>  "$root/media/media_info/hdlists",
+    version =>  "$root/VERSION",
+    md5sum =>   "$root/media/media_info/MD5SUM",
 );
 
 while (my ($k, $v) = each(%default_urpmfiles)) {
@@ -86,7 +86,12 @@ foreach (<F>) {
     /^\s*$/ and next;
     m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 
-    push @hdlists, { synthesis => "$root/Mandrake/base/synthesis.$1", hdlist => "$root/Mandrake/base/$1", dir => $2, descr => $3 };
+    push @hdlists, {
+	synthesis => "$root/media/media_info/synthesis.$1",
+	hdlist => "$root/media/media_info/$1",
+	dir => $2,
+	descr => $3,
+    };
 }
 close F;
 
@@ -173,7 +178,7 @@ $urpm->build_base_files(depslist => $urpmfiles{depslist},
 unlink $urpmfiles{md5sum};
 
 #- check if there are NOTFOUND in dependancy, check if they are in other medium, warn the user.
-if (! $nochkdep) {
+if ($nooutput || !$nochkdep) {
     foreach (0 .. $#{$urpm->{depslist}}) {
         my $pkg = $urpm->{depslist}[$_];
 

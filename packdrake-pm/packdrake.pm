@@ -7,14 +7,14 @@ $VERSION = "0.04";
 
 =head1 NAME
 
-packdrake - Mandrake Simple Archive Extractor/Builder
+packdrake - Simple Archive Extractor/Builder
 
 =head1 SYNOPSIS
 
     require packdrake;
 
-    packdrake::cat_archive("/export/Mandrake/base/hdlist.cz",
-                           "/export/Mandrake/base/hdlist2.cz");
+    packdrake::cat_archive("/export/media/media_info/hdlist.cz",
+                           "/export/media/media_info/hdlist2.cz");
     packdrake::list_archive("/tmp/modules.cz2");
 
     my $packer = new packdrake("/tmp/modules.cz2");
@@ -24,12 +24,12 @@ packdrake - Mandrake Simple Archive Extractor/Builder
         (\*STDIN, "/lib/modules", "/tmp/modules.cz2",
          400000, "bzip2", "bzip2 -d");
     my $packer = packdrake::build_archive
-        (\*STDIN, "/export/Mandrake/base/hdlist.cz",
+        (\*STDIN, "/export/media/media_info/hdlist.cz",
          400000, "gzip -9", "gzip -d");
 
 =head1 DESCRIPTION
 
-C<packdrake> is a very simple archive extractor and builder used by MandrakeSoft.
+C<packdrake> is a very simple archive extractor and builder used by Mandrakesoft.
 
 =head1 IMPLEMENTATION
 
@@ -62,11 +62,11 @@ TOC_TRAILER for summary.
 
 =head1 SEE ALSO
 
-packdrake command is a simple executable perl script using this module.
+The packdrake command is a simple executable perl script using this module.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2000 MandrakeSoft <fpons@mandrakesoft.com>
+Copyright (C) 2000-2004 Mandrakesoft <fpons@mandrakesoft.com>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by

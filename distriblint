@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-#- Mandrake Distribution Checker.
+#- Mandrakelinux Distribution Checker.
 #- Copyright (C) 2002 MandrakeSoft (fpons@mandrakesoft.com)
 #-
 #- This program is free software; you can redistribute it and/or modify
@@ -41,15 +41,15 @@ sub pass_get_hdlists {
 
     $o->{c}->("parsing hdlists from distrib $o->{root}.");
     local *F;
-    open F, "$o->{root}/Mandrake/base/hdlists" or die "unable to open $o->{root}/Mandrake/base/hdlists";
+    open F, "$o->{root}/media/media_info/hdlists" or die "unable to open $o->{root}/media/media_info/hdlists";
     foreach (<F>) {
 	chomp;
 	s/\s*#.*$//;
 	/^\s*$/ and next;
 	m/^\s*(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 	
-	push @{$o->{hdlists}}, { synthesis => "$o->{root}/Mandrake/base/synthesis.$1",
-				 hdlist => "$o->{root}/Mandrake/base/$1",
+	push @{$o->{hdlists}}, { synthesis => "$o->{root}/media/media_info/synthesis.$1",
+				 hdlist => "$o->{root}/media/media_info/$1",
 				 dir => $2,
 				 descr => $3 };
     }
@@ -184,7 +184,7 @@ sub main {
 	die "usage: $0 --distrib <d>";
     }
     
-    #- perform all test, $i is used for pass numbering.
+    #- perform all tests, $i is used for pass numbering.
     print "Starting tests...";
     my $i = 1;
     foreach (@passtest) {
