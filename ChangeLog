@@ -1,0 +1,6 @@
+2000-02-17  Chmouel Boudjnah  <chmouel@mandrakesoft.com>
+
+	* rpmtools.spec (BuildRequires): rpm-3.0.4.
+	* gendepslist.cc: port to rpm-3.0.4.
+	* Makefile: cvs support, add -lpopt.
+

@@ -11,7 +11,7 @@ Copyright: GPL
 Group: System Environment/Base
 BuildRoot: /tmp/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-
+BuildRequires: rpm-devel >= 3.0.4
 
 %description
 Various rpmtools.
@@ -36,7 +36,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Thu Feb 17 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0-8mdk
-- Porting to rpm-3.0.4.
+- rpmtools.spec (BuildRequires): rpm-3.0.4.
+- gendepslist.cc: port to rpm-3.0.4.
+- Makefile: cvs support, add -lpopt.
 
 * Tue Jan  4 2000 Pixel <pixel@mandrakesoft.com>
 - renamed hdlist2files in hdlist2names
