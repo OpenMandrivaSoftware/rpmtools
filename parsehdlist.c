@@ -290,6 +290,7 @@ int main(int argc, char **argv)
 	}
       }
       printf("\n");
+      fflush(stdout);
     } while (1);
   }
 
