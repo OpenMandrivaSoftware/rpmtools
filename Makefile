@@ -50,3 +50,7 @@ rpm: dis ../$(NAME)-$(VERSION).tar.bz2
 	cp -f $(NAME).spec $(RPM)/SPECS/
 	-rpmbuild -ba --clean --rmsource $(NAME).spec
 	rm -f ../$(NAME)-$(VERSION).tar.bz2
+
+changelog:
+	cvs2cl -W 400 -I ChangeLog --accum -U ../../soft/common/username
+	rm -f *.bak
