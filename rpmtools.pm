@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA %compat_arch);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '4.0';
+$VERSION = '4.1';
 
 bootstrap rpmtools $VERSION;
 
@@ -139,6 +139,22 @@ sub read_hdlists {
 	}
     }
     @names;
+}
+
+#- build the synthesis file (normally used by urpmi only)
+#- for all package not currently with computed dependencies.
+sub write_synthesis_hdlist {
+    my ($params, $FILE) = @_;
+
+    #- avoid writing already present infos with id.
+    foreach my $pkg (grep { ! exists $_->{id} } values %{$params->{info}}) {
+	foreach (qw(provides requires conflicts obsoletes)) {
+	    @{$pkg->{$_} || []} and print $FILE join('@', $pkg->{name}, $_, @{$pkg->{$_} || []}) . "\n";
+	}
+	print $FILE join('@',
+			 $pkg->{name}, 'info', "$pkg->{name}-$pkg->{version}-$pkg->{release}.$pkg->{arch}",
+			 $pkg->{serial} || 0, $pkg->{size} || 0, $pkg->{group}, $pkg->{file} ? ($pkg->{file}) : ()). "\n";
+    }
 }
 
 #- build an hdlist from a list of files.

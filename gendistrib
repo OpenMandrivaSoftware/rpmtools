@@ -134,6 +134,33 @@ unless ($nobasefiles) {
     open F, ">$compss" or die "unable to write compss file $compss";
     $params->write_compss(\*F);
     close F;
+
+    #- generate all synthesis file.
+    foreach (@hdlists) {
+	if ($_->[0] =~ /(.*)\/hdlist(.*)/) {
+	    my $synthesis = "$1/synthesis.hdlist$2";
+	    my $params_sense = new rpmtools(qw(sense));
+
+	    print STDERR "reading $_->[0]\n";
+	    $params_sense->read_hdlists($_->[0]);
+
+	    #- use existing provides just generated to
+	    #- add missing entries in each package provides list,
+	    #- this is really $params and not $params_sense.
+	    foreach my $file (keys %{$params->{provides}}) {
+		$file =~ /^\// or next;
+		foreach (keys %{$params->{provides}{$file} || {}}) {
+		    my $pkg = $params_sense->{info}{$_} or next;
+		    push @{$pkg->{provides}}, $file;
+		}
+	    }
+
+	    open F, "| gzip -9 >$synthesis";
+	    print STDERR "writing $synthesis\n";
+	    $params_sense->write_synthesis_hdlist(\*F);
+	    close F or print STDERR "unable to build $synthesis\n";
+	}
+    }
 } else {
     if (-r $provides) {
 	print STDERR "using existing $provides file\n";

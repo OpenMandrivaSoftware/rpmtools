@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 7mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 4.0
+%define version 4.1
 
 %{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
@@ -54,6 +54,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Jan 22 2002 François Pons <fpons@mandrakesoft.com> 4.1-1mdk
+- added write_synthesis_hdlist function to handle synthesis file.
+- gendistrib now build good synthesis file in Mandrake/base
+  directory.
+
 * Thu Jan 17 2002 François Pons <fpons@mandrakesoft.com> 4.0-7mdk
 - added safe guard delay to ensure data is available.
 - updated parsehdlist with such above feature.
