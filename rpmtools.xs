@@ -428,7 +428,7 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
   SV* info
   PREINIT:
   SV* provides = &PL_sv_undef;
-  CODE:
+  PPCODE:
   if (items > 3)
     provides = ST(3);
   if (SvROK(flag) && SvROK(info) && (provides == &PL_sv_undef || SvROK(provides))) {
@@ -473,12 +473,20 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
 				((header=headerRead(fd, HEADER_MAGIC_YES)) != 0) :
 				((fd_is_hdlist = -1), rpmReadPackageHeader(fd, &header, &i, NULL, NULL) == 0)) : 0) {
       char *name = get_name(header, RPMTAG_NAME);
+      char *version = get_name(header, RPMTAG_VERSION);
+      char *release = get_name(header, RPMTAG_RELEASE);
+      char *fullname = (char*)alloca(strlen(name)+strlen(version)+strlen(release)+3);
+      STRLEN fullname_len = sprintf(fullname, "%s-%s-%s", name, version, release);
       HV* header_info = get_info(header, bflag, iprovides);
 
       /* once the hash header_info is built, store a reference to it
 	 in iinfo.
 	 note sv_name is not incremented here, it has the default value of before. */
       hv_store(iinfo, name, strlen(name), newRV_noinc((SV*)header_info), 0);
+
+      /* return fullname on stack */
+      EXTEND(SP, 1);
+      PUSHs(sv_2mortal(newSVpv(fullname, fullname_len)));
 
       /* dispose of some memory */
       headerFree(header);

@@ -150,10 +150,7 @@ sub build_hdlist {
 sub read_rpms {
     my ($params, @rpms) = @_;
 
-    foreach (@rpms) {
-	rpmtools::_parse_($_, $params->{flags}, $params->{info}, $params->{provides});
-    }
-    1;
+    map { rpmtools::_parse_($_, $params->{flags}, $params->{info}, $params->{provides}) } @rpms;
 }
 
 #- compute dependancies, result in stored in info values of params.

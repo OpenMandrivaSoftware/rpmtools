@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Feb 19 2001 François Pons <fpons@mandrakesoft.com> 2.3-4mdk
+- _parse_ returns now fullname of package read.
+
 * Mon Feb 19 2001 François Pons <fpons@mandrakesoft.com> 2.3-3mdk
 - fixed version_compare to return number.
 - fixed relocate_depslist for package with source to keep.
