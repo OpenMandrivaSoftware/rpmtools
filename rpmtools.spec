@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 16mdk
+%define release 17mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Apr  3 2001 François Pons <fpons@mandrakesoft.com> 2.3-17mdk
+- fixed error code management for parsehdlist.
+- fixed read_hdlists return value.
+
 * Mon Mar 26 2001 François Pons <fpons@mandrakesoft.com> 2.3-16mdk
 - modified libtermcap to libtermcap2 for VIP.
 

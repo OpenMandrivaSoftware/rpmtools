@@ -92,12 +92,13 @@ sub new {
 #- read one or more hdlist files, use packdrake for decompression.
 sub read_hdlists {
     my ($params, @hdlists) = @_;
+    my @names;
 
     local (*I, *O); pipe I, O;
     if (my $pid = fork()) {
 	close O;
 
-	rpmtools::_parse_(fileno *I, $params->{flags}, $params->{info}, $params->{provides});
+	push @names, rpmtools::_parse_(fileno *I, $params->{flags}, $params->{info}, $params->{provides});
 
 	close I;
 	waitpid $pid, 0;
@@ -111,7 +112,7 @@ sub read_hdlists {
 	close O;
 	exit 0;
     }
-    1;
+    @names;
 }
 
 #- build an hdlist from a list of files.

@@ -306,14 +306,18 @@ int main(int argc, char **argv)
 	  fprintf(stderr, "packdrake: unable to create pipe for packdrake\n");
 	}
       }
-      if (fdFileno(fd) < 0) fprintf(stderr, "parsehdlist: cannot open file %s\n", argv[i]);
-      else  {
+      if (fdFileno(fd) < 0) {
+	fprintf(stderr, "parsehdlist: cannot open file %s\n", argv[i]);
+	exit(1);
+      } else  {
 	Header header;
+	long count = 0;
 
 	/* fprintf(stderr, "parsehdlist: reading %s\n", argv[i]); */
 	while ((header=headerRead(fd, HEADER_MAGIC_YES))) {
 	  char *name = get_name(header, RPMTAG_NAME);
 
+	  ++count;
 	  if (interactive_mode) {
 	    headers[count_headers].name = name;
 	    headers[count_headers].hash_name = hash(name);
@@ -343,6 +347,7 @@ int main(int argc, char **argv)
 	    headerFree(header);
 	  }
 	}
+	if (!count) exit(3); /* no package is an error */
       }
       fdClose(fd);
       if (pid) {
