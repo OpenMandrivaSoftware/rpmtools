@@ -250,12 +250,11 @@ $urpm->build_base_files(
     compss   => $urpmfiles{compss},
 );
 
-if (-f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/media.cfg') {
-    if (! -f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists' ||
-        ((stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/media.cfg'))[9] >
-            (stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists'))[9])) {
-            print STDERR "Write hdlists file\n" unless($nooutput);
-            $distrib->write_hdlists();
+my $infodir = $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir');
+if (-f $infodir . '/media.cfg') {
+    if (! -f $infodir . '/hdlists' || ((stat($infodir . '/media.cfg'))[9] > (stat($infodir . '/hdlists'))[9])) {
+	print STDERR "Write hdlists file\n" unless $nooutput;
+	$distrib->write_hdlists;
     }
 }
 
@@ -274,7 +273,7 @@ unless ($nomd5sum) {
     chdir $here;
 }
 
-print STDERR "Building version file\n" unless($nooutput);
+print STDERR "Building version file\n" unless $nooutput;
 $distrib->write_version($urpmfiles{version});
 
 #- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
