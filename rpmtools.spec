@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.3
@@ -28,7 +28,7 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %setup
 
 %build
-%{__perl} Makefile.PL
+%{__perl} Makefile.PL INSTALLDIRS=vendor
 %{make} -f Makefile_core OPTIMIZE="$RPM_OPT_FLAGS"
 %{make} CFLAGS="$RPM_OPT_FLAGS"
 
@@ -48,13 +48,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gendistrib
 %{_bindir}/distriblint
 %{_bindir}/genhdlist
-%dir %{perl_sitearch}/auto/rpmtools
-%{perl_sitearch}/auto/rpmtools/rpmtools.so
-%{perl_sitearch}/packdrake.pm
-%{perl_sitearch}/rpmtools.pm
-%{_libdir}/perl5/man/*/*
+%{perl_vendorarch}/auto/rpmtools
+%{perl_vendorarch}/packdrake.pm
+%{perl_vendorarch}/rpmtools.pm
+%{_mandir}/*/*
 
 %changelog
+* Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 4.3-6mdk
+- rebuild for perl 5.8.0
+- little clean of %%files
+
 * Fri Jun 28 2002 François Pons <fpons@mandrakesoft.com> 4.3-5mdk
 - added new test to check requires of all package to distriblint.
 
@@ -549,7 +552,7 @@ output only the package dependencies for some hdlist's/packages (use of "--")
 * Sun Nov 21 1999 Pixel <pixel@mandrakesoft.com>
 - now installed in /usr/bin
 - added rpm-find-leaves
-- replaced -lrpm by /usr/lib/librpm.so.0 to make it dynamic
+- replaced -lrpm by %{_libdir}/librpm.so.0 to make it dynamic
 (why is this needed?)
 
 * Mon Nov 15 1999 Pixel <pixel@mandrakesoft.com>
