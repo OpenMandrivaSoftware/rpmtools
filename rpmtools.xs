@@ -120,17 +120,22 @@ void update_provides(int force, HV* provides, char *name, STRLEN len, Header hea
 
   if (!len) len = strlen(name);
 
-  if (force && (isv = hv_fetch(provides, name, len, 1)) || provides && (isv = hv_fetch(provides, name, len, 0)) != 0) {
-    if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVHV) {
-      SV* choice_set = (SV*)newHV();
-      SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-      *isv = choice_set ? newRV_noinc(choice_set) : &PL_sv_undef;
-    }
-    if (*isv != &PL_sv_undef) {
-      STRLEN key_len;
-      char *key;
-      key = SvPV(get_fullname_sv(header), key_len);
-      hv_fetch((HV*)SvRV(*isv), key, key_len, 1);
+  if (provides) {
+    if ((isv = hv_fetch(provides, name, len, force))) {
+      if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVHV) {
+	SV* choice_set = (SV*)newHV();
+	SvREFCNT_dec(*isv); /* drop the old as we are changing it */
+	*isv = choice_set ? newRV_noinc(choice_set) : &PL_sv_undef;
+	if (!*isv) *isv = &PL_sv_undef;
+      }
+      if (isv && *isv != &PL_sv_undef) {
+	SV *fullname_sv = get_fullname_sv(header);
+	STRLEN key_len;
+	char *key;
+	key = SvPV(fullname_sv, key_len);
+	hv_fetch((HV*)SvRV(*isv), key, key_len, 1);
+	SvREFCNT_dec(fullname_sv); /* drop it, may we use another interface instead of non freeing it ? */
+      }
     }
   }
 }
@@ -138,9 +143,9 @@ void update_provides(int force, HV* provides, char *name, STRLEN len, Header hea
 SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag_version, HV* iprovides) {
   AV* table_sense;
   int_32 type, count;
-  char **list;
-  int_32 *flags;
-  char **list_evr;
+  char **list = NULL;
+  int_32 *flags = NULL;
+  char **list_evr = NULL;
   int i;
 
   char buff[4096];
@@ -149,13 +154,15 @@ SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag
 
   headerGetEntry(header, tag_name, &type, (void **) &list, &count);
   if (tag_flags) headerGetEntry(header, tag_flags, &type, (void **) &flags, &count);
-  else flags = 0;
   if (tag_version) headerGetEntry(header, tag_version, &type, (void **) &list_evr, &count);
-  else list_evr = 0;
 
   if (list) {
     table_sense = newAV();
-    if (!table_sense) return &PL_sv_undef;
+    if (!table_sense) {
+      free(list);
+      free(list_evr);
+      return &PL_sv_undef;
+    }
 
     for(i = 0; i < count; i++) {
       len = strlen(list[i]); if (len >= sizeof(buff)) continue;
@@ -192,26 +199,29 @@ SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag
       av_push(table_sense, newSVpv(buff, p - buff));
     }
 
+    free(list);
+    free(list_evr);
     return newRV_noinc((SV*)table_sense);
   }
+
+  free(list);
+  free(list_evr);
   return &PL_sv_undef;
 }
 
 HV* get_info(Header header, int bflag, HV* provides) {
   int_32 type, count;
-  char **list;
   int_32 *flags;
   SV** ret;
   STRLEN len;
   char* str;
   int i;
-  SV* sv_name = newSVpv(get_name(header, RPMTAG_NAME), 0);
   HV* header_info = newHV();
 
   /* correct bflag according to provides hash else not really usefull */
   if (provides) bflag |= HDFLAGS_REQUIRES;
 
-  hv_store(header_info, "name", 4, sv_name, 0);
+  hv_store(header_info, "name", 4, newSVpv(get_name(header, RPMTAG_NAME), 0), 0);
   if (bflag & HDFLAGS_VERSION)
     hv_store(header_info, "version", 7, newSVpv(get_name(header, RPMTAG_VERSION), 0), 0);
   if (bflag & HDFLAGS_RELEASE)
@@ -251,7 +261,9 @@ HV* get_info(Header header, int bflag, HV* provides) {
        or to store them. */
     AV* table_files = bflag & HDFLAGS_FILES ? newAV() : 0;
     AV* table_conffiles = bflag & HDFLAGS_CONFFILES ? newAV() : 0;
-    char ** baseNames, ** dirNames;
+    char **list = NULL;
+    char ** baseNames = NULL;
+    char ** dirNames = NULL;
     int_32 * dirIndexes;
 
     headerGetEntry(header, RPMTAG_FILEFLAGS, &type, (void **) &flags, &count);
@@ -268,6 +280,7 @@ HV* get_info(Header header, int bflag, HV* provides) {
 	if (table_conffiles && flags && flags[i] & RPMFILE_CONFIG)
 	  av_push(table_conffiles, newSVpv(list[i], len));
       }
+      free(list);
     }
 
     headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, &count);
@@ -294,6 +307,8 @@ HV* get_info(Header header, int bflag, HV* provides) {
 	if (table_conffiles && flags && flags[i] & RPMFILE_CONFIG)
 	  av_push(table_conffiles, newSVpv(buff, p - buff));
       }
+      free(baseNames);
+      free(dirNames);
     }
 
     if (table_files)
@@ -302,6 +317,7 @@ HV* get_info(Header header, int bflag, HV* provides) {
       hv_store(header_info, "conffiles", 9, newRV_noinc((SV*)table_conffiles), 0);
   }
   if (provides) {
+    char **list = NULL;
     /* we have to examine provides to update the hash here. */
     headerGetEntry(header, RPMTAG_PROVIDENAME, &type, (void **) &list, &count);
 
@@ -309,6 +325,7 @@ HV* get_info(Header header, int bflag, HV* provides) {
       for (i = 0; i < count; i++) {
 	update_provides(1, provides, list[i], 0, header); /* force extraction of provides */
       }
+      free(list);
     }
   }
 
