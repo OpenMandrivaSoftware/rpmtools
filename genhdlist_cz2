@@ -1,0 +1,50 @@
+#!/usr/bin/perl
+
+($noclean,         @ARGV) = @ARGV if $ARGV[0] eq "--noclean";
+(undef, $depslist, @ARGV) = @ARGV if $ARGV[0] eq "--ordered-depslist";
+(undef, $hdlist,   @ARGV) = @ARGV if $ARGV[0] eq "-o";
+(undef, $root,     @ARGV) = @ARGV if $ARGV[0] eq "--distrib";
+
+$hdlist && @ARGV == 1 || $root && @ARGV == 0 or die 
+"usage: genhdlist_cz2 [--noclean] [--ordered-depslist <depslist>] -o <hdlist_cz2> <rpm dir>
+   or  genhdlist_cz2 [--noclean] --distrib <root distrib>
+";
+
+if ($root) {
+    $depslist = "$root/Mandrake/base/depslist.ordered";
+    $hdlist = "$root/Mandrake/base/hdlist.cz2";
+    $dir = "$root/Mandrake/RPMS";
+    $ENV{PATH} = "$ENV{PATH}:$root/misc";
+} else {
+    ($dir) = @ARGV;
+}
+
+
+$work_dir = "/tmp/.build_hdlist";
+
+
+-e $work_dir && !-d $work_dir and unlink($work_dir) || die "cannot use $work_dir as a working directory";
+chmod 0755, $work_dir or system("rm -rf $work_dir");
+-d $work_dir or mkdir $work_dir, 0755 or die "cannot create working directory $work_dir\n";
+chdir $work_dir;
+
+my (%keys, @keys);
+
+opendir DIR, $dir or die "unable to opendir $dir: $!\n";
+while ($_ = readdir DIR) {
+    my ($key) = /(.*)\..*\.rpm$/ or next;
+    system("rpm2header $dir/$_ > $key") unless -e $key;
+    $? == 0 or unlink($key), die "bad rpm $dir/$_\n";
+    $keys{$key} = 1;
+}
+if (-e $depslist) {
+    open F, $depslist;
+    @keys = map { (split)[0] } <F>;
+}
+@keys = grep { delete $keys{$_} } @keys; 
+
+open B, "| build_archive $hdlist 400000";
+print B "$_\n" foreach @keys, keys %keys;
+close B or die "build_archive failed\n";
+
+system("rm -rf $work_dir") unless $noclean;
