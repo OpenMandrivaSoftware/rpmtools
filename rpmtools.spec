@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 2mdk
+%define release 3mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.1
@@ -54,6 +54,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Jan 30 2002 François Pons <fpons@mandrakesoft.com> 4.1-3mdk
+- make sure msec is installed before chkconfig for most
+  packages except modutils and initscripts (in order to be
+  dependancy safe).
+- make sure locales-* are installed very early to avoid warnings.
+
 * Thu Jan 24 2002 François Pons <fpons@mandrakesoft.com> 4.1-2mdk
 - fixed wrong _parse_ or rpm file.
 

@@ -337,6 +337,10 @@ sub compute_depslist {
 	    foreach (keys %requires) {
 		$ordered{$_} += 10001;
 	    }
+	} elsif ($_->{name} eq 'msec') {
+	    foreach (keys %requires) {
+		$ordered{$_} += 20001;
+	    }
 	} else {
 	    foreach (keys %requires) {
 		++$ordered{$_};
@@ -346,11 +350,14 @@ sub compute_depslist {
 
     #- some package should be sorted at the beginning.
     my $fixed_weight = 10000;
-    foreach (qw(basesystem filesystem setup glibc sash bash libtermcap2 termcap readline ldconfig)) {
+    foreach (qw(basesystem msec * locales filesystem setup glibc sash bash libtermcap2 termcap readline ldconfig)) {
 	foreach (keys %{$params->{provides}{$_} || {}}) {
 	    $ordered{$_} = $fixed_weight;
 	}
 	$fixed_weight += 10000;
+    }
+    foreach (grep { /locales-[a-zA-Z]/ } keys %ordered) {
+	$ordered{$_} = 35000;
     }
 
     #- compute base flag, consists of packages which are required without
