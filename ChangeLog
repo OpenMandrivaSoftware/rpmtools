@@ -1,3 +1,33 @@
+2005-02-21 01:04  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - 5.0.12
+
+2005-02-21 01:03  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - skip media genration if suppl or askmedia
+
+2005-02-21 00:36  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - remove prefix tag
+
+2005-02-21 00:20  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib, rpmtools.spec: - don't create existing dir - minor
+	  fix - 5.8.11
+
+2005-02-20 22:44  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* MANIFEST, Makefile.PL: - add Districonf and co
+
+2005-02-20 22:15  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm, dumpdistribconf: - initials release for managing
+	  mandrakelinux distro tree
+
+2005-02-17 13:58  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.10-1mdk
+
 2005-02-17 13:30  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
 
 	* gendistrib: Ensure links are done
