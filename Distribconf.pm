@@ -375,8 +375,9 @@ sub getvalue {
    
     my $default;
     SWITCH: for ($var) {
-        /^synthesis$/ and do { $default = 'synthesis.' . $distrib->getvalue($media, 'hdlist'); last; };
-        /^hdlist$/    and do { $default = 'hdlist_' . $distrib->getvalue($media, 'name') . '.cz'; last; };
+        /^synthesis$/ and do { $default = 'synthesis.' . lc($distrib->getvalue($media, 'hdlist')); last; };
+        /^hdlist$/    and do { $default = 'hdlist_' . lc($distrib->getvalue($media, 'name')) . '.cz'; last; };
+        /^pubkey$/    and do { $default = 'pubkey_' . lc($distrib->getvalue($media, 'name')); last; };
         /^name$/      and do { $default = $media; $default =~ s!/!_!g; last; };
         /^path$/      and return $media;
         /^root$/      and return $distrib->{root};
@@ -443,6 +444,10 @@ Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.3  2005/02/21 13:11:01  othauvin
+    - lowercase media name in file name
+    - manage pubkey
+
     Revision 1.2  2005/02/21 12:47:34  othauvin
     - avoid error message about non existing media.cfg
 
