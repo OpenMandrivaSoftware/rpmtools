@@ -24,8 +24,7 @@
 #define HDFLAGS_OBSOLETES     0x00400000
 #define HDFLAGS_CONFLICTS     0x00800000
 #define HDFLAGS_FILES         0x01000000
-#define HDFLAGS_DIRSIND       0x02000000
-#define HDFLAGS_FILESIND      0x04000000
+#define HDFLAGS_CONFFILES     0x02000000
 
 
 char *get_name(Header header, int_32 tag) {
@@ -71,16 +70,15 @@ int get_bflag(AV* flag) {
     case 7:
       if (!strncmp(str, "version", 7))      bflag |= HDFLAGS_VERSION;
       else if (!strncmp(str, "release", 7)) bflag |= HDFLAGS_RELEASE;
-      else if (!strncmp(str, "dirsind", 7)) bflag |= HDFLAGS_DIRSIND;
       break;
     case 8:
       if (!strncmp(str, "requires", 8))      bflag |= HDFLAGS_REQUIRES;
       else if (!strncmp(str, "provides", 8)) bflag |= HDFLAGS_PROVIDES;
-      else if (!strncmp(str, "filesind", 8)) bflag |= HDFLAGS_FILESIND;
       break;
     case 9:
       if (!strncmp(str, "obsoletes", 9))      bflag |= HDFLAGS_OBSOLETES;
       else if (!strncmp(str, "conflicts", 9)) bflag |= HDFLAGS_CONFLICTS;
+      else if (!strncmp(str, "conffiles", 9)) bflag |= HDFLAGS_CONFFILES;
       break;
     }
   }
@@ -192,15 +190,17 @@ HV* get_info(Header header, int bflag, HV* provides) {
     hv_store(header_info, "conflicts", 9, get_table_sense(header,                 RPMTAG_CONFLICTNAME,
 							  bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTFLAGS : 0,
 							  bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTVERSION : 0, 0), 0);
-  if (provides || (bflag & HDFLAGS_FILES)) {
+  if (provides || (bflag & (HDFLAGS_FILES | HDFLAGS_CONFFILES))) {
     /* at this point, there is a need to parse all files to update provides of needed files,
        or to store them. */
     AV* table_files = bflag & HDFLAGS_FILES ? newAV() : 0;
+    AV* table_conffiles = bflag & HDFLAGS_CONFFILES ? newAV() : 0;
     char ** baseNames, ** dirNames;
     int_32 * dirIndexes;
 
-    headerGetEntry(header, RPMTAG_OLDFILENAMES, &type, (void **) &list, &count);
+    headerGetEntry(header, RPMTAG_FILEFLAGS, &type, (void **) &flags, &count);
 
+    headerGetEntry(header, RPMTAG_OLDFILENAMES, &type, (void **) &list, &count);
     if (list) {
       for (i = 0; i < count; i++) {
 	SV** isv;
@@ -219,15 +219,14 @@ HV* get_info(Header header, int bflag, HV* provides) {
 	   hv_store(provides, list[i], len, newSVpv(name, 0), 0); */
 	if (table_files)
 	  av_push(table_files, newSVpv(list[i], len));
+	if (table_conffiles && flags && flags[i] & RPMFILE_CONFIG)
+	  av_push(table_conffiles, newSVpv(list[i], len));
       }
     }
 
-    headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, 
-		   &count);
-    headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, 
-		   NULL);
+    headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, &count);
+    headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, NULL);
     headerGetEntry(header, RPMTAG_DIRNAMES, &type, (void **) &dirNames, NULL);
-
     if (baseNames && dirNames && dirIndexes) {
       char buff[4096];
       char *p;
@@ -252,11 +251,15 @@ HV* get_info(Header header, int bflag, HV* provides) {
 	}
 	if (table_files)
 	  av_push(table_files, newSVpv(buff, p - buff));
+	if (table_conffiles && flags && flags[i] & RPMFILE_CONFIG)
+	  av_push(table_conffiles, newSVpv(buff, p - buff));
       }
     }
 
     if (table_files)
       hv_store(header_info, "files", 5, newRV_noinc((SV*)table_files), 0);
+    if (table_conffiles)
+      hv_store(header_info, "conffiles", 9, newRV_noinc((SV*)table_conffiles), 0);
   }
   if (provides) {
     /* we have to examine provides to update the hash here. */
@@ -312,10 +315,11 @@ _exit(code)
   int code
 
 int
-db_traverse_names(db, flags, names, callback)
+db_traverse_tag(db, tag, names, flags, callback)
   void *db
-  SV *flags
+  char *tag
   SV *names
+  SV *flags
   SV *callback
   PREINIT:
   int count = 0;
@@ -328,16 +332,33 @@ db_traverse_names(db, flags, names, callback)
     int len = av_len(names_av);
     HV* info;
     SV** isv;
-    int i;
+    int i, rpmtag;
     STRLEN str_len;
     char *name;
     Header header;
     rpmdbMatchIterator mi;
 
+    if (!strcmp(tag, "name"))
+      rpmtag = RPMTAG_NAME;
+    else if (!strcmp(tag, "whatprovides"))
+      rpmtag = RPMTAG_PROVIDENAME;
+    else if (!strcmp(tag, "whatrequires"))
+      rpmtag = RPMTAG_REQUIRENAME;
+    else if (!strcmp(tag, "group"))
+      rpmtag = RPMTAG_GROUP;
+    else if (!strcmp(tag, "triggeredby"))
+      rpmtag = RPMTAG_BASENAMES;
+    else if (!strcmp(tag, "path"))
+      rpmtag = RPMTAG_BASENAMES;
+    else {
+      croak("unknown tag");
+      len = 0;
+    }
+
     for (i = 0; i <= len; ++i) {
       isv = av_fetch(names_av, i, 0);
       name = SvPV(*isv, str_len);
-      mi = rpmdbInitIterator((rpmdb)db, RPMTAG_NAME, name, str_len);
+      mi = rpmdbInitIterator((rpmdb)db, rpmtag, name, str_len);
       while (header = rpmdbNextIterator(mi)) {
 	count++;
 	info = get_info(header, bflag, NULL);

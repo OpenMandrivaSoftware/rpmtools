@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.04';
+$VERSION = '2.3';
 
 bootstrap rpmtools $VERSION;
 
@@ -26,10 +26,10 @@ rpmtools - Mandrake perl tools to handle rpm files and hdlist files
     $params->compute_depslist();
 
     my $db = $params->db_open("");
-    $params->db_traverse_names($db,
-                               [ qw(name version release) ],
-                               \@names,
-                               sub {
+    $params->db_traverse_tag($db,
+                             "name", \@names,
+                             [ qw(name version release) ],
+                             sub {
         my ($p) = @_;
         print "$p->{name}-$p->{version}-$p->{release}\n";
     });
@@ -83,7 +83,7 @@ sub new {
     bless {
 	   use_base_flag => 0,
 	   flags         => [ qw(name version release size arch group requires provides),
-			      grep { exists $tags{$_} } qw(sense files obsoletes conflicts) ],
+			      grep { exists $tags{$_} } qw(sense files obsoletes conflicts conffiles) ],
 	   info          => {},
 	   depslist      => [],
 	   provides      => {},
