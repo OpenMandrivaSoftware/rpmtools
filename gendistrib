@@ -28,7 +28,8 @@ use Getopt::Long;
 use Distribconf::Build;
 
 my $urpm = new URPM;
-my $headers_dir = (-d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp") . "/.build_hdlist";
+my $tempdir = -d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp";
+my $headers_dir = $tempdir . "/.build_hdlist";
 
 sub usage {
 	print STDERR <<EOF;
@@ -182,6 +183,8 @@ foreach (0..$#hdlists) {
 print STDERR "clean data for second pass\n" unless $nooutput;
 $urpm->unresolved_provides_clean;
 
+#- temporary file where to build hdlists
+my $temp_hdlist = $tempdir . '/hdlist' . $$;
 foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
 
@@ -195,11 +198,13 @@ foreach (0..$#hdlists) {
     $urpm->compute_deps;
 
     print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
+    unlink $temp_hdlist;
     $urpm->build_hdlist(start  => $start,
 			end    => $end,
 			dir    => $headers_dir,
-			hdlist => $e->{hdlist},
+			hdlist => $temp_hdlist,
 			ratio  => 9);
+    system('/bin/mv', $temp_hdlist, $e->{hdlist});
 
     print STDERR qq(building synthesis for medium "$e->{descr}"\n) unless $nooutput;
     $urpm->build_synthesis(start     => $start,
