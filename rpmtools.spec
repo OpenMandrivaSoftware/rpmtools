@@ -39,7 +39,8 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %install
 rm -rf $RPM_BUILD_ROOT
 %{make} install PREFIX=$RPM_BUILD_ROOT
-%{make} -C packdrake-pm install PREFIX=$RPM_BUILD_ROOT%{_prefix}
+%{makeinstall_std} -C packdrake-pm
+rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
 
 %clean
 rm -rf $RPM_BUILD_ROOT
