@@ -1,3 +1,41 @@
+2004-07-05 08:23  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* parsehdlist.c: Fix error message
+
+2004-07-05 07:40  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* parsehdlist.c: Minor fixes in help message
+
+2004-07-05 07:40  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Makefile: Add a rule for changelog generation
+
+2004-04-23 14:39  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 4.5-20mdk
+
+2004-04-23 11:04  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Makefile: Fix CFLAGS in the Makefile for compilation with
+	  versions of rpm >= 4.2.
+
+2004-04-23 10:49  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* packdrake, packdrake-pm/packdrake.pm: Add a --quiet option to
+	  packdrake
+
+2004-04-21 11:17  Warly <warly@mandrakesoft.com>
+
+	* gendistrib: make $ENV{TMPDIR} the default cache location
+
+2004-02-25 14:35  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: rebuild for perl
+
+2004-01-18 03:30  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* genhdlist: - Don't put wrong rpm in list file when using dontdie
+
 2004-01-16 19:04  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* genhdlist, rpmtools.spec: fix genhdlist without arg

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 20mdk
+%define release 21mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -65,6 +65,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Mon Jul 05 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-21mdk
+- Minor changes
+
 * Fri Apr 23 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-20mdk
 - add a --quiet option to packdrake
 - rebuild for perl 5.8.4, and add a dependency on perl-base
