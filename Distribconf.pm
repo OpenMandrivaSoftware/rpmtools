@@ -378,12 +378,13 @@ sub getvalue {
     my ($distrib, $media, $var) = @_;
     $media ||= 'media_info';
    
-    my $default;
+    my $default = "";
     SWITCH: for ($var) {
-        /^synthesis$/ and do { $default = 'synthesis.' . lc($distrib->getvalue($media, 'hdlist')); last; };
-        /^hdlist$/    and do { $default = 'hdlist_' . lc($distrib->getvalue($media, 'name')) . '.cz'; last; };
-        /^pubkey$/    and do { $default = 'pubkey_' . lc($distrib->getvalue($media, 'name')); last; };
-        /^name$/      and do { $default = $media; $default =~ s!/!_!g; last; };
+        /^synthesis$/ and do { $default = 'synthesis.' . lc($distrib->getvalue($media, 'hdlist')); };
+        /^hdlist$/    and do { $default = 'hdlist_' . lc($distrib->getvalue($media, 'name')) . '.cz'; };
+        /^pubkey$/    and do { $default = 'pubkey_' . lc($distrib->getvalue($media, 'name')); };
+        /^name$/      and do { $default = $media; };
+        $default =~ s![/ ]+!_!g;
         /^path$/      and return $media;
         /^root$/      and return $distrib->{root};
         /^mediadir$|^infodir$/  and do { $default = $distrib->{$var}; last; };
@@ -431,7 +432,64 @@ sub getpath {
     return ($val =~ m!/! ? "" : ($var eq 'path' ? $distrib->{mediadir} : $distrib->{infodir} ) . "/") . $val;
 }
 
+=head2 getfullpath($media, $var)
+
+Does the same thing than L<getpath> but the return value is already
+prefixed by the 'root' path.
+This function is shortcut for:
+$distrib->getpath(undef, 'root') . '/' . $distrib->getpath($media, $var).
+
+=cut
+
+sub getfullpath {
+    my ($distrib, $media, $var) = @_;
+    return $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($media, $var);
+}
+
 1;
+
+=head2 check
+
+=cut
+
+sub check {
+    my ($distrib, $out) = @_;
+    $out ||= \*STDOUT;
+    
+    $distrib->listmedia or print $out "W: No media found in this config\n";
+
+    # Checking no overlap
+    foreach my $var (qw/name hdlist synthesis path/) {
+        my %e;
+        foreach ($distrib->listmedia) {
+            my $v = $var eq 'name' ? $distrib->getvalue($_, $var) : $distrib->getpath($_, $var);
+            push @{$e{$v}}, $_;
+        }
+
+        foreach my $key (keys %e) {
+            if (@{$e{$key}} > 1) {
+                printf $out "E: medium %s have same %s (%s)\n",
+                    join (", ", @{$e{$key}}),
+                    $var,
+                    $key;
+            }
+        }
+    }
+    
+    foreach my $media ($distrib->listmedia) {
+        -d $distrib->getfullpath($media, 'path') or
+            printf $out "E: dir %s don't exist for media '%s'\n", 
+                $distrib->getpath($media, 'path'),
+                $media;
+
+        foreach (qw/hdlist synthesis pubkey/) {
+            -f $distrib->getfullpath($media, $_) or 
+                printf $out "E: $_ %s don't exist for media '%s'\n", 
+                    $distrib->getpath($media, $_),
+                    $media;
+        }
+    }
+}
 
 __END__
 
@@ -449,6 +507,11 @@ Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.6  2005/02/21 21:40:10  othauvin
+    - add getfullpath
+    - s![ /]*!_! in default path
+    - add check()
+
     Revision 1.5  2005/02/21 15:34:56  othauvin
     Distribconf
 
