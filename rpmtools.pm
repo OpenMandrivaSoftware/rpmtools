@@ -269,7 +269,7 @@ sub compute_depslist {
 	}
     }
     #- setup, filesystem and basesystem should be at the beginning.
-    @ordered{qw(ldconfig readline termcap libtermcap bash sash glibc setup filesystem basesystem)} =
+    @ordered{qw(ldconfig readline termcap libtermcap2 bash sash glibc setup filesystem basesystem)} =
       (100000, 90000, 80000, 70000, 60000, 50000, 40000, 30000, 20000, 10000);
 
     #- compute base flag, consists of packages which are required without
