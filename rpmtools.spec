@@ -55,6 +55,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Tue Mar  7 2000 Pixel <pixel@mandrakesoft.com> 1.1-1mdk
 - new version (gendepslist2 instead of gendepslist, hdlist2prereq)
+- missing Requires, must wait for francois to choose the names for build_archive/extract_archive :)
 
 * Fri Feb 18 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0-9mdk
 - Really fix with rpm-3.0.4 (Fredl).
