@@ -254,9 +254,9 @@ map<string, set<string> > closure(const map<string, set<string> > &names) {
 //  }
 //};
 
-inline int verif(int num, int max, const string &package, const string &dep) {
-  if (num >= max) cerr << package << " requires " << dep << " which is not in the same hdlist\n";
-  return num;
+inline int verif(int npack, int ndep, const string &package, const string &dep) {
+  if (ndep > npack) cerr << package << " requires " << dep << " which is not in the same hdlist\n";
+  return ndep;
 }
 
 void printDepslist(ofstream *out1, ofstream *out2) {
@@ -319,11 +319,15 @@ void printDepslist(ofstream *out1, ofstream *out2) {
     for (ITs q = dep.begin(); q != dep.end(); q++) {
       if (q->find('|') != string::npos) {
 	vector<string> l = split('|', *q);
-	for (ITv k = l.begin(); k != l.end(); k++) *out2 << " " << verif(where[*k], nb2hdlist[i], *p, *k);
+	for (ITv k = l.begin(); k != l.end(); k++) {
+	  verif(nb2hdlist[i], nb2hdlist[where[*k]], *p, *k);
+	  *out2 << " " << where[*k];
+	}
       } else if (q->compare("NOTFOUND_") > 1) {
 	*out2 << " " << *q;
       } else {
-	*out2 << " " << verif(where[*q], nb2hdlist[i], *p, *q);
+	verif(nb2hdlist[i], nb2hdlist[where[*q]], *p, *q);
+	*out2 << " " << where[*q];
       }
     }
     *out2 << "\n";
