@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 2mdk
+%define release 3mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -52,6 +52,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Nov 20 2000 François Pons <fpons@mandrakesoft.com> 2.1-3mdk
+- removed ugly log in stdout in parsehdlist.
+
 * Mon Nov 20 2000 François Pons <fpons@mandrakesoft.com> 2.1-2mdk
 - fixed abusive -ldb2 and -ldb1 in Makefile.
 - fixed deadlock with DrakX by using fflush.
