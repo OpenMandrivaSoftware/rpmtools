@@ -174,6 +174,10 @@ void getRequires(FD_t fd, int current_hdlist) {
   for (ITs p = all_frequires.begin(); p != all_frequires.end(); p++) fprovided_by[*p] = *(new vector<string>);
 }
 
+bool notfound(const string &s) {
+  return strncmp(s.c_str(), "NOTFOUND_", sizeof("NOTFOUND_") - 1) == 0;
+}
+
 void getProvides(FD_t fd, int current_hdlist) {
   Header header;
   while ((header=headerRead(fd, HEADER_MAGIC_YES))) 
@@ -274,7 +278,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 
   vector<string> packages;
   set<string> list = hdlist2names[0];
-  int nb2hdlist[names.size()];
+  int nb2hdlist[2 * names.size()]; // the 2x is a hacky hack. nb_names is not enough, need a little more
   int i = 0;
   string n;
 
@@ -301,7 +305,10 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 	  }
 	}
       }
-      for (ITs p = list.begin(); p != list.end(); p++) hdlist2names[0].erase(*p);
+      for (ITs p = list.begin(); p != list.end(); p++) {
+	hdlist2names[0].erase(*p);
+	if (p->find('|') != string::npos) list.erase(*p);
+      }
     } else {
       list = hdlist2names[i];
     }
@@ -309,7 +316,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
       int l_best = 9999;
 
       for (ITs p = list.begin(); p != list.end(); p++) {
-	if (p->compare("NOTFOUND_") > 1) {
+	if (notfound(*p)) {
 	  list.erase(*p);
 	  continue;
 	}
@@ -354,7 +361,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 	  verif(nb2hdlist[i], nb2hdlist[where[*k]], *p, *k);
 	  *out2 << where[*k];
 	}
-      } else if (q->compare("NOTFOUND_") > 1) {
+      } else if (notfound(*q)) {
 	*out2 << " " << *q;
       } else {
 	verif(nb2hdlist[i], nb2hdlist[where[*q]], *p, *q);
