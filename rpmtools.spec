@@ -1,10 +1,10 @@
 %define name rpmtools
-%define release 2mdk
+%define release 5mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.0
 
-Summary: contains various rpm command-line tools
+Summary: Contains various rpm command-line tools
 Name: %{name}
 Version: %{version}
 Release: %{release}
@@ -22,18 +22,19 @@ Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0
 Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %package devel
-Summary: contains various rpm command-line tools for development
+Summary: Contains various rpm command-line tools for development
 Group: Development/Other
+Requires: %{name} = %{version}
 %description devel
 Various devel rpm tools which can be used to build a customized
 Linux-Mandrake distribution.
 
 %package compat
-Summary: contains various rpm command-line tools for compability
+Summary: Contains various rpm command-line tools for compatibility
 Group: System/Configuration/Packaging
-Requires: rpmtools
+Requires: %{name} = %{version}
 %description compat
-Various rpm tools for compability issue with previous version of
+Various rpm tools for compatibility issue with previous version of
 rpmtools package.
 
 %prep
@@ -49,7 +50,7 @@ rm -rf $RPM_BUILD_ROOT
 %{make} install PREFIX=$RPM_BUILD_ROOT
 %{make} -f Makefile_core install PREFIX=$RPM_BUILD_ROOT%{_prefix}
 
-# compability tools, based upon parsehdlist ones.
+# compatibility tools, based upon parsehdlist ones.
 cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2names
 #!/bin/sh
 %{_bindir}/parsehdlist $*
@@ -103,6 +104,15 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Nov  7 2000 Pixel <pixel@mandrakesoft.com> 2.0-5mdk
+- add requires for -devel
+
+* Tue Nov  7 2000 Pixel <pixel@mandrakesoft.com> 2.0-4mdk
+- fix compability spelling error
+
+* Tue Nov  7 2000 Pixel <pixel@mandrakesoft.com> 2.0-3mdk
+- capitalize summaries
+
 * Thu Oct 19 2000 François Pons <fpons@mandrakesoft.com> 2.0-2mdk
 - fixed speed problem of rpmtools depslist computation, now 10x faster!
 
