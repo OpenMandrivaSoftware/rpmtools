@@ -54,7 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
-* Fri Feb  8 2002 François Pons <fpons@mandrakesoft.com> 4.2-2mdk
+* Mon Feb 11 2002 François Pons <fpons@mandrakesoft.com> 4.2-2mdk
 - missing fixing arch determination for _parse_ (now correctly
   handles src architecture).
 
