@@ -138,13 +138,13 @@ sub choose_compression_method {
     $test_method =~ m/^gzip|^gunzip/ and do {
         $pack->{compress_method} ||= "gzip";
         if (!$pack->{force_extern}) {
-            eval { require Packdrakeng::zlib; };
-            if (! $@) {
-                $pack->{subcompress} = \&Packdrakeng::zlib::gzip_compress;
-                $pack->{subuncompress} = \&Packdrakeng::zlib::gzip_uncompress;
-                $pack->{use_extern} = 0;
-                $pack->{direct_write} = 1;
-            }
+            eval {
+		require Packdrakeng::zlib;
+		$pack->{subcompress} = \&Packdrakeng::zlib::gzip_compress;
+		$pack->{subuncompress} = \&Packdrakeng::zlib::gzip_uncompress;
+		$pack->{use_extern} = 0;
+		$pack->{direct_write} = 1;
+            };
         }
     };
     if (!$pack->{noargs}) {
