@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 6mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 2.0
+%define version 2.1
 
 Summary: Contains various rpm command-line tools
 Name: %{name}
@@ -29,51 +29,18 @@ Requires: %{name} = %{version}
 Various devel rpm tools which can be used to build a customized
 Linux-Mandrake distribution.
 
-%package compat
-Summary: Contains various rpm command-line tools for compatibility
-Group: System/Configuration/Packaging
-Requires: %{name} = %{version}
-%description compat
-Various rpm tools for compatibility issue with previous version of
-rpmtools package.
-
 %prep
 %setup
 
 %build
 %{__perl} Makefile.PL
 %{make} -f Makefile_core OPTIMIZE="$RPM_OPT_FLAGS"
-%{make} CFLAGS="$RPM_OPT_FLAGS"
+%{make} CFLAGS="$RPM_OPT_FLAGS -DVERSION_STRING=\"%{version}\""
 
 %install
 rm -rf $RPM_BUILD_ROOT
 %{make} install PREFIX=$RPM_BUILD_ROOT
 %{make} -f Makefile_core install PREFIX=$RPM_BUILD_ROOT%{_prefix}
-
-# compatibility tools, based upon parsehdlist ones.
-cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2names
-#!/bin/sh
-%{_bindir}/parsehdlist $*
-EOF
-chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2names
-
-cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2prereq
-#!/bin/sh
-%{_bindir}/parsehdlist --quiet --prereqs $*
-EOF
-chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2prereq
-
-cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2groups
-#!/bin/sh
-%{_bindir}/parsehdlist --quiet --group $*
-EOF
-chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2groups
-
-cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2files
-#!/bin/sh
-%{_bindir}/parsehdlist --quiet --files $*
-EOF
-chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2files
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -94,16 +61,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/genhdlists
 %{_bindir}/genfilelist
 
-%files compat
-%defattr(-,root,root)
-%{_bindir}/gendepslist2
-%{_bindir}/hdlist2prereq
-%{_bindir}/hdlist2groups
-%{_bindir}/hdlist2files
-%{_bindir}/hdlist2names
-
 
 %changelog
+* Mon Nov 20 2000 François Pons <fpons@mandrakesoft.com> 2.1-1mdk
+- removed rpmtools-compat which is now obsoleted.
+- add more complete parsehdlist tools, to be used by DrakX
+  in interactive mode.
+
 * Thu Nov 16 2000 François Pons <fpons@mandrakesoft.com> 2.0-6mdk
 - updated order of 9 first package to be installed.
 - removed memory consuming code in perl.
