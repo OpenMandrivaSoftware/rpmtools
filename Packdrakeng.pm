@@ -18,7 +18,7 @@ package Packdrakeng;
 
 use strict;
 use warnings;
-use POSIX;
+use POSIX qw(O_WRONLY O_TRUNC O_CREAT O_RDONLY);
 use File::Path;
 use File::Temp qw(tempfile);
 
