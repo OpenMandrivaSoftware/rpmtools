@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 10mdk
+%define release 11mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -23,7 +23,7 @@ Various rpmtools.
 
 %package devel
 Summary: contains various rpm command-line tools for development
-Group: Development/System
+Group: Development/Other
 %description devel
 Various devel rpm tools.
 
@@ -56,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genhdlists
 
 %changelog
+* Sat Mar 25 2000 Pixel <pixel@mandrakesoft.com> 1.1-11mdk
+- new group
+
 * Fri Mar 24 2000 Pixel <pixel@mandrakesoft.com> 1.1-10mdk
 - gendepslist2 bug fix again
 
