@@ -605,25 +605,31 @@ sub extract_virtual {
 }
 
 sub extract {
-    my ($pack, $dir, @file) = @_;
+    my ($pack, $destdir, @file) = @_;
     foreach my $f (@file) {
-        my $dest = $dir ? "$dir/$f" : "$f";
+        my $dest = $destdir ? "$destdir/$f" : "$f";
         my ($dir) = $dest =~ m!(.*)/.*!;
 		if (exists($pack->{dir}{$f})) {
             -d $dest || mkpath($dest)
-                or warn "Unable to create dir $dest";
+                or warn "Unable to create dir $dest: $!";
             next;
         } elsif (exists($pack->{'symlink'}{$f})) {
-			-d $dir || mkpath($dir) or do {
-				warn "Unable to create dir $dir";
-			};
-            symlink($dest, $pack->{'symlink'}{$f}) 
-                or warn "Unable to extract symlink $f";
+			-d $dir || mkpath($dir) or
+				warn "Unable to create dir $dest: $!";
+            -l $dest and unlink $dest;
+            symlink($pack->{'symlink'}{$f}, $dest)
+                or warn "Unable to extract symlink $f: $!";
             next;
         } elsif (exists($pack->{files}{$f})) {
 			-d $dir || mkpath($dir) or do {
 				warn "Unable to create dir $dir";
 			};
+            if (-l $dest) {
+                unlink($dest) or do {
+                    warn "Can't remove link $dest: $!";
+                    next; # Don't overwrite a file because where the symlink point to
+                };
+            }
             sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY)
                 or do {
 				warn "Unable to extract $dest";
@@ -664,7 +670,7 @@ sub list {
 }
 
 # Print toc info
-sub dump {
+sub dumptoc {
     my ($pack) = @_;
         foreach my $file (keys %{$pack->{dir}}) {
         printf "d %13c %s\n", ' ', $file;

@@ -3,22 +3,34 @@
 # $Id$
 
 use strict;
-use Test::More tests => 21;
+use Test::More tests => 32;
 use Digest::MD5;
 
 use_ok('Packdrakeng');
 
+-d "test" || mkdir "test" or die "Can't create directory test";
+
+my $coin = "
+ ___________
+< Coin coin >
+ -----------
+ \     ,~~.
+  \ __( o  )
+    `--'==( ___/)
+       ( (   . /
+        \ '-' /
+    ~'`~'`~'`~'`~
+";
+
 sub clean_test_files {
     -d "test" or return;
-    unlink glob("test/*");
+    system("rm -fr $_") foreach (glob("test/*"));
 }
 
-# 
 sub create_test_files {
     my ($number) = @_;
     my %created;
-    -d "test" or mkdir "test";
-    foreach my $n (1 .. $number||10) {
+        foreach my $n (1 .. $number||10) {
         my $size = int(rand(1024));
         # push(@created, "test/$size");
         system("dd if=/dev/urandom of=test/$size bs=1024 count=$size >/dev/null 2>&1");
@@ -27,21 +39,6 @@ sub create_test_files {
         close $h;
     }
     %created 
-}
-
-sub create_know_files {
-    my %created;
-    foreach my $letter ('a' .. 'z') {
-    open(my $h, "> test/$letter");
-    foreach (1 .. 3456) {
-        printf $h "%s\n", $letter x 33;
-    }
-    close($h);
-    open($h, "test/$letter");
-    $created{"test/$letter"} = Digest::MD5->new->addfile($h)->hexdigest;
-    close($h);
-    }
-    %created
 }
 
 sub check_files {
@@ -81,6 +78,38 @@ sub test_packing {
 
     $pack = undef;
 }
+
+
+# Single test:
+{
+clean_test_files();
+
+ok(my $pack = Packdrakeng->new(archive => "packtest.cz"), "Create a new archive");
+open(my $fh, "+> test/test") or die "Can't open test file $!";
+syswrite($fh, $coin);
+sysseek($fh, 0, 0);
+ok($pack->add_virtual('f', "coin", $fh), "Adding data from file");
+close($fh);
+unlink("test/test");
+
+ok($pack->add_virtual('d', "dir"), "Adding a dir");
+ok($pack->add_virtual('l', "symlink", "dest"), "Adding a symlink");
+$pack = undef;
+
+ok($pack = Packdrakeng->open(archive => "packtest.cz"), "Opening the archive");
+ok($pack->extract("test", "dir"), "Extracting dir");
+ok(-d "test/dir", "dir succefully restore");
+ok($pack->extract("test", "symlink"), "Extracting symlink");
+ok(readlink("test/symlink") eq "dest", "symlink succefully restore");
+
+open($fh, "+> test/test") or die "Can't open file $!";
+ok($pack->extract_virtual($fh, "coin"), "Extracting data");
+sysseek($fh, 0, 0);
+sysread($fh, my $data, 1000);
+close($fh);
+ok($data eq $coin, "Data are correct");
+
+} 
 
 print "Test: using external cat function:\n";
     clean_test_files();
