@@ -286,7 +286,7 @@ sub compute_depslist {
     #- give an id to each packages, start from number of package already
     #- registered in depslist.
     my $global_id = scalar @{$params->{depslist}};
-    foreach (sort { $ordered{$b->{name}} <=> $ordered{$a->{name}} } @info) {
+    foreach (sort { $ordered{$b->{name}} <=> $ordered{$a->{name}} || $a->{name} cmp $b->{name} } @info) {
 	$_->{id} = $global_id++;
     }
 

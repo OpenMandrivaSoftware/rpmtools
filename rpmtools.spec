@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 14mdk
+%define release 15mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Mar 26 2001 François Pons <fpons@mandrakesoft.com> 2.3-15mdk
+- fixed depslist sort algorithm to fix Aurora problems.
+
 * Fri Mar 23 2001 François Pons <fpons@mandrakesoft.com> 2.3-14mdk
 - reverted rpmtools.xs modification.
 - simplified cleaner (include support for sense flag).
