@@ -1,11 +1,11 @@
 %define name rpmtools
-%define release 8mdk
+%define release 9mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.0
 
 %{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
-%{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}' rpm)}
+%{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
 Summary: Contains various rpm command-line tools
 Name: %{name}
@@ -54,6 +54,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Jul 18 2001 François Pons <fpons@mandrakesoft.com> 3.0-9mdk
+- changed rpm requires by including release with test.
+- allow bootstrap with current version and not installed one.
+- build release for new rpm.
+
 * Thu Jul  5 2001 François Pons <fpons@mandrakesoft.com> 3.0-8mdk
 - added compute_id function.
 

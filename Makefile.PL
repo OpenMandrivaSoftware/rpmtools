@@ -2,7 +2,8 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-use rpmtools;
+# needed as it bootstrap itself...
+eval { require "./rpmtools.pm" };
 
 my $libs = ' -lrpm -lrpmio ' . (rpmtools::version_compare(qx(rpm -q --qf %{VERSION} rpm), "4.0.3") >= 0 && "-lrpmdb ") . '-lpopt -lz -lbz2';
 
