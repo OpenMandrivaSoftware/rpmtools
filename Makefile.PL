@@ -6,7 +6,7 @@ my $libs = ' -lrpm -ldb1 -lz';
 
 WriteMakefile(
     'NAME'      => 'rpmtools',
-    'OPTIMIZE'  => '-O3 -fomit-frame-pointer -fno-exceptions -fno-rtti -pipe -s -mpentium -mcpu=pentium -march=pentium -ffast-math -fexpensive-optimizations',
+    'OPTIMIZE'  => '-O3 -fomit-frame-pointer -fno-exceptions -fno-rtti -pipe -s -ffast-math -fexpensive-optimizations',
     'MAKEFILE'  => 'Makefile_core',
     'OBJECT'    => 'rpmtools.o',
     'VERSION_FROM'   => 'rpmtools.pm',

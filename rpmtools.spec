@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 2mdk
+%define release 3mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -40,11 +40,14 @@ rpmtools package.
 %setup
 
 %build
-make CFLAGS="$RPM_OPT_FLAGS"
+%{__perl} Makefile.PL
+%{make} -f Makefile_core OPTIMIZE="$RPM_OPT_FLAGS"
+%{make} CFLAGS="$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
-make install PREFIX=$RPM_BUILD_ROOT
+%{make} install PREFIX=$RPM_BUILD_ROOT
+%{make} -f Makefile_core install PREFIX=$RPM_BUILD_ROOT%{_prefix}
 
 # compability tools, based upon parsehdlist ones.
 ln -s parsehdlist $RPM_BUILD_ROOT%{_bindir}/hdlist2names
@@ -96,6 +99,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Aug 28 2000 François Pons <fpons@mandrakesoft.com> 1.2-3mdk
+- fixed ugly arch specific optimization in Makefile.PL.
+
 * Fri Aug 25 2000 François Pons <fpons@mandrakesoft.com> 1.2-2mdk
 - added rpmtools perl module.
 - added genbasefiles to build compss, depslist.ordered and provides files
