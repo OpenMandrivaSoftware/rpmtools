@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 3mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -53,6 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root)
 /usr/bin/hdlist2prereq
+/usr/bin/genhdlists
 
 %changelog
 * Tue Mar  7 2000 Pixel <pixel@mandrakesoft.com> 1.1-1mdk

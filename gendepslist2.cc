@@ -12,7 +12,7 @@
 
 #define COMPATIBILITY
 
-string put_first = "filesystem setup";
+string put_first = "setup filesystem";
 
 
 /********************************************************************************/
@@ -140,8 +140,9 @@ vector<string> get_files(Header header) {
 /********************************************************************************/
 /* gendepslist ******************************************************************/
 /********************************************************************************/
+int nb_hdlists;
 vector<string> packages;
-map<string, int> sizes;
+map<string, int> sizes, which_hdlist;
 map<string, string> name2fullname;
 map<string, vector<string> > requires, frequires;
 map<string, vector<string> > provided_by, fprovided_by;
@@ -166,7 +167,7 @@ void getRequires(FD_t fd) {
   for (ITs p = all_frequires.begin(); p != all_frequires.end(); p++) fprovided_by[*p] = *(new vector<string>);
 }
 
-void getProvides(FD_t fd) {
+void getProvides(FD_t fd, int current_hdlist) {
   Header header;
   while ((header=headerRead(fd, HEADER_MAGIC_YES))) 
   {
@@ -175,6 +176,7 @@ void getProvides(FD_t fd) {
 
     packages.push_back(name);
     name2fullname[s_name] = name;
+    which_hdlist[name] = current_hdlist;
     sizes[name] = get_int(header, RPMTAG_SIZE);
 
     if (in(s_name, provided_by)) provided_by[s_name].push_back(name);
@@ -248,6 +250,12 @@ map<string, set<string> > closure(const map<string, set<string> > &names) {
 //  }
 //};
 
+inline int verif(const string &dep, int i, const string &package, int hdlist, map<string,int> &where) {
+  if (which_hdlist[dep] > hdlist) 
+    cerr << package << " requires " << dep << " which is in hdlist " << which_hdlist[dep] << " > " << hdlist << "\n";
+  return where[dep];
+}
+
 void printDepslist(ofstream *out1, ofstream *out2) {
 
   map<string, set<string> > names;  
@@ -266,7 +274,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
   map<string,int> length;
   for (ITms p = names.begin(); p != names.end(); p++) {
     int l = p->second.size();
-    for (ITs q = p->second.begin(); q != p->second.end(); q++) if (q->find('|') >= 0) l += 1000;
+    for (ITs q = p->second.begin(); q != p->second.end(); q++) if (q->find('|') != string::npos) l += 1000;
     length[p->first] = l;
   }
 
@@ -296,28 +304,29 @@ void printDepslist(ofstream *out1, ofstream *out2) {
   map<string,int> where;
   for (ITv p = packages.begin(); p != packages.end(); p++, i++) where[*p] = i;
 
-  i = 0;
-  for (ITv p = packages.begin(); p != packages.end(); p++, i++) {
-    set<string> dep = closed[*p];
-    *out2 << *p << " " << sizes[*p];
-    for (ITs q = dep.begin(); q != dep.end(); q++) {
-      if (q->find('|') >= 0) {
-	vector<string> l = split('|', *q);
-	for (ITv k = l.begin(); k != l.end(); k++) *out2 << " " << where[*k];
-      } else if (q->compare("NOTFOUND_") > 1) {
-	*out2 << " " << *q;
-      } else {
-	int j = where[*q];
-	if (j > i) cerr << *p << "\n";
-	*out2 << " " << j;
+  for (int hdlist = 0; hdlist < nb_hdlists; hdlist++) {
+    i = 0;
+    for (ITv p = packages.begin(); p != packages.end(); p++, i++) 
+      if (which_hdlist[*p] == hdlist) {
+	set<string> dep = closed[*p];
+	*out2 << *p << " " << sizes[*p];
+	for (ITs q = dep.begin(); q != dep.end(); q++) {
+	  if (q->find('|') != string::npos) {
+	    vector<string> l = split('|', *q);
+	    for (ITv k = l.begin(); k != l.end(); k++) *out2 << " " << verif(*k, i, *p, hdlist, where);
+	  } else if (q->compare("NOTFOUND_") > 1) {
+	    *out2 << " " << *q;
+	  } else {
+	    *out2 << " " << verif(*q, i, *p, hdlist, where);
+	  }
+	}
+	*out2 << "\n";
       }
-    }
-    *out2 << "\n";
   }
 }
 
-FD_t hdlists(const char *cmd) {
-  return fdDup(fileno(popen(cmd, "r")));
+FD_t hdlists(const char *hdlist) {
+  return fdDup(fileno(popen(((string) "cat " + hdlist + " 2>/dev/null").c_str(), "r")));
 }
 
 int main(int argc, char **argv) 
@@ -334,14 +343,15 @@ int main(int argc, char **argv)
     cerr << "usage: gendepslist2 [-o <depslist>] hdlists_cz2...\n";
     return 1;
   }
-  string cmd = "bzip2 -dc ";
-  for (int i = 1; i < argc; i++) cmd = cmd + argv[i] + " ";
-  cmd += "2>/dev/null";
 
-  getRequires(hdlists(cmd.c_str()));
+  nb_hdlists = argc - 1;
+
+  for (int i = 1; i < argc; i++) getRequires(hdlists(argv[i]));
   cerr << "getRequires done\n";
-  getProvides(hdlists(cmd.c_str()));
+
+  for (int i = 1; i < argc; i++) getProvides(hdlists(argv[i]), i - 1);
   cerr << "getProvides done\n";
+
   printDepslist(out1, out2);
   delete out1; 
   delete out2;
