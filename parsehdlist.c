@@ -366,6 +366,7 @@ int main(int argc, char **argv)
       }
       fdClose(fd);
       if (pid) {
+	kill(pid, SIGTERM);
 	waitpid(pid, NULL, 0);
 	pid = 0;
       }
