@@ -33,6 +33,8 @@ Group: %{group}
 Summary: A simple Archive Extractor/Builder
 Conflicts: rpmtools <= 5.0.0
 Provides: perl(packdrake)
+# perl-Compress-Zlib is only "suggested"
+%define _requires_exceptions perl(Compress::Zlib)
 
 %description -n packdrake
 Packdrake is a simple indexed archive builder and extractor using
