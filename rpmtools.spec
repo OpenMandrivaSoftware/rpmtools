@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 2mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.0
+%define version 5.0.1
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -21,12 +21,24 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
 BuildRequires: perl-devel
+BuildRequires: perl-Compress-Zlib
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94 perl-base >= 5.8.4
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 Provides: perl(packdrake)
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
+
+%package -n packdrake
+Group: %{group}
+Summary: A simple Archive Extractor/Builder.
+
+%description -n packdrake
+Packdrake is a simple indexed archive builder and extractor using
+standard compression methods.
+
+Packadrakeng is a from scratch rewrite of the original packdrake. Its format
+is fully compatible with old packdrake.
 
 %prep
 %setup -q
@@ -45,17 +57,26 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %files
 %defattr(-,root,root)
-%{_bindir}/packdrake
 %{_bindir}/parsehdlist
 %{_bindir}/rpm2header
 %{_bindir}/gendistrib
 %{_bindir}/genhdlist
 %{_bindir}/rpm2cpio.pl
+
+%files -n packdrake
+%defattr(-,root,root)
+%{_bindir}/packdrake
 %{perl_vendorlib}/packdrake.pm
 %{perl_vendorlib}/Packdrakeng.pm
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 13 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.1-1mdk
+- split package
+
+* Sun Dec 12 2004 Stefan van der Eijk <stefan@eijk.nu> 5.0.0-3mdk
+- BuildRequires
+
 * Thu Dec 09 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.0-2mdk
 - Mostly doc fixes
 
