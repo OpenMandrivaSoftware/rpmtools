@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 15mdk
+%define release 16mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -58,6 +58,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Fri Apr 14 2000 Pixel <pixel@mandrakesoft.com> 1.1-16mdk
+- updated genhdlists
+
 * Fri Mar 31 2000 François PONS <fpons@mandrakesoft.com> 1.1-15mdk
 - add genfilelist
 
