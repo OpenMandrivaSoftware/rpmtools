@@ -1,3 +1,43 @@
+2004-12-09 13:56  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Makefile.PL: Refine "rpm" make target
+
+2004-12-09 13:46  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: Pull $VERSION from CVS
+
+2004-12-09 13:43  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* packdrake: Adjust copyright
+
+2004-12-09 13:34  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* packdrake.pm: POD fixes.
+
+2004-12-07 11:19  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* t/01packdrakeng.t: - minor fix
+
+2004-12-07 10:57  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* t/02packdrake.t: Compare strings with eq, not ==
+
+2004-12-07 10:47  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: POD fix
+
+2004-12-07 10:34  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: Minor doc fixes
+
+2004-12-07 09:10  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Makefile.PL: Improve distclean make target
+
+2004-12-07 00:29  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* MANIFEST: - ChangeLog
+
 2004-12-07 00:27  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* MANIFEST, Makefile, Makefile.PL, Packdrakeng.pm, packdrake.pm,

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 5.0.0
@@ -56,6 +56,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Thu Dec 09 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.0-2mdk
+- Mostly doc fixes
+
 * Mon Dec 06 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.0-1mdk
 - 5.0.0
 - Packdrakeng, new code
