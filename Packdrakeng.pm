@@ -267,8 +267,7 @@ sub end_seek {
 sub end_block {
     my ($pack) = @_;
     $pack->end_seek() or return 0;
-    my $m = $pack->{subcompress};
-    my (undef, $csize) = $pack->$m(undef);
+    my (undef, $csize) = $pack->{subcompress}($pack, undef);
     $pack->{current_block_csize} += $csize;
     foreach (keys %{$pack->{current_block_files}}) {
         $pack->{files}{$_} = $pack->{current_block_files}{$_};
@@ -463,8 +462,7 @@ sub add_virtual {
             next;
         };
 
-        my $m = $pack->{subcompress};
-        my ($size, $csize) = $pack->$m($data);
+        my ($size, $csize) = $pack->{subcompress}($pack, $data);
         $pack->{current_block_files}{$filename} = {
             size => $size,
             off => $pack->{current_block_off},
@@ -521,8 +519,7 @@ sub extract_virtual {
         $pack->{log}("Can't seek to offset $pack->{files}{$filename}->{coff}");
         return -1;
     };
-    my $m = $pack->{subuncompress};
-    $pack->$m($destfh, $pack->{files}{$filename});
+    $pack->{subuncompress}($pack, $destfh, $pack->{files}{$filename});
 }
 
 sub extract {
