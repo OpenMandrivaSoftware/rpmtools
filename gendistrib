@@ -84,6 +84,7 @@ foreach (<F>) {
     chomp;
     s/\s*#.*$//;
     /^\s*$/ and next;
+    /^(?:askmedia|suppl)/ and next;
     m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 
     push @hdlists, {

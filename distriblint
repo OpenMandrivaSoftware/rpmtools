@@ -46,7 +46,8 @@ sub pass_get_hdlists {
 	chomp;
 	s/\s*#.*$//;
 	/^\s*$/ and next;
-	m/^\s*(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
+	/^(?:askmedia|suppl)/ and next;
+	m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 	
 	push @{$o->{hdlists}}, { synthesis => "$o->{root}/media/media_info/synthesis.$1",
 				 hdlist => "$o->{root}/media/media_info/$1",
