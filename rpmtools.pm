@@ -427,8 +427,7 @@ sub relocate_depslist {
 		if ($p) {
 		    my $cmp_version = version_compare($_->{version}, $p->{version});
 		    my $cmp_release = $cmp_version == 0 && version_compare($_->{release}, $p->{release});
-		    if ($cmp_version > 0 ||
-			$cmp_release > 0 ||
+		    if ($_->{serial} > $p->{serial} || $cmp_version > 0 || $cmp_release > 0 ||
 			$cmp_version == 0 && $cmp_release == 0 && better_arch($_->{arch}, $p->{arch})) {
 			$params->{info}{$_->{name}} = $_;
 			++$relocated_entries;
