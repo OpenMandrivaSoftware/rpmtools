@@ -18,7 +18,7 @@ package Packdrakeng;
 
 use strict;
 use warnings;
-use POSIX qw(O_WRONLY O_TRUNC O_CREAT O_RDONLY);
+use POSIX qw(O_WRONLY O_TRUNC O_CREAT O_RDONLY O_APPEND);
 
 (our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
@@ -43,10 +43,10 @@ sub tempfile {
 sub mkpath {
     my ($path) = @_;
     $path =~ s:/*$::; # removing leading '/'
-    my $parent = substr($path, 0, length($path) - rindex($path, '/')+1);
+    my $parent = substr($path, 0, rindex($path, '/'));
     -d $path and return 1;
     -d $parent || mkpath($parent) or return 0;
-    mkdir($path);
+    mkdir($path)
 }
 
 sub _new {
