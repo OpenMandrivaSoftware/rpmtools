@@ -16,7 +16,7 @@
 
 ##- $Id$
 
-##- This package provide functions to use Zlib::Compress instead gzip.
+##- This package provides functions to use Compress::Zlib instead of gzip.
 
 package Packdrakeng::zlib;
 
@@ -47,11 +47,11 @@ sub gzip_compress {
     if (!defined $pack->{cstream_data}{object}) {
         # Writing gzip header file
         $outsize += syswrite($pack->{handle}, $gzip_header);
-        $pack->{cstream_data}{object} = deflateInit(
-                      -Level         => $pack->{level},
-                      # Zlib do not create gzip header, except with this flag
-                      -WindowBits     =>  - MAX_WBITS(),
-                  );
+	$pack->{cstream_data}{object} = deflateInit(
+	    -Level         => $pack->{level},
+	    # Zlib does not create a gzip header, except with this flag
+	    -WindowBits    =>  - MAX_WBITS(),
+	);
     }
     
     binmode $sourcefh;
@@ -61,7 +61,7 @@ sub gzip_compress {
         my ($cbuf, $status) = $pack->{cstream_data}{object}->deflate($buf);
         my $wres = syswrite($pack->{handle}, $cbuf) || 0;
         $wres == length($cbuf) or do {
-            warn "can't push all data to compressor";
+            warn "Can't push all data to compressor\n";
             return 0, 0;
         };
         $outsize += $wres;
@@ -96,23 +96,23 @@ sub gzip_uncompress {
             if (sysread($pack->{handle}, $buf, 2) == 2) {
                 my @magic = unpack("C*", $buf);
                 $magic[0] == Compress::Zlib::MAGIC1 && $magic[1] == Compress::Zlib::MAGIC2 or do {
-                    warn("Wrong magic header found");
+                    warn("Wrong magic header found\n");
                     return -1;
                 };
             } else {
-                warn("Unexpect end of file while reading magic");
+                warn("Unexpected end of file while reading magic\n");
                 return -1;
             }
             my ($method, $flags);
             if (sysread($pack->{handle}, $buf, 2) == 2) {
                 ($method, $flags) = unpack("C2", $buf);
             } else {
-                warn("Unexpect end of file while reading flags");
+                warn("Unexpected end of file while reading flags\n");
                 return -1;
             }
 
             if (sysread($pack->{handle}, $buf, 6) != 6) {
-                warn("Unexpect end of file while reading gzip header");
+                warn("Unexpected end of file while reading gzip header\n");
                 return -1;
             }
 
@@ -122,11 +122,11 @@ sub gzip_uncompress {
                     my $len = unpack("I", $buf);
                     $pack->{ustream_data}{cread} += $len;
                     if (sysread($pack->{handle}, $buf, $len) != $len) {
-                        warn("Unexpect end of file while reading gzip header");
+                        warn("Unexpected end of file while reading gzip header\n");
                         return -1;
                     }
                 } else {
-                    warn("Unexpect end of file while reading gzip header");
+                    warn("Unexpected end of file while reading gzip header\n");
                     return -1;
                 }
             }
@@ -144,13 +144,13 @@ sub gzip_uncompress {
                 $pack->{ustream_data}{cread} + $pack->{bufsize} > $fileinfo->{csize} ? 
                     $fileinfo->{csize} - $pack->{ustream_data}{cread} : 
                     $pack->{bufsize}) or do {
-                warn("Enexpected end of file");
+                warn("Unexpected end of file\n");
                 return -1;
             };
             $pack->{ustream_data}{cread} += $cl;
             ($out, $status) = $pack->{ustream_data}{x}->inflate(\$buf);
             $status == Z_OK || $status == Z_STREAM_END or do {
-                warn("Unable to uncompress data");
+                warn("Unable to uncompress data\n");
                 return -1;
             };
         }
@@ -170,7 +170,7 @@ sub gzip_uncompress {
             $bw = length($out);
         }
         syswrite($destfh, $out, $bw) == $bw or do {
-            warn "Can't write data into dest";
+            warn "Can't write data into dest\n";
             return -1;
         };
         $byteswritten += $bw;
