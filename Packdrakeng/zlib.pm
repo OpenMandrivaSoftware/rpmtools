@@ -59,7 +59,8 @@ sub gzip_compress {
     while (my $lenght = sysread($sourcefh, my $buf, $pack->{bufsize})) {
         $pack->{cstream_data}{crc} = crc32($buf, $pack->{cstream_data}{crc});
         my ($cbuf, $status) = $pack->{cstream_data}{object}->deflate($buf);
-        my $wres = syswrite($pack->{handle}, $cbuf) == length($cbuf) or do {
+        my $wres = syswrite($pack->{handle}, $cbuf) || 0;
+        $wres == length($cbuf) or do {
             warn "can't push all data to compressor";
             return 0, 0;
         };
