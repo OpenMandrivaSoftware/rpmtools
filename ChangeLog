@@ -1,3 +1,23 @@
+2004-12-14 01:22  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Makefile.PL, Packdrakeng.pm, rpmtools.spec: - 5.0.3 - fix mkpath
+
+2004-12-14 01:00  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* t/01packdrakeng.t, Packdrakeng.pm: - don't use File::* modules
+
+2004-12-13 18:54  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: Fix a misplaced Provides in the specfile.
+
+2004-12-13 17:17  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: Explicit import list for POSIX
+
+2004-12-13 16:57  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - add conflicts to help update
+
 2004-12-13 16:48  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* Makefile.PL, rpmtools.spec: - add missing file zlib.pm
