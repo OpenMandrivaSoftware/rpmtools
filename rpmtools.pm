@@ -53,8 +53,16 @@ sub compute_depslist {
     my @info = grep { ! exists $_->{id} } values %{$params->{info}};
 
     #- speed up the search by giving a provide from all packages.
+    #- and remove all dobles for each one !
     foreach (@info) {
 	push @{$params->{provides}{$_->{name}} ||= []}, $_->{name};
+    }
+
+    #- remove all dobles for each provides.
+    foreach (keys %{$params->{provides}}) {
+	$params->{provides}{$_} or next;
+	my %provides; @provides{@{$params->{provides}{$_}}} = ();
+	$params->{provides}{$_} = [ keys %provides ];
     }
 
     #- search for entries in provides, if such entries are found,
@@ -231,13 +239,49 @@ sub read_depslist {
     1;
 }
 
+#- relocate depslist array to use only the most recent packages,
+#- reorder info hashes too in the same manner.
+sub relocate_depslist {
+    my ($params) = @_;
+    my $relocated_entries = 0;
+
+    foreach (@{$params->{depslist} || []}) {
+	if ($params->{info}{$_->{name}} != $_) {
+	    #- at this point, it is sure there is a package that
+	    #- is multiply defined and this should be fixed.
+	    #- first correct info hash, then a second pass on depslist
+	    #- is required to relocate its entries.
+	    my $cmp_version = compare_version($_->{version}, $params->{info}{$_->{name}});
+	    if ($cmp_version > 0 || $cmp_version == 0 &&
+		compare_version($_->{release}, $params->{info}{$_->{name}}) > 0) {
+		$params->{info}{$_->{name}} = $_;
+		++$relocated_entries;
+	    }
+	}
+    }
+
+    if ($relocated_entries) {
+	my $n = scalar(@{$params->{depslist}}) - 1;
+	for (0..$n) {
+	    my $pkg = $params->{depslist}[$_];
+	    $params->{depslist}[$_] = $params->{info}{$pkg->{name}};
+	}
+    }
+
+    $relocated_entries;
+}
+
 #- write depslist.ordered file according to info in params.
 sub write_depslist {
     my ($params, $FILE, $min, $max) = @_;
 
-    foreach (grep { (! defined $min || $_->{id} >= $min) && (! defined $max || $_->{id} <= $max) }
-	     sort { $a->{id} <=> $b->{id} } values %{$params->{info}}) {
-	printf $FILE "%s-%s-%s %s %s\n", $_->{name}, $_->{version}, $_->{release}, $_->{size}, $_->{deps};
+    $min > 0 or $min = 0;
+    defined $max && $max < scalar(@{$params->{depslist} || []}) or $max = scalar(@{$params->{depslist} || []}) - 1;
+    $max >= $min or return;
+
+    for ($min..$max) {
+	my $pkg = $params->{depslist}[$_];
+	printf $FILE "%s-%s-%s %s %s\n", $pkg->{name}, $pkg->{version}, $pkg->{release}, $pkg->{size}, $pkg->{deps};
     }
     1;
 }

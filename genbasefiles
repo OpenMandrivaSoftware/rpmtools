@@ -44,14 +44,26 @@ sub main {
     my @unresolved = $params->get_unresolved_provides_files();
     if (@unresolved > 0) {
 	foreach (@unresolved) {
-	    print STDERR "found requires on file not yet found [$_], forcing a second pass\n";
+	    print STDERR "found requires on file not yet found [$_], forcing two other linked pass\n";
 	}
 
 	#- cleaning.
 	$params->keep_only_cleaned_provides_files();
 
+	#- much more severe cleaning here, so we are sure with 2 pass.
+	#- else it may happen that a package need an inexistant file,
+	#- which will be in the provides forever, event after fixing the
+	#- package.
+	$params->{provides} = {};
+
+	#- compute (avoiding depslist computation on first one.
 	foreach (@files) {
 	    print STDERR "reading (second pass) $_\n";
+	    /\.rpm$/ ? $params->read_rpms($_) : $params->read_hdlists($_);
+	}
+	$params->keep_only_cleaned_provides_files();
+	foreach (@files) {
+	    print STDERR "reading (third pass) $_\n";
 	    /\.rpm$/ ? $params->read_rpms($_) : $params->read_hdlists($_);
 	    $params->compute_depslist();
 	}

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 8mdk
+%define release 9mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -99,6 +99,12 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Sun Sep 03 2000 François Pons <fpons@mandrakesoft.com> 1.2-9mdk
+- fixed write_depslist to avoid resorting, fixes dobles.
+- fixed compute_depslist to use only remove dobles in provides.
+- fixed genbasefiles to do 3 pass instead of 2, because provides is no more
+  used in such a case.
+
 * Fri Sep 01 2000 François Pons <fpons@mandrakesoft.com> 1.2-8mdk
 - fixed read_provides with unresolved dependancies.
 
