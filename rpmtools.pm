@@ -451,15 +451,12 @@ sub get_unresolved_provides_files {
 #- this is necessary to try a second pass.
 sub keep_only_cleaned_provides_files {
     my ($params) = @_;
+    my @keeplist = map { /^\// } keys %{$params->{provides}};
 
-    foreach (keys %{$params->{provides}}) {
-	delete $params->{provides}{$_};
-	/^\// and $params->{provides}{$_} = undef;
-    }
-
-    #- clean everything else at this point.
+    #- clean everything at this point, but keep file referenced.
     $params->{info} = {};
     $params->{depslist} = [];
+    $params->{provides} = {}; @{$params->{provides}}{@keeplist} = ();
 }
 
 #- reset params to allow other entries.

@@ -107,7 +107,7 @@ SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag
 
   if (list) {
     table_sense = newAV();
-    if (!table_sense) return SvREFCNT_inc(&PL_sv_undef);
+    if (!table_sense) return &PL_sv_undef;
 
     for(i = 0; i < count; i++) {
       len = strlen(list[i]); if (len >= sizeof(buff)) continue;
@@ -139,14 +139,14 @@ SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag
 
       /* for getting provides about required files */
       if (iprovides && buff[0] == '/')
-	hv_store(iprovides, buff, p - buff, SvREFCNT_inc(&PL_sv_undef), 0);
+	hv_fetch(iprovides, buff, p - buff, 1);
 
       av_push(table_sense, newSVpv(buff, p - buff));
     }
 
     return newRV_noinc((SV*)table_sense);
   }
-  return SvREFCNT_inc(&PL_sv_undef);
+  return &PL_sv_undef;
 }
 
 HV* get_info(Header header, int bflag, HV* provides) {

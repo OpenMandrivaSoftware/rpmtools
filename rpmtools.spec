@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 13mdk
+%define release 14mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Mar 23 2001 François Pons <fpons@mandrakesoft.com> 2.3-14mdk
+- reverted rpmtools.xs modification.
+- simplified the semi fix.
+
 * Fri Mar 23 2001 François Pons <fpons@mandrakesoft.com> 2.3-13mdk
 - semi-fixed hashes subscript error (workaround).
 - added --compact option to parsehdlist.
