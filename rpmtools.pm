@@ -428,7 +428,7 @@ sub compute_depslist {
 	    $id == $pkg->{id} || $base or push @requires_id, $id;
 	}
 	#- cannot remove requires values as they are necessary for closure on incremental job.
-	$pkg->{deps} = join(' ', map { join '|', @{ref $_ ? $_ : [$_]} } @requires_id);
+	$pkg->{deps} = join(' ', map { join '|', sort { $a <=> $b } @{ref $_ ? $_ : [$_]} } @requires_id);
 	push @{$params->{depslist}}, $pkg;
     }
     1;
