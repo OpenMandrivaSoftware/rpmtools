@@ -597,17 +597,27 @@ sub extract {
     my ($pack, $dir, @file) = @_;
     foreach my $f (@file) {
         my $dest = $dir ? "$dir/$f" : "$f";
-        if (exists($pack->{dir}{$f})) {
-            -d "$dest" || mkpath("$dest")
+        my ($dir) = $dest =~ m!(.*)/.*!;
+		if (exists($pack->{dir}{$f})) {
+            -d $dest || mkpath($dest)
                 or warn "Unable to create dir $dest";
             next;
         } elsif (exists($pack->{'symlink'}{$f})) {
-            symlink("$dest", $pack->{'symlink'}{$f}) 
+			-d $dir || mkpath($dir) or do {
+				warn "Unable to create dir $dir";
+			};
+            symlink($dest, $pack->{'symlink'}{$f}) 
                 or warn "Unable to extract symlink $f";
             next;
         } elsif (exists($pack->{files}{$f})) {
-            sysopen(my $destfh, "$dest", O_CREAT | O_TRUNC | O_WRONLY)
-                or next;
+			-d $dir || mkpath($dir) or do {
+				warn "Unable to create dir $dir";
+			};
+            sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY)
+                or do {
+				warn "Unable to extract $dest";
+				next;
+			};
             my $written = $pack->extract_virtual($destfh, $f);
             $written == -1 and warn "Unable to extract file $f";
             close($destfh);
