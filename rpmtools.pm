@@ -131,7 +131,7 @@ sub read_hdlists {
 	    require packdrake;
 	    my $packer = new packdrake;
 
-	    $packer->read_toc_trailer($_);
+	    $packer->read_toc_trailer($hdlist);
 
 	    exec (($ENV{LD_LOADER} ? ($ENV{LD_LOADER}) : ()), split " ", $packer->{uncompress});
 
