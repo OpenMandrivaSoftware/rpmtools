@@ -8,6 +8,7 @@ ALL = $(FROMC) $(FROMCC)
 ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
 CFLAGS = -Wall -g
 LIBRPM = -lrpm -lrpmio -lz -lbz2 -I/usr/include/rpm -lpopt
+LIBRPM_STATIC = -ldb1 -ldb-3.1
 
 all: $(ALL)
 
@@ -26,7 +27,7 @@ $(FROMC): %: %.c
 	$(CC) $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
 
 $(FROMC_STATIC): %_static: %.c
-	$(CC) -s -static $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
+	$(CC) -s -static $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) $(LIBRPM_STATIC) -o $@
 
 clean: 
 	rm -rf *~ $(ALL) $(ALL_STATIC)
