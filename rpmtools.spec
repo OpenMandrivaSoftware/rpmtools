@@ -46,6 +46,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/parsehdlist
 %{_bindir}/rpm2header
 %{_bindir}/gendistrib
+%{_bindir}/genhdlist
 %dir %{perl_sitearch}/auto/rpmtools
 %{perl_sitearch}/auto/rpmtools/rpmtools.so
 %{perl_sitearch}/packdrake.pm
