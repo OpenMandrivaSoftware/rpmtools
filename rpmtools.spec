@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 10mdk
+%define release 11mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
@@ -53,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Apr 15 2002 François Pons <fpons@mandrakesoft.com> 4.2-11mdk
+- fixed lock using packdrake --extract when current working
+  directory is on NIS and inaccessible (for root).
+
 * Wed Apr 10 2002 François Pons <fpons@mandrakesoft.com> 4.2-10mdk
 - make .pm file compatible with perl 5.005 and above (instead of
   perl 5.6.0 and above).

@@ -373,8 +373,8 @@ sub extract_archive {
 	$packer->{log}->("extracting $file");
 	for ($packer->{data}{$file}[0]) {
 	    /l/ && do { symlink_ $packer->{data}{$file}[1], $newfile; last; };
-	    /d/ && do { mkdir_ $newfile; last; };
-	    /f/ && do {	mkdir_ dirname $newfile;
+	    /d/ && do { $dir and mkdir_ $newfile; last; };
+	    /f/ && do {	$dir and mkdir_ dirname $newfile;
 			my $data = $packer->{data}{$file};
 			$extract_table{$data->[1]} ||= [ $data->[2], [] ];
 			push @{$extract_table{$data->[1]}[1]}, [ $newfile, $data->[3], $data->[4] ];
