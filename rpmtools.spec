@@ -15,7 +15,7 @@ Copyright: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= 3.0.5-0.20mdk
+BuildRequires: rpm-devel >= 3.0.5-0.20mdk bzip2 popt-devel zlib-devel
 Requires: /usr/bin/perl rpm >= 3.0.5-0.20mdk bzip2 >= 1.0
 
 %description
@@ -95,6 +95,9 @@ rm -rf $RPM_BUILD_ROOT
 * Wed Aug 23 2000 François Pons <fpons@mandrakesoft.com> 1.2-1mdk
 - 1.2 of rpmtools.
 - new tools packdrake and parsehdlist.
+
+* Mon Aug 07 2000 Frederic Lepied <flepied@mandrakesoft.com> 1.1-30mdk
+- automatically added BuildRequires
 
 * Thu Aug  3 2000 Pixel <pixel@mandrakesoft.com> 1.1-29mdk
 - skip "rpmlib(..." dependencies
