@@ -23,19 +23,24 @@ int_32 FD_size(FD_t fd) {
 
 int main(int argc, char **argv) {
   int i;
+  FD_t fout;
 
   if (argc < 2) {
     fprintf(stderr, "usage: rpm2header <rpms>\n");
     exit(1);
   }
 
+  fout = fdDup(1 /*stdout*/);
+  
   for (i = 1; i < argc; i++) {
     FD_t fd;
     Header h;
     int isSource;
     int_32 size;
     const char *name = basename(argv[i]);
-
+    
+    fprintf(stderr, "%s\n", argv[i]);
+    
     if (!(fd = fdOpen(argv[i], O_RDONLY, 0666))) {
       perror("open");
       exit(1);
@@ -70,9 +75,10 @@ int main(int argc, char **argv) {
       headerRemoveEntry(h, RPMTAG_VERIFYSCRIPT);
       headerAddEntry(h, FILENAME_TAG, RPM_STRING_TYPE, name, 1);
       headerAddEntry(h, FILESIZE_TAG, RPM_INT32_TYPE, &size, 1);
-      headerWrite(fdDup(1 /*stdout*/), h, HEADER_MAGIC_YES);
+      headerWrite(fout, h, HEADER_MAGIC_YES);
       headerFree(h);
     }
+    fdClose(fd);
   }
   return 0;
 }
