@@ -38,7 +38,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Fri Feb 18 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0-9mdk
-- Really fix with rpm-3.0.4 (Pixel).
+- Really fix with rpm-3.0.4 (Fredl).
 
 * Thu Feb 17 2000 Chmouel Boudjnah <chmouel@mandrakesoft.com> 1.0-8mdk
 - rpmtools.spec (BuildRequires): rpm-3.0.4.
