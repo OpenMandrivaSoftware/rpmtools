@@ -32,7 +32,7 @@
 #-         | |                                        | |
 #-         | |
 
-use strict qw(subs vars refs);
+#+use strict qw(subs vars refs);
 
 #- used for uncompressing archive and other.
 my %toc_trailer;

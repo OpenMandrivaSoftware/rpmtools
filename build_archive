@@ -46,7 +46,7 @@
 #- then a TOC (describing %data, concatenation of toc_line) follow and a
 #- TOC_TRAILER for summary.
 
-use strict qw(subs vars refs);
+#+use strict qw(subs vars refs);
 
 sub toc_line {
     my ($file, $data) = @_;

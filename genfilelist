@@ -21,7 +21,7 @@
 #-   genfilelist <rpms_dir>
 
 
-use strict qw(subs vars refs);
+#+use strict qw(subs vars refs);
 
 sub packfilelist {
     my %countdir = ();

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 18mdk
+%define release 19mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -19,13 +19,14 @@ BuildRequires: rpm-devel >= 3.0.4
 Requires: /usr/bin/perl rpm >= 3.0.4
 
 %description
-Various rpmtools.
+Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %package devel
 Summary: contains various rpm command-line tools for development
 Group: Development/Other
 %description devel
-Various devel rpm tools.
+Various devel rpm tools which can be used to build a customized
+Linux-Mandrake distribution.
 
 %prep
 %setup
@@ -58,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Wed Apr 19 2000 François Pons <fpons@mandrakesoft.com> 1.1-19mdk
+- rewrite description.
+
 * Wed Apr 19 2000 François Pons <fpons@mandrakesoft.com> 1.1-18mdk
 - update with CVS.
 
