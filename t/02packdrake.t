@@ -58,9 +58,9 @@ ok($pack->extract_archive("test", qw(dir file link)), "Extracting files from arc
 
 ok(open($fh, "test/file"), "Opening extract file");
 sysread($fh, my $data, 1_000);
-ok($data eq $coin, "data succefully restored");
-ok(-d "test/dir", "dir succefully restored");
-ok(readlink("test/link") eq "file", "symlink succefully restored");
+ok($data eq $coin, "data successfully restored");
+ok(-d "test/dir", "dir successfully restored");
+ok(readlink("test/link") eq "file", "symlink successfully restored");
 
 clean_test_files();
 

@@ -85,13 +85,13 @@ clean_test_files();
 {
 my ($handle, $filename) = Packdrakeng::tempfile();
 ok($handle && $filename, "can create temp file");
-ok(-f $filename, "Temp file exist");
+ok(-f $filename, "Temp file exists");
 ok(print($handle $coin), "can write into file");
 close($handle);
 unlink($filename);
 
 ok(Packdrakeng::mkpath('test/parent/child'), "can create dir like mkdir -p");
-ok(-d 'test/parent/child', "the dir really exist");
+ok(-d 'test/parent/child', "the dir really exists");
 }
 
 # Single test:
@@ -112,16 +112,16 @@ $pack = undef;
 
 ok($pack = Packdrakeng->open(archive => "packtest.cz"), "Opening the archive");
 ok($pack->extract("test", "dir"), "Extracting dir");
-ok(-d "test/dir", "dir succefully restore");
+ok(-d "test/dir", "dir successfully restored");
 ok($pack->extract("test", "symlink"), "Extracting symlink");
-ok(readlink("test/symlink") eq "dest", "symlink succefully restore");
+ok(readlink("test/symlink") eq "dest", "symlink successfully restored");
 
 open($fh, "+> test/test") or die "Can't open file $!";
 ok($pack->extract_virtual($fh, "coin"), "Extracting data");
 sysseek($fh, 0, 0);
 sysread($fh, my $data, 1000);
 close($fh);
-ok($data eq $coin, "Data are correct");
+ok($data eq $coin, "Data is correct");
 
 } 
 
