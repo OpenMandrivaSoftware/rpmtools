@@ -1,106 +1,122 @@
-2004-01-05 23:14  othauvin
+2004-01-16 19:04  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* genhdlist, rpmtools.spec: fix genhdlist without arg
+
+2004-01-16 01:58  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - 17mdk
+
+2004-01-16 01:53  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* genhdlist: - add --dest option - fix dir parsing
+
+2004-01-09 16:49  Warly <warly@mandrakesoft.com>
+
+	* rpmtools.spec: add provides perl(packdrake)
+
+2004-01-05 23:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* rpmtools.spec: -15mdk
 
-2004-01-05 23:09  othauvin
+2004-01-05 23:09  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* Makefile: use %_topdir instead /home/users/olivier
 
-2004-01-05 22:51  othauvin
+2004-01-05 22:51  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* gendistrib, genhdlist: add somes feature
 
-2003-12-09 20:38  fpons
+2003-12-09 20:38  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.spec: added RH 7.3 support
 
-2003-08-28 15:44  fpons
+2003-08-28 15:44  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib: fixed MD5SUM files to be removed, added noarch for
 	  %{ARCH} possible substitution.
 
-2003-08-28 15:40  fpons
+2003-08-28 15:40  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 4.5-13mdk
 
-2003-08-28 15:39  fpons
+2003-08-28 15:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib: added %{ARCH} management
 
-2003-08-01 15:17  fpons
+2003-08-01 15:17  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: final 4.5-12mdk
 
-2003-08-01 14:21  fpons
+2003-08-01 14:21  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 4.5-12mdk
 
-2003-05-19 17:26  tvignaud
+2003-05-19 17:26  Thierry Vignaud <tvignaud@mandrakesoft.com>
 
 	* packdrake-pm/packdrake.pm: perl_checker fixes
 
-2003-05-12 18:47  gc
+2003-05-12 18:47  Guillaume Cottenceau <gc@mandrakesoft.com>
 
 	* rpmtools.spec: rebuild for new perl requires/provides
 
-2003-04-29 22:19  flepied
+2003-04-29 22:19  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* rpmtools.spec: 4.5-10mdk
 
-2003-04-29 22:18  flepied
+2003-04-29 22:18  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* Makefile: use rpmbuild instead of rpm
 
-2003-04-29 22:17  flepied
+2003-04-29 22:17  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* rpm2header.c: added rpm 4.2 support
 
-2003-03-10 11:42  fpons
+2003-03-10 11:42  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: added URL tag.
 
-2003-03-10 11:39  fpons
+2003-03-10 11:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib, rpmtools.spec: 4.5-9mdk
 
-2003-02-20 16:54  fpons
+2003-02-20 16:54  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec, packdrake-pm/packdrake.pm: 4.5-8mdk
 
-2002-12-06 00:43  prigaux
+2002-12-06 00:43  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec, packdrake-pm/packdrake.pm: fix a bug in an error
 	  message (as detected by perl_checker)
 
-2002-12-04 22:44  prigaux
+2002-12-04 22:44  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
 	  perl_checker compliant
 
-2002-11-28 02:01  prigaux
+2002-11-28 02:01  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
 	  perl_checker compliant
 
-2002-11-26 19:30  prigaux
+2002-11-26 19:30  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
 	  perl_checker compliant
 
-2002-11-26 15:12  fpons
+2002-11-26 15:12  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake-pm/packdrake.pm: fix of pixel from perl-checker.
 
-2002-10-16 16:08  fpons
+2002-10-16 16:08  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: updated spec file with obsoletes changed by
 	  conflicts.
 
-2002-10-16 16:07  fpons
+2002-10-16 16:07  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib, rpmtools.spec, packdrake-pm/packdrake.pm: 4.5-3mdk
 
-2002-08-05 21:04  prigaux
+2002-08-05 21:04  Pixel <pixel@mandrakesoft.com>
 
 	* Makefile, Makefile.PL, build_archive, extract_archive,
 	  genbasefiles, gendepslist2.cc, genfilelist, genhdlist_cz2,
@@ -110,883 +126,878 @@
 	  packdrake-pm/packdrake.pm: - remove obsolete stuff - move
 	  packdrake.pm in its own directory to make MakeMaker happy
 
-2002-08-05 17:05  gc
+2002-08-05 17:05  Guillaume Cottenceau <gc@mandrakesoft.com>
 
 	* Makefile, parsehdlist.c, rpmtools.spec: add --fileswinfo query to
 	  parsehdlist so that we can know more informations on the package
 	  for which we print the files (needed by upcoming rpmdrake
 	  supporting searching in files)
 
-2002-07-23 20:43  fpons
+2002-07-23 20:43  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 4.4-1mdk
 
-2002-07-23 20:31  fpons
+2002-07-23 20:31  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.pm, rpmtools.spec: 4.4-1mdk
 
-2002-07-09 13:00  prigaux
+2002-07-09 13:00  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec: adapt to perl 5.8.0
 
-2002-06-28 09:10  fpons
+2002-06-28 09:10  Fançois Pons <fpons@mandrakesoft.com>
 
 	* distriblint, rpmtools.spec: 4.3-5mdk
 
-2002-06-27 20:28  fpons
+2002-06-27 20:28  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.spec: 4.3-4mdk (forget installation of
 	  distriblint)
 
-2002-06-27 20:27  fpons
+2002-06-27 20:27  Fançois Pons <fpons@mandrakesoft.com>
 
 	* distriblint, rpmtools.spec: 4.3-4mdk
 
-2002-06-18 18:02  fpons
+2002-06-18 18:02  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.spec: fixes for real addition and
 	  installation.
 
-2002-06-18 17:57  fpons
+2002-06-18 17:57  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genhdlist, rpmtools.spec: 4.3-3mdk (added genhdlist)
 
-2002-06-03 14:04  fpons
+2002-06-03 14:04  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib: added missing log removed since gendistrib use
 	  perl-URPM.
 
-2002-06-03 13:06  fpons
+2002-06-03 13:06  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib, rpmtools.spec: synced gendistrib with URPM 0.02 or
 	  later.
 
-2002-05-31 12:58  fpons
+2002-05-31 12:58  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec: start using
 	  perl-URPM
 
-2002-05-29 10:11  fpons
+2002-05-29 10:11  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: latest rpmtools 4.2.
 
-2002-05-29 10:10  fpons
+2002-05-29 10:10  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.xs: back fix from URPM module.
 
-2002-04-22 17:59  fpons
+2002-04-22 17:59  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: improved generation of
 	  synthesis (smaller)
 
-2002-04-15 15:25  fpons
+2002-04-15 15:25  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm, rpmtools.spec: fixed with NIS and packdrake
 	  --extract.
 
-2002-04-10 16:33  fpons
+2002-04-10 16:33  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm, rpmtools.pm, rpmtools.spec: compatible with perl
 	  5.005 and above.
 
-2002-03-20 20:58  flepied
+2002-03-20 20:58  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* rpmtools.spec: 4.2-9mdk
 
-2002-03-06 19:59  fpons
+2002-03-06 19:59  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: 4.2-8mdk, now final 8.2 ?
 
-2002-03-06 19:51  fpons
+2002-03-06 19:51  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: 4.2-7mdk, final ?
 
-2002-02-27 12:02  fpons
+2002-02-27 12:02  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec, rpmtools.xs: 4.2-6mdk
 
-2002-02-18 11:54  fpons
+2002-02-18 11:54  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 4.2-4mdk
 
-2002-02-18 11:50  fpons
+2002-02-18 11:50  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: 4.2-4mdk
 
-2002-02-14 17:26  fpons
+2002-02-14 17:26  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec, rpmtools.xs: 4.2-3mdk, memory leak fixed.
 
-2002-02-11 14:32  fpons
+2002-02-11 14:32  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: update date changelog.
 
-2002-02-08 18:06  fpons
+2002-02-08 18:06  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec, rpmtools.xs: 4.2-2mdk
 
-2002-02-08 17:55  fpons
+2002-02-08 17:55  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, parsehdlist.c, rpmtools.pm, rpmtools.spec: 4.2-1mdk
 
-2002-02-05 17:55  fpons
+2002-02-05 17:55  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: 4.1-4mdk
 
-2002-01-30 12:45  fpons
+2002-01-30 12:45  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: 4.1-3mdk
 
-2002-01-24 10:39  fpons
+2002-01-24 10:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec, rpmtools.xs: 4.1-2mdk
 
-2002-01-22 19:39  fpons
+2002-01-22 19:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec: new 4.1
 	  version.
 
-2002-01-17 13:01  fpons
+2002-01-17 13:01  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c, rpmtools.spec, rpmtools.xs: 4.0-7mdk
 
-2002-01-17 11:05  fpons
+2002-01-17 11:05  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: 4.0-6mdk
 
-2002-01-16 19:21  fpons
+2002-01-16 19:21  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: 4.0-5mdk
 
-2002-01-15 18:08  fpons
+2002-01-15 18:08  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c, rpmtools.pm, rpmtools.spec: 4.0-4mdk
 
-2002-01-10 10:27  fpons
+2002-01-10 10:27  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: fixed stupid bug in read_hdlist.
 
-2002-01-09 17:32  fpons
+2002-01-09 17:32  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib, rpmtools.pm, rpmtools.spec: first snapshot candidate
 	  for first alpha of 8.2.
 
-2001-12-05 17:42  fpons
+2001-12-05 17:42  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec, rpmtools.xs:
 	  4.0 release (changes of provides internally).
 
-2001-12-05 15:42  fpons
+2001-12-05 15:42  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: fixed bad alloca size.
 
-2001-12-05 12:24  fpons
+2001-12-05 12:24  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, parsehdlist.c, rpmtools.pm, rpmtools.spec: 3.2 for
 	  newer urpmi.
 
-2001-11-26 18:46  fpons
+2001-11-26 18:46  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: fixes for alpha.
 
-2001-11-26 17:54  fpons
+2001-11-26 17:54  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: fixed compss file reading.
 
-2001-11-16 15:01  fpons
+2001-11-16 15:01  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-11-16 10:32  fpons
+2001-11-16 10:32  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-11-14 21:15  fpons
+2001-11-14 21:15  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: new release.
 
-2001-11-14 21:14  fpons
+2001-11-14 21:14  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2001-11-14 21:11  fpons
+2001-11-14 21:11  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: fixed core dump when name is given with other
 	  argument on some case.  changed --name behaviour to give filename
 	  along with fullname.
 
-2001-08-09 18:47  prigaux
+2001-08-09 18:47  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2001-07-25 17:12  fpons
+2001-07-25 17:12  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile: avoid using version_compare.
 
-2001-07-25 16:59  fpons
+2001-07-25 16:59  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile.PL, rpmtools.pm, rpmtools.spec, rpmtools.xs: use rpmlib
 	  version comparison function, force destiny.
 
-2001-07-23 17:15  fpons
+2001-07-23 17:15  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: first 3.1
 	  major relase, with fullname in info hash.
 
-2001-07-21 12:34  warly
+2001-07-21 12:34  Warly <warly@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: add sourcerpm tag
 
-2001-07-18 14:50  fpons
+2001-07-18 14:50  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, Makefile.PL, rpmtools.spec: new release with new rpm.
 
-2001-07-05 15:32  fpons
+2001-07-05 15:32  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: added compute_id method.
 
-2001-07-02 14:39  fpons
+2001-07-02 14:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c, rpmtools.spec: added arch support for parsehdlist.
 
-2001-06-28 18:40  fpons
+2001-06-28 18:40  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: dependencies is right.
 
-2001-06-28 17:42  fpons
+2001-06-28 17:42  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: cleaned rpmtools.
 
-2001-06-27 17:18  fpons
+2001-06-27 17:18  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-06-27 11:53  fpons
+2001-06-27 11:53  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-06-26 17:10  fpons
+2001-06-26 17:10  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: fixes for bad behaviour of
 	  build_hdlist.  added better relocation code.
 
-2001-06-25 14:55  fpons
+2001-06-25 14:55  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: late time fix.
 
-2001-06-25 14:54  fpons
+2001-06-25 14:54  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: updated to use @ separator char instead of : in
 	  provides file.
 
-2001-06-25 13:54  fpons
+2001-06-25 13:54  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: fix version_compare 3.0-2mdk
 
-2001-06-25 13:49  fpons
+2001-06-25 13:49  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: fix version compare for string like "0.beta4"
 	  compared to "0.rc1", the latest should be the greatest on
 	  comparing "beta" and "rc".
 
-2001-06-21 18:25  fpons
+2001-06-21 18:25  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, Makefile.PL, parsehdlist.c, rpmtools.pm, rpmtools.spec,
 	  rpmtools.xs: new 3.0 release, see rpmtools.spec.
 
-2001-06-14 10:59  fpons
+2001-06-14 10:59  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, Makefile.PL, rpmtools.spec: [no log message]
 
-2001-06-06 15:34  fpons
+2001-06-06 15:34  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: fix ordering of packages to avoid
 	  some nasty loop in prerequisite chain as for GConf and libGConf
 	  currently.
 
-2001-05-22 15:36  fpons
+2001-05-22 15:36  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: added arch support.
 
-2001-04-16 18:47  fpons
+2001-04-16 18:47  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2001-04-16 18:46  fpons
+2001-04-16 18:46  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: added back kill to child process as some report of
 	  locking ?
 
-2001-04-14 16:27  fpons
+2001-04-14 16:27  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: final for 8.0 ?
 
-2001-04-14 16:23  fpons
+2001-04-14 16:23  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: fixed absurd mismatch of use <=> and cmp.
 
-2001-04-14 13:55  fpons
+2001-04-14 13:55  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2001-04-14 13:52  fpons
+2001-04-14 13:52  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: fixed interactive mode with provides tag to return
 	  flags and version, commented print_list no more used.
 
-2001-04-14 13:47  fpons
+2001-04-14 13:47  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: simplified header construction and fixed --compact
 	  to match exactly what is needed for synthesis file.
 
-2001-04-12 14:58  fpons
+2001-04-12 14:58  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm, rpmtools.spec: [no log message]
 
-2001-04-03 14:50  fpons
+2001-04-03 14:50  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c, rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-03-26 17:14  fpons
+2001-03-26 17:14  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-03-26 15:39  fpons
+2001-03-26 15:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-03-23 15:20  fpons
+2001-03-23 15:20  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-03-23 15:14  fpons
+2001-03-23 15:14  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
 
-2001-03-23 14:37  fpons
+2001-03-23 14:37  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: added --compact option to help producing synthesis
 	  file (need s/:/@/g).
 
-2001-03-23 14:36  fpons
+2001-03-23 14:36  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.xs: try to be cleaner for subscript but not enough.
 
-2001-03-23 14:35  fpons
+2001-03-23 14:35  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: workarount hashes subscript error of perl.
 
-2001-03-23 14:35  fpons
+2001-03-23 14:35  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 2.3-13mdk.
 
-2001-03-12 16:25  fpons
+2001-03-12 16:25  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2001-03-12 16:20  fpons
+2001-03-12 16:20  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm, parsehdlist.c, rpmtools.spec: [no log message]
 
-2001-03-12 15:02  flepied
+2001-03-12 15:02  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* Makefile.PL: don't link explicitly with db libs.
 
-2001-03-08 18:15  fpons
+2001-03-08 18:15  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-03-07 16:34  fpons
+2001-03-07 16:34  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c, rpmtools.spec: [no log message]
 
-2001-03-05 14:40  fpons
+2001-03-05 14:40  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2001-03-04 19:22  warly
+2001-03-04 19:22  Warly <warly@mandrakesoft.com>
 
 	* Makefile: add db1 and db-3.1 to the static build for
 	  rpm2header_static
 
-2001-03-01 18:06  fpons
+2001-03-01 18:06  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib, rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-02-27 18:05  fpons
+2001-02-27 18:05  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib, rpmtools.spec: [no log message]
 
-2001-02-26 16:06  fpons
+2001-02-26 16:06  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-02-19 17:45  fpons
+2001-02-19 17:45  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
 
-2001-02-19 15:56  fpons
+2001-02-19 15:56  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
 
-2001-02-16 14:00  fpons
+2001-02-16 14:00  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c, rpmtools.spec, rpmtools.xs: [no log message]
 
-2001-02-14 14:29  fpons
+2001-02-14 14:29  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-02-14 14:20  fpons
+2001-02-14 14:20  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log
 	  message]
 
-2001-02-13 16:01  fpons
+2001-02-13 16:01  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: added faster
 	  method to rpmtools.xs, fixed code and added exit too.
 
-2001-01-30 18:47  fpons
+2001-01-30 18:47  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2001-01-23 20:30  fpons
+2001-01-23 20:30  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 2.1-9mdk
 
-2001-01-23 20:20  fpons
+2001-01-23 20:20  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib: updated to use new build_hdlist.
 
-2001-01-23 20:18  fpons
+2001-01-23 20:18  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake, packdrake.pm, rpmtools.pm, rpmtools.spec: added --dir
 	  and -d flag for packdrake*.  management of specific directory for
 	  building archive.
 
-2001-01-22 18:35  fpons
+2001-01-22 18:35  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: added base selection in choices, for glibc.  so when
 	  glibc or compat-glibc are required, only glibc is requested.
 
-2001-01-22 13:53  fpons
+2001-01-22 13:53  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genhdlists: modified to use rpmtools module.
 
-2001-01-17 16:51  fpons
+2001-01-17 16:51  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile: added gendistrib and removed obsolete tools.
 
-2001-01-17 16:50  fpons
+2001-01-17 16:50  Fançois Pons <fpons@mandrakesoft.com>
 
 	* gendistrib: initial revision.
 
-2001-01-17 16:47  fpons
+2001-01-17 16:47  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: fixed volative current working directory in
 	  build_hdlist and use of noclean options.
 
-2001-01-17 16:46  fpons
+2001-01-17 16:46  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: added gendistrib in %files and removed genhdlists,
 	  genhdlist_cz2 and genbasefiles.
 
-2001-01-17 16:45  fpons
+2001-01-17 16:45  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 2.1-8mdk
 
-2001-01-16 17:40  fpons
+2001-01-16 17:40  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm: fixed use of white space in archive name.
 
-2001-01-16 17:39  fpons
+2001-01-16 17:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: added --output options.
 
-2001-01-16 17:39  fpons
+2001-01-16 17:39  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: add build_hdlist method.  increase version to 0.03.
 
-2001-01-16 17:38  fpons
+2001-01-16 17:38  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: 2.1-7mdk snapshot.
 
-2001-01-05 16:54  fpons
+2001-01-05 16:54  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2001-01-05 16:24  fpons
+2001-01-05 16:24  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm: really fixe exit in child process (when used with
 	  DrakX, exit is not allowed)
 
-2001-01-05 15:40  fpons
+2001-01-05 15:40  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm: changed exit by exec 'true'
 
-2001-01-05 11:54  fpons
+2001-01-05 11:54  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake.pm: fixed printing to STDOUT while extracting (usefull
 	  if extracting to STDOUT :-)
 
-2001-01-04 19:36  fpons
+2001-01-04 19:36  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: removed need of packdrake, so live update will be
 	  nicer
 
-2001-01-04 16:20  fpons
+2001-01-04 16:20  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-12-08 16:48  fpons
+2000-12-08 16:48  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake, parsehdlist.c, rpmtools.pm, rpmtools.spec,
 	  rpmtools.xs, packdrake.pm: [no log message]
 
-2000-11-23 19:14  fpons
+2000-11-23 19:14  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-11-23 19:12  fpons
+2000-11-23 19:12  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: fixed memory leaks that were causing problems if
 	  used interactively.
 
-2000-11-23 19:11  fpons
+2000-11-23 19:11  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: fixed deadlock in some case on version_compare.
 
-2000-11-20 19:47  fpons
+2000-11-20 19:47  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-11-20 19:46  fpons
+2000-11-20 19:46  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: removed extra log on stdout (killer this one)
 
-2000-11-20 18:17  fpons
+2000-11-20 18:17  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-11-20 18:15  fpons
+2000-11-20 18:15  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, parsehdlist.c: fixed big bug for execvl (thanks to
 	  francis)
 
-2000-11-20 17:32  fpons
+2000-11-20 17:32  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: added fflush after (avoid deadock with DrakX)
 
-2000-11-20 16:25  fpons
+2000-11-20 16:25  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile: [no log message]
 
-2000-11-20 15:44  fpons
+2000-11-20 15:44  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.spec: [no log message]
 
-2000-11-20 15:12  fpons
+2000-11-20 15:12  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-11-20 14:59  fpons
+2000-11-20 14:59  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: adding interactive mode for DrakX client/server
 	  approach.
 
-2000-11-16 17:28  fpons
+2000-11-16 17:28  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2000-11-15 14:25  prigaux
+2000-11-15 14:25  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-10-19 17:28  fpons
+2000-10-19 17:28  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2000-10-19 14:26  flepied
+2000-10-19 14:26  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* rpmtools.spec: 2.0-1mdk
 
-2000-10-19 14:25  flepied
+2000-10-19 14:25  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* rpmtools.xs, rpm-find-leaves.c: use iterators.
 
-2000-10-19 14:24  flepied
+2000-10-19 14:24  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* Makefile, Makefile.PL: added new lib for rpm.
 
-2000-09-15 12:55  prigaux
+2000-09-15 12:55  Pixel <pixel@mandrakesoft.com>
 
-	* ChangeLog, build_archive, genhdlist_cz2, packdrake,
-	  rpmtools.spec: use TMPDIR if available
+	* build_archive, genhdlist_cz2, packdrake, rpmtools.spec: use
+	  TMPDIR if available
 
-2000-09-04 18:41  fpons
+2000-09-04 18:41  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2000-09-03 19:28  fpons
+2000-09-03 19:28  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-09-03 19:18  fpons
+2000-09-03 19:18  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm: [no log message]
 
-2000-09-03 19:03  fpons
+2000-09-03 19:03  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genbasefiles, rpmtools.pm, rpmtools.spec: [no log message]
 
-2000-09-03 16:43  fpons
+2000-09-03 16:43  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2000-08-29 17:50  fpons
+2000-08-29 17:50  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, rpmtools.spec: [no log message]
 
-2000-08-29 15:51  fpons
+2000-08-29 15:51  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-08-29 14:35  fpons
+2000-08-29 14:35  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-08-28 17:00  fpons
+2000-08-28 17:00  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake: [no log message]
 
-2000-08-28 12:24  fpons
+2000-08-28 12:24  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-08-28 10:58  fpons
+2000-08-28 10:58  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, Makefile.PL, rpmtools.spec: [no log message]
 
-2000-08-25 17:33  fpons
+2000-08-25 17:33  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.pm, Makefile: [no log message]
 
-2000-08-25 16:49  fpons
+2000-08-25 16:49  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, Makefile.PL, genbasefiles, rpmtools.pm, rpmtools.spec,
 	  rpmtools.xs: [no log message]
 
-2000-08-24 18:20  fpons
+2000-08-24 18:20  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-08-24 18:13  fpons
+2000-08-24 18:13  Fançois Pons <fpons@mandrakesoft.com>
 
 	* parsehdlist.c: [no log message]
 
-2000-08-24 18:04  fpons
+2000-08-24 18:04  Fançois Pons <fpons@mandrakesoft.com>
 
-	* ChangeLog, Makefile, gendepslist2.cc, genhdlist_cz2,
-	  rpm2header.c, rpmtools.spec: [no log message]
+	* Makefile, gendepslist2.cc, genhdlist_cz2, rpm2header.c,
+	  rpmtools.spec: [no log message]
 
-2000-08-11 19:18  fpons
+2000-08-11 19:18  Fançois Pons <fpons@mandrakesoft.com>
 
 	* packdrake: [no log message]
 
-2000-08-05 20:03  prigaux
+2000-08-05 20:03  Pixel <pixel@mandrakesoft.com>
 
-	* ChangeLog, gendepslist2.cc, rpmtools.spec: no_comment
+	* gendepslist2.cc, rpmtools.spec: no_comment
 
-2000-07-27 20:23  prigaux
-
-	* rpmtools.spec: no_comment
-
-2000-07-27 20:01  prigaux
-
-	* ChangeLog, gendepslist2.cc: no_comment
-
-2000-07-12 12:16  prigaux
+2000-07-27 20:23  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec: no_comment
 
-2000-06-13 21:02  prigaux
+2000-07-27 20:01  Pixel <pixel@mandrakesoft.com>
 
-	* ChangeLog, gendepslist2.cc, rpmtools.spec: no_comment
+	* gendepslist2.cc: no_comment
 
-2000-06-08 11:14  fpons
+2000-07-12 12:16  Pixel <pixel@mandrakesoft.com>
+
+	* rpmtools.spec: no_comment
+
+2000-06-13 21:02  Pixel <pixel@mandrakesoft.com>
+
+	* gendepslist2.cc, rpmtools.spec: no_comment
+
+2000-06-08 11:14  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-05-25 17:59  fpons
+2000-05-25 17:59  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genhdlist_cz2: [no log message]
 
-2000-05-22 20:44  fpons
+2000-05-22 20:44  Fançois Pons <fpons@mandrakesoft.com>
 
 	* build_archive, gendepslist2.cc, genhdlist_cz2: [no log message]
 
-2000-05-02 15:11  fpons
+2000-05-02 15:11  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-05-02 15:02  fpons
+2000-05-02 15:02  Fançois Pons <fpons@mandrakesoft.com>
 
 	* extract_archive: [no log message]
 
-2000-05-02 14:52  prigaux
+2000-05-02 14:52  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec: no_comment
 
-2000-04-28 04:56  prigaux
+2000-04-28 04:56  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: [no log message]
 
-2000-04-20 20:45  fpons
+2000-04-20 20:45  Fançois Pons <fpons@mandrakesoft.com>
 
 	* build_archive, extract_archive, genfilelist, rpmtools.spec: [no
 	  log message]
 
-2000-04-19 14:42  prigaux
+2000-04-19 14:42  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: no_comment
 
-2000-04-19 14:38  fpons
+2000-04-19 14:38  Fançois Pons <fpons@mandrakesoft.com>
 
 	* rpmtools.spec: [no log message]
 
-2000-04-17 14:35  prigaux
+2000-04-17 14:35  Pixel <pixel@mandrakesoft.com>
 
 	* extract_archive, genhdlists, rpmtools.spec: no_comment
 
-2000-04-14 21:50  prigaux
+2000-04-14 21:50  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec: no_comment
 
-2000-04-14 12:02  fpons
+2000-04-14 12:02  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genhdlists: [no log message]
 
-2000-04-04 15:08  fpons
+2000-04-04 15:08  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genfilelist: [no log message]
 
-2000-04-04 13:14  fpons
+2000-04-04 13:14  Fançois Pons <fpons@mandrakesoft.com>
 
-	* ChangeLog, extract_archive: [no log message]
+	* extract_archive: [no log message]
 
-2000-03-31 18:40  fpons
+2000-03-31 18:40  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genfilelist: [no log message]
 
-2000-03-31 17:05  fpons
+2000-03-31 17:05  Fançois Pons <fpons@mandrakesoft.com>
 
 	* Makefile, rpmtools.spec: [no log message]
 
-2000-03-31 16:40  prigaux
+2000-03-31 16:40  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc, rpmtools.spec, hdlist2groups.cc: no_comment
 
-2000-03-31 16:40  prigaux
+2000-03-31 16:37  Fançois Pons <fpons@mandrakesoft.com>
 
-	* ChangeLog: [no log message]
+	* genfilelist, rpmtools.spec: [no log message]
 
-2000-03-31 16:37  fpons
-
-	* ChangeLog, genfilelist, rpmtools.spec: [no log message]
-
-2000-03-28 00:59  prigaux
+2000-03-28 00:59  Pixel <pixel@mandrakesoft.com>
 
 	* Makefile, hdlist2names.cc, rpmtools.spec: no_comment
 
-2000-03-26 19:24  prigaux
+2000-03-26 19:24  Pixel <pixel@mandrakesoft.com>
 
-	* ChangeLog, build_archive, gendepslist2.cc, rpmtools.spec:
-	  no_comment
+	* build_archive, gendepslist2.cc, rpmtools.spec: no_comment
 
-2000-03-25 13:58  prigaux
+2000-03-25 13:58  Pixel <pixel@mandrakesoft.com>
 
 	* rpmtools.spec: no_comment
 
-2000-03-24 15:29  prigaux
+2000-03-24 15:29  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc, genhdlist_cz2, rpmtools.spec: no_comment
 
-2000-03-23 13:24  fpons
+2000-03-23 13:24  Fançois Pons <fpons@mandrakesoft.com>
 
 	* genhdlist_cz2: [no log message]
 
-2000-03-23 13:20  prigaux
+2000-03-23 13:20  Pixel <pixel@mandrakesoft.com>
 
 	* Makefile, gendepslist2.cc, genhdlist_cz2, rpmtools.spec:
 	  no_comment
 
-2000-03-10 16:44  prigaux
+2000-03-10 16:44  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: [no log message]
 
-2000-03-10 16:38  prigaux
+2000-03-10 16:38  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: [no log message]
 
-2000-03-10 16:34  prigaux
+2000-03-10 16:34  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: [no log message]
 
-2000-03-10 15:39  prigaux
+2000-03-10 15:39  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: [no log message]
 
-2000-03-10 15:34  prigaux
+2000-03-10 15:34  Pixel <pixel@mandrakesoft.com>
 
 	* Makefile, gendepslist2.cc: no_comment
 
-2000-03-10 14:44  prigaux
+2000-03-10 14:44  Pixel <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc, rpmtools.spec: no_comment
 
-2000-03-10 13:36  fpons
+2000-03-10 13:36  Fançois Pons <fpons@mandrakesoft.com>
 
-	* ChangeLog, Makefile, genhdlists: [no log message]
+	* Makefile, genhdlists: [no log message]
 
-2000-03-08 00:36  prigaux
+2000-03-08 00:36  Pixel <pixel@mandrakesoft.com>
 
 	* Makefile, rpmtools.spec, gendepslist2.cc, genhdlist_cz2,
 	  build_archive, extract_archive, hdlist2prereq.cc: no_comment
 
-2000-03-08 00:32  prigaux
+2000-03-08 00:32  Pixel <pixel@mandrakesoft.com>
 
 	* Makefile, gendepslist.cc, hdlist2files.cc, rpmtools.spec:
 	  no_comment
 
-2000-02-23 18:49  chmouel
+2000-02-23 18:49  Chmouel Boudjnah <chmouel@mandrakesoft.com>
 
-	* ChangeLog, rpmtools.spec: "See_The_Changelog"
+	* rpmtools.spec: "See_The_Changelog"
 
-2000-02-18 20:27  chmouel
+2000-02-18 20:27  Chmouel Boudjnah <chmouel@mandrakesoft.com>
 
-	* .cvsignore, ChangeLog, rpmtools.spec: "See_The_Changelog"
+	* .cvsignore, rpmtools.spec: "See_The_Changelog"
 
-2000-02-18 18:21  flepied
+2000-02-18 18:21  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* hdlist2files.cc, gendepslist.cc:	* new way to retrieve file
 	  names in 3.0.4.
 
-2000-02-18 18:19  flepied
+2000-02-18 18:19  Frederic Lepied <flepied@mandrakesoft.com>
 
 	* rpm2header.c: 	* close files !
 		  * don't dup many times.
 
-2000-02-17 19:04  chmouel
+2000-02-17 19:04  Chmouel Boudjnah <chmouel@mandrakesoft.com>
 
-	* Makefile, rpmtools.spec, ChangeLog: "See_The_Changelog"
+	* Makefile, rpmtools.spec: "See_The_Changelog"
 
-2000-02-17 18:58  chmouel
+2000-02-17 18:58  Chmouel Boudjnah <chmouel@mandrakesoft.com>
 
 	* Makefile, gendepslist.cc, hdlist2files.cc, hdlist2names.cc,
 	  rpm-find-leaves.c, rpm2header.c, rpmtools.spec: First_Import
 
-2000-02-17 18:58  chmouel
+2000-02-17 18:58  Chmouel Boudjnah <chmouel@mandrakesoft.com>
 
 	* Makefile, gendepslist.cc, hdlist2files.cc, hdlist2names.cc,
 	  rpm-find-leaves.c, rpm2header.c, rpmtools.spec: Initial revision
