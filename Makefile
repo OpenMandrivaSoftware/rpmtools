@@ -7,13 +7,13 @@ FROMC_STATIC  = $(FROMC:%=%_static)
 FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)
 ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
-CFLAGS = -Wall -g
+CFLAGS = -Wall -g `perl -e 'qx(rpm -q --qf %{VERSION} rpm)=~/^(?:4\.[2-9]|[5-9]|\d{2})/&&print -DRPM_42'`
 LIBRPM = -lrpm -lrpmio `perl -e 'local $$_ = qx(rpm -q --qf %{VERSION} rpm); /^4\.0\s*$$/ or print "-lrpmdb"'` -lz -lbz2 -I/usr/include/rpm -lpopt
 LIBRPM_STATIC = 
 RPM = `rpm --eval %_topdir`
 
 all: $(ALL)
-	echo $(INSTALLVENDORLIB)
+	@echo $(INSTALLVENDORLIB)
 
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
