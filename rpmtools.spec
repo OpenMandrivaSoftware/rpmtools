@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 2mdk
+%define release 3mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.3
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Jun 18 2002 François Pons <fpons@mandrakesoft.com> 4.3-3mdk
+- added genhdlist (from Guillaume Rousse).
+
 * Mon Jun  3 2002 François Pons <fpons@mandrakesoft.com> 4.3-2mdk
 - use perl-URPM >= 0.02 (modified interface).
 

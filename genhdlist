@@ -1,0 +1,51 @@
+#!/usr/bin/perl
+
+use strict;
+use URPM;
+use URPM::Build;
+use File::Find;
+use File::Path;
+
+my $urpm = new URPM;
+my $tmpdir = "/tmp/genhdlist";
+my $index="hdlist.cz";
+my $synthesis="synthesis.$index";
+my $dir = @ARGV[0] or die "usage: genhdlist <dir>";
+
+chdir $dir or die "can't chdir in directory $dir";
+
+# get rpm list
+my @rpms;
+File::Find::find({wanted => \&wanted}, ".");
+sub wanted {
+    if (-f $_ && $_ =~ /^.*\.rpm$/ ) {
+        print "$File::Find::name\n";
+        push(@rpms, $File::Find::name);
+    }
+}
+if (!@rpms) {
+        print "no rpms found, aborting\n";
+        exit(0);
+}
+
+# create index file
+mkpath($tmpdir);
+$urpm->parse_rpms_build_headers(dir  => $tmpdir,
+				rpms => \@rpms);
+@{$urpm->{depslist}} > 0 or die "nothing read";
+$urpm->build_hdlist(start  => 0,
+		    end    => $#{$urpm->{depslist}},
+		    dir    => $tmpdir,
+		    hdlist => $index,
+		    ratio  => 9);
+rmtree($tmpdir);
+
+# create synthesis file
+$urpm->build_synthesis(start     => 0,
+		       end       => $#{$urpm->{depslist}},
+		       synthesis => $synthesis);
+
+# create list file
+open(LIST, "> list") or die "can't create list file list: $!";
+foreach my $rpm (@rpms) { print LIST "$rpm\n" };
+close(LIST);
