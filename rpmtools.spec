@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.4
+%define version 5.0.5
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -75,6 +75,10 @@ is fully compatible with old packdrake.
 %{_mandir}/*/*
 
 %changelog
+* Tue Dec 14 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.5-1mdk
+- Fix the "quiet" option of packdrake (so urpmq and other tools don't produce
+  warnings)
+
 * Tue Dec 14 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.4-1mdk
 - extract_archive() function in packdrake should do nothing if no file list
   is specified

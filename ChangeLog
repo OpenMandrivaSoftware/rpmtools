@@ -1,3 +1,21 @@
+2004-12-14 20:16  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: Fix indentation and capitalize some warning
+	  messages
+
+2004-12-14 20:13  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: Use $pack->{log}() instead of warn(), so --quiet
+	  works again
+
+2004-12-14 11:38  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Makefile.PL: Don't hardcode version in several places
+
+2004-12-14 11:27  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.4
+
 2004-12-14 11:25  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
 
 	* rpmtools.spec: Don't require Compress::Zlib (only suggest :)
