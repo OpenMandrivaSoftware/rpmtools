@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -53,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Jan 05 2001 François Pons <fpons@mandrakesoft.com> 2.1-6mdk
+- fixed dependancy in parsehdlist against packdrake.
+- fixed packdrake.pm against DrakX usage.
+
 * Fri Dec 08 2000 François Pons <fpons@mandrakesoft.com> 2.1-5mdk
 - split packdrake into packdrake.pm, updated version to 0.02.
 - rpmtools.pm to 0.02 too.
