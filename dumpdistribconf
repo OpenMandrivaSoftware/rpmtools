@@ -1,0 +1,48 @@
+#!/usr/bin/perl
+
+# $Id$
+
+use strict;
+use Getopt::Long;
+use Distribconf;
+
+sub usage {
+    print STDERR <<EOF
+$0 -h|-m [options] path1 [path2 ...]
+Dump mandrakelinux distrib configuration.
+
+-h      output an hdlists file
+-m      output an media.cfg file
+-d      write the directly into the dedicated location
+EOF
+;
+};
+
+my ($out, $outputtype) = (\*STDOUT);
+
+GetOptions(
+    'h' => sub { $outputtype = 'h' },
+    'm' => sub { $outputtype = 'm' },
+    'd' => sub { $out = undef; },
+);
+
+defined($outputtype) && @ARGV or do {
+    usage;
+    exit 1;
+};
+
+foreach (@ARGV) {
+    print STDERR "$_\n";
+    my $d = Distribconf->new($_);
+    $d->load and do {
+        warn "Can't load configuration from $_\n";
+        next;
+    };
+    if ($outputtype eq 'h') {
+        $d->write_hdlists($out) or warn "Can't write hdlists file\n";
+    } else {
+        $d->write_mediacfg($out) or warn "Can't write media.cfg file\n";
+    }
+}
+
+
