@@ -52,7 +52,8 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Mon Mar 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-12mdk
-- added support for LD_LOADER in packdrake module.
+- added support for LD_LOADER in packdrake module and
+  parsehdlist executable.
 - removed explicit requires of db2 and db3.
 
 * Mon Mar 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-11mdk
