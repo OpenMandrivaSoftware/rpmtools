@@ -73,75 +73,101 @@ sub gzip_compress {
 
 sub gzip_uncompress {
     my ($pack, $destfh, $fileinfo) = @_;
-    my $x = inflateInit(
-        -WindowBits     =>  - MAX_WBITS(),
-    );
-    my $cread = 0; # Compressed data read
-    {
-        my $buf;
-        # get magic
-        if (sysread($pack->{handle}, $buf, 2) == 2) {
-            my @magic = unpack("C*", $buf);
-            $magic[0] == Compress::Zlib::MAGIC1 && $magic[1] == Compress::Zlib::MAGIC2 or do {
-                warn("Wrong magic header found");
-                return -1;
-            };
-        } else {
-            warn("Unexpect end of file while reading magic");
-            return -1;
-        }
-        my ($method, $flags);
-        if (sysread($pack->{handle}, $buf, 2) == 2) {
-            ($method, $flags) = unpack("C2", $buf);
-        } else {
-            warn("Unexpect end of file while reading flags");
-            return -1;
-        }
 
-        if (sysread($pack->{handle}, $buf, 6) != 6) {
-            warn("Unexpect end of file while reading gzip header");
-            return -1;
-        }
+    if (!defined $fileinfo) {
+        $pack->{ustream_data} = undef;
+        return 0;
+    }
 
-        $cread += 12; #Gzip header fixed size is already read
-        if ($flags & 0x04) {
+    if (defined($pack->{ustream_data}) && ($fileinfo->{coff} != $pack->{ustream_data}{coff} || $fileinfo->{off} < $pack->{ustream_data}{off})) {
+        $pack->{ustream_data} = undef;
+    }
+
+    if (!defined($pack->{ustream_data})) {
+        $pack->{ustream_data}{coff} = $fileinfo->{coff};
+        $pack->{ustream_data}{read} = 0; # uncompressed data read
+        $pack->{ustream_data}{x} = inflateInit(
+            -WindowBits     =>  - MAX_WBITS(),
+        );
+        $pack->{ustream_data}{cread} = 0; # Compressed data read
+        {
+            my $buf;
+            # get magic
             if (sysread($pack->{handle}, $buf, 2) == 2) {
-                my $len = unpack("I", $buf);
-                $cread += $len;
-                if (sysread($pack->{handle}, $buf, $len) != $len) {
-                    warn("Unexpect end of file while reading gzip header");
+                my @magic = unpack("C*", $buf);
+                $magic[0] == Compress::Zlib::MAGIC1 && $magic[1] == Compress::Zlib::MAGIC2 or do {
+                    warn("Wrong magic header found");
                     return -1;
-                }
+                };
             } else {
+                warn("Unexpect end of file while reading magic");
+                return -1;
+            }
+            my ($method, $flags);
+            if (sysread($pack->{handle}, $buf, 2) == 2) {
+                ($method, $flags) = unpack("C2", $buf);
+            } else {
+                warn("Unexpect end of file while reading flags");
+                return -1;
+            }
+
+            if (sysread($pack->{handle}, $buf, 6) != 6) {
                 warn("Unexpect end of file while reading gzip header");
                 return -1;
             }
+
+            $pack->{ustream_data}{cread} += 12; #Gzip header fixed size is already read
+            if ($flags & 0x04) {
+                if (sysread($pack->{handle}, $buf, 2) == 2) {
+                    my $len = unpack("I", $buf);
+                    $pack->{ustream_data}{cread} += $len;
+                    if (sysread($pack->{handle}, $buf, $len) != $len) {
+                        warn("Unexpect end of file while reading gzip header");
+                        return -1;
+                    }
+                } else {
+                    warn("Unexpect end of file while reading gzip header");
+                    return -1;
+                }
+            }
         }
+    } else {
+        sysseek($pack->{handle}, $pack->{ustream_data}{cread} - 2, 1);
     }
+    $pack->{ustream_data}{off} = $fileinfo->{off};
     my $byteswritten = 0;
-    my $read = 0; # uncompressed data read
     while ($byteswritten < $fileinfo->{size}) {
-        my $cl=sysread($pack->{handle}, my $buf, 
-            $cread + $pack->{bufsize} > $fileinfo->{csize} ? 
-                $fileinfo->{csize} - $cread : 
-                $pack->{bufsize}) or do {
-            warn("Enexpected end of file");
-            return -1;
-        };
-        $cread += $cl;
-        my ($out, $status) = $x->inflate(\$buf);
-        $status == Z_OK || $status == Z_STREAM_END or do {
-            warn("Unable to uncompress data");
-            return -1;
-        };
-        my $l = length($out) or next;
-        if ($read < $fileinfo->{off} && $read + $l > $fileinfo->{off}) {
-            $out = substr($out, $fileinfo->{off} - $read);    
+        my ($l, $out, $status) = (0, $pack->{ustream_data}{buf});
+        $pack->{ustream_data}{buf} = undef;
+        if (!defined($out)) {
+            my $cl=sysread($pack->{handle}, my $buf, 
+                $pack->{ustream_data}{cread} + $pack->{bufsize} > $fileinfo->{csize} ? 
+                    $fileinfo->{csize} - $pack->{ustream_data}{cread} : 
+                    $pack->{bufsize}) or do {
+                warn("Enexpected end of file");
+                return -1;
+            };
+            $pack->{ustream_data}{cread} += $cl;
+            ($out, $status) = $pack->{ustream_data}{x}->inflate(\$buf);
+            $status == Z_OK || $status == Z_STREAM_END or do {
+                warn("Unable to uncompress data");
+                return -1;
+            };
+            $l = length($out) or next;
         }
-        $read += $l;
-        if ($read <= $fileinfo->{off}) { next }
-        
-        my $bw = $byteswritten + length($out) > $fileinfo->{size} ? $fileinfo->{size} - $byteswritten : length($out);
+        if ($pack->{ustream_data}{read} < $fileinfo->{off} && $pack->{ustream_data}{read} + $l > $fileinfo->{off}) {
+            $out = substr($out, $fileinfo->{off} - $pack->{ustream_data}{read});    
+        }
+        $pack->{ustream_data}{read} += $l;
+        if ($pack->{ustream_data}{read} <= $fileinfo->{off}) { next }
+       
+        my $bw;
+        if ($byteswritten + length($out) > $fileinfo->{size}) {
+            $bw = $fileinfo->{size} - $byteswritten;
+            $pack->{ustream_data}{buf} = substr($out, $bw); # keeping track of unwritten uncompressed data
+        } else {
+            $bw = length($out);
+        }
         syswrite($destfh, $out, $bw) == $bw or do {
             warn "Can't write data into dest";
             return -1;

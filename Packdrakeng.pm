@@ -156,6 +156,7 @@ sub choose_compression_method {
 
 sub DESTROY {
     my ($pack) = @_;
+    $pack->{subuncompress}($pack, undef, undef);
     $pack->build_toc();
     close($pack->{handle}) if ($pack->{handle});
 }
@@ -256,6 +257,17 @@ sub read_toc {
     1;
 }
 
+sub sort_files_by_packing {
+    my ($pack, @files) = @_;
+    sort {
+        defined($pack->{files}{$a}) && defined($pack->{files}{$b}) ?
+            ($pack->{files}{$a}{coff} == $pack->{files}{$b}{coff} ?
+            $pack->{files}{$a}{off} <=> $pack->{files}{$b}{off} :
+            $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff}) :
+        $a cmp $b
+    } @files;
+}
+
 # Goto to the end of written compressed data
 sub end_seek {
     my ($pack) = @_;
@@ -340,55 +352,89 @@ sub extern_compress {
 sub extern_uncompress {
     my ($pack, $destfh, $fileinfo) = @_;
 
+    if (defined($pack->{ustream_data}) && (
+            !defined($fileinfo) ||
+            ($fileinfo->{coff} != $pack->{ustream_data}{coff} || $fileinfo->{off} < $pack->{ustream_data}{off})
+        )) {
+        close($pack->{ustream_data}{handle});
+        unlink($pack->{ustream_data}{tempname}); # deleting temp file
+        $pack->{ustream_data} = undef;
+    }
+    
+    defined($fileinfo) or return 0;
     # We have to first extract the block to a temp file, burk !
-    my ($tempfh, $tempname) = tempfile();
+    
+    if (!defined($pack->{ustream_data})) {
+        my $tempfh;
+        $pack->{ustream_data}{coff} = $fileinfo->{coff};
+        $pack->{ustream_data}{read} = 0;
 
-    my $cread = 0;
-    while ($cread < $fileinfo->{csize}) {
-        my $cl = sysread($pack->{handle}, my $data,
-            $cread + $pack->{bufsize} > $fileinfo->{csize} ?
-                $fileinfo->{csize} - $cread :
-                $pack->{bufsize}) or do {
-                $pack->{log}("Unexpected end of file");
+        ($tempfh, $pack->{ustream_data}{tempname}) = tempfile();
+
+        my $cread = 0;
+        while ($cread < $fileinfo->{csize}) {
+            my $cl = sysread($pack->{handle}, my $data,
+                $cread + $pack->{bufsize} > $fileinfo->{csize} ?
+                    $fileinfo->{csize} - $cread :
+                    $pack->{bufsize}) or do {
+                    $pack->{log}("Unexpected end of file");
+                    close($tempfh);
+                    unlink($pack->{ustream_data}{tempname});
+                    $pack->{ustream_data} = undef;
+                    return -1;
+            };
+            $cread += $cl;
+            syswrite($tempfh, $data) == length($data) or do {
+                $pack->{log}("Can't write all data into temp file");
                 close($tempfh);
-                unlink($tempname);
+                unlink($pack->{ustream_data}{tempname});
+                $pack->{ustream_data} = undef;
                 return -1;
-        };
-        $cread += $cl;
-        syswrite($tempfh, $data) == length($data) or do {
-            $pack->{log}("Can't write all data into temp file");
-            close($tempfh);
-            unlink($tempname);
+            };
+        }
+        close($tempfh);
+        
+        CORE::open($pack->{ustream_data}{handle}, "cat '$pack->{ustream_data}{tempname}' | $pack->{uncompress_method} |") or do {
+            $pack->{log}("Can't start $pack->{uncompress_method} to uncompress data");
+            unlink($pack->{ustream_data}{tempname});
+            $pack->{ustream_data} = undef;
             return -1;
         };
+        binmode($pack->{ustream_data}{handle});
     }
-    close($tempfh);
-
-    CORE::open(my $hc, "cat '$tempname' | $pack->{uncompress_method} |") or do {
-        $pack->{log}("Can't start $pack->{uncompress_method} to uncompress data");
-        unlink($tempname);
-        return -1;
-    };
-    binmode($hc);
 
     my $byteswritten = 0;
-    my $read = 0;
+    $pack->{ustream_data}{off} = $fileinfo->{off};
+    #my $read = 0;
 
     while ($byteswritten < $fileinfo->{size}) {
-        my $length = sysread($hc, my $data, $pack->{bufsize}) or do {
-            $pack->{log}("Unexpected end of stream $tempname");
-            #unlink($tempname);
-            close($hc);
-            return -1;
-        };
-
-        if ($read < $fileinfo->{off} && $read + $length > $fileinfo->{off}) {
-            $data = substr($data, $fileinfo->{off} - $read);
+        my $data = $pack->{ustream_data}{buf};
+        $pack->{ustream_data}{buf} = undef;
+        my $length = 0;
+        if (!defined($data)) {
+            $length = sysread($pack->{ustream_data}{handle}, $data, $pack->{bufsize}) or do {
+                $pack->{log}("Unexpected end of stream $pack->{ustream_data}{tempname}");
+                unlink($pack->{ustream_data}{tempname});
+                close($pack->{ustream_data}{handle});
+                $pack->{ustream_data} = undef;
+                return -1;
+            };
         }
-        $read += $length;
-        if ($read <= $fileinfo->{off}) { next }
 
-        my $bw = $byteswritten + length($data) > $fileinfo->{size} ? $fileinfo->{size} - $byteswritten : length($data);
+        if ($pack->{ustream_data}{read} < $fileinfo->{off} && $pack->{ustream_data}{read} + $length > $fileinfo->{off}) {
+            $data = substr($data, $fileinfo->{off} - $pack->{ustream_data}{read});
+        }
+        $pack->{ustream_data}{read} += $length;
+        if ($pack->{ustream_data}{read} <= $fileinfo->{off}) { next }
+
+        my $bw;
+        if ($byteswritten + length($data) > $fileinfo->{size}) {
+            $bw = $fileinfo->{size} - $byteswritten;
+            $pack->{ustream_data}{buf} = substr($data, $bw); # keeping track of unwritten uncompressed data
+        } else {
+            $bw = length($data);
+        }
+        
         syswrite($destfh, $data, $bw) == $bw or do {
             $pack->{log}("Can't write data into dest");
             return -1;
@@ -396,8 +442,6 @@ sub extern_uncompress {
         $byteswritten += $bw;
     }
 
-    close($hc);
-    unlink($tempname); # deleting temp file
     $byteswritten
 
 }
@@ -427,11 +471,7 @@ sub extract_block {
     syswrite($handle, $buf);
     }
 
-    foreach (sort {
-            $pack->{files}{$a}{coff} == $pack->{files}{$b}{coff} ?
-            $pack->{files}{$a}{off} <=> $pack->{files}{$b}{off} :
-            $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff}
-        } keys %{$pack->{files}}) {
+    foreach ($pack->sort_files_by_packing(keys %{$pack->{files}})) {
         $pack->{files}{$_}{coff} == $pack->{files}{$file}->{coff} or next;
     }
 
@@ -524,43 +564,42 @@ sub extract_virtual {
 }
 
 sub extract {
-    my ($pack, $destdir, @file) = @_;
-    foreach my $f (@file) {
-	my $dest = $destdir ? "$destdir/$f" : "$f";
-	my ($dir) = $dest =~ m!(.*)/.*!;
-	if (exists($pack->{dir}{$f})) {
-	    -d $dest || mkpath($dest)
-		or $pack->{log}("Unable to create dir $dest: $!");
-	    next;
-	} elsif (exists($pack->{'symlink'}{$f})) {
-	    -d $dir || mkpath($dir) or
-	    $pack->{log}("Unable to create dir $dest: $!");
-	    -l $dest and unlink $dest;
-	    symlink($pack->{'symlink'}{$f}, $dest)
-		or $pack->{log}("Unable to extract symlink $f: $!");
-	    next;
-	} elsif (exists($pack->{files}{$f})) {
-	    -d $dir || mkpath($dir) or do {
-		$pack->{log}("Unable to create dir $dir");
-	    };
-	    if (-l $dest) {
-		unlink($dest) or do {
-		    $pack->{log}("Can't remove link $dest: $!");
-		    next; # Don't overwrite a file because where the symlink point to
-		};
-	    }
-	    sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY)
-		or do {
-		$pack->{log}("Unable to extract $dest");
-		next;
-	    };
-	    my $written = $pack->extract_virtual($destfh, $f);
-	    $written == -1 and $pack->{log}("Unable to extract file $f");
-	    close($destfh);
-	    next;
-	} else {
-	    $pack->{log}("Can't find $f in archive");
-	}
+    my ($pack, $destdir, @files) = @_;
+    foreach my $f ($pack->sort_files_by_packing(@files)) {
+        my $dest = $destdir ? "$destdir/$f" : "$f";
+        my ($dir) = $dest =~ m!(.*)/.*!;
+        if (exists($pack->{dir}{$f})) {
+            -d $dest || mkpath($dest)
+            or $pack->{log}("Unable to create dir $dest: $!");
+            next;
+        } elsif (exists($pack->{'symlink'}{$f})) {
+            -d $dir || mkpath($dir) or
+            $pack->{log}("Unable to create dir $dest: $!");
+            -l $dest and unlink $dest;
+            symlink($pack->{'symlink'}{$f}, $dest)
+            or $pack->{log}("Unable to extract symlink $f: $!");
+            next;
+        } elsif (exists($pack->{files}{$f})) {
+	        -d $dir || mkpath($dir) or do {
+		        $pack->{log}("Unable to create dir $dir");
+	        };
+	        if (-l $dest) {
+		        unlink($dest) or do {
+		            $pack->{log}("Can't remove link $dest: $!");
+		            next; # Don't overwrite a file because where the symlink point to
+		        };
+	        }
+	        sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY) or do {
+    		    $pack->{log}("Unable to extract $dest");
+	        	next;
+	        };
+	        my $written = $pack->extract_virtual($destfh, $f);
+	        $written == -1 and $pack->{log}("Unable to extract file $f");
+	        close($destfh);
+	        next;
+        } else {
+            $pack->{log}("Can't find $f in archive");
+        }
     }
     1;
 }
@@ -568,7 +607,11 @@ sub extract {
 # Return \@dir, \@files, \@symlink list
 sub getcontent {
     my ($pack) = @_;
-    return([ keys(%{$pack->{dir}})], [ keys(%{$pack->{files}}) ], [ keys(%{$pack->{'symlink'}}) ]);
+    return(
+        [ keys(%{$pack->{dir}})],
+        [ $pack->sort_files_by_packing(keys %{$pack->{files}}) ], 
+        [ keys(%{$pack->{'symlink'}}) ]
+    );
 }
 
 sub infofile {
@@ -593,11 +636,7 @@ sub list {
     foreach my $file (keys %{$pack->{'symlink'}}) {
         printf "l %13c %s -> %s\n", ' ', $file, $pack->{'symlink'}{$file};
     }
-    foreach my $file (sort {
-            $pack->{files}{$a}{coff} == $pack->{files}{$b}{coff} ?
-            $pack->{files}{$a}{off} <=> $pack->{files}{$b}{off} :
-            $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff}
-        } keys %{$pack->{files}}) {
+    foreach my $file ($pack->sort_files_by_packing(keys %{$pack->{files}})) {
         printf "f %12d %s\n", $pack->{files}{$file}{size}, $file;
     }
 }
@@ -612,11 +651,7 @@ sub dumptoc {
     foreach my $file (keys %{$pack->{'symlink'}}) {
         printf $handle "l %13c %s -> %s\n", ' ', $file, $pack->{'symlink'}{$file};
     }
-    foreach my $file (sort {
-            $pack->{files}{$a}{coff} == $pack->{files}{$b}{coff} ?
-            $pack->{files}{$a}{off} <=> $pack->{files}{$b}{off} :
-            $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff}
-        } keys %{$pack->{files}}) {
+    foreach my $file ($pack->sort_files_by_packing(keys %{$pack->{files}})) {
         printf $handle "f %d %d %d %d %s\n", $pack->{files}{$file}{size}, $pack->{files}{$file}{off}, $pack->{files}{$file}{csize}, $pack->{files}{$file}{coff}, $file;
     }
 }
