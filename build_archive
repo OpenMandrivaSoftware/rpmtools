@@ -103,7 +103,7 @@ sub main {
 		system "cat @filelist | $compress >tmp.z";
 		$siz1 = -s "tmp.z";
 
-		$data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] foreach @filelist;
+		foreach (@filelist) { $data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] }
 
 		system "cat tmp.z >>$archivename";
 		$off1 += $siz1;
@@ -117,7 +117,7 @@ sub main {
 	system "cat @filelist | $compress >tmp.z";
 	$siz1 = -s "tmp.z";
 
-	$data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] foreach @filelist;
+	foreach (@filelist) { $data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] }
 
 	system "cat tmp.z >>$archivename";
 	$off1 += $siz1;

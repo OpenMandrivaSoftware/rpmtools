@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 11mdk
+%define release 12mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -56,6 +56,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genhdlists
 
 %changelog
+* Sun Mar 26 2000 Pixel <pixel@mandrakesoft.com> 1.1-12mdk
+- gendepslist2: add ability to handle files (was only hdlist.cz2's), and to
+output only the package dependencies for some hdlist's/packages (use of "--")
+
 * Sat Mar 25 2000 Pixel <pixel@mandrakesoft.com> 1.1-11mdk
 - new group
 

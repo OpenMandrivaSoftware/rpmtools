@@ -1,3 +1,13 @@
+2000-03-26  Pixel  <pixel@mandrakesoft.com>
+
+	* gendepslist2.cc: add ability to handle files (was only
+	hdlist.cz2's), and to output only the package dependencies for
+	some hdlist's/packages (use of "--")
+
+2000-03-25  Pixel  <pixel@mandrakesoft.com>
+
+	* build_archive (main): fix for perl < 5.005
+
 2000-03-10 François Pons <fpons@mandrakesoft.com>
 
 	* genhdlists: added to build multiple hdlist for each installation CD.

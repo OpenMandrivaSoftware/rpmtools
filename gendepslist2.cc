@@ -149,7 +149,7 @@ map<string, string> name2fullname;
 map<string, vector<string> > requires, frequires;
 map<string, vector<string> > provided_by, fprovided_by;
 
-void getRequires(FD_t fd, int) {
+void getRequires(FD_t fd, int current_hdlist) {
   set<string> all_requires, all_frequires;
   Header header;
 
@@ -159,6 +159,12 @@ void getRequires(FD_t fd, int) {
     string name = s_name + "-" + get_name(header, RPMTAG_VERSION) + "-" + get_name(header, RPMTAG_RELEASE);
     vector<string> l = get_info(header, RPMTAG_REQUIRENAME);
     
+    packages.push_back(name);
+    name2fullname[s_name] = name;
+    hdlist2names[current_hdlist].insert(name);
+    sizes[name] = get_int(header, RPMTAG_SIZE);
+
+    if (in(s_name, provided_by)) provided_by[s_name].push_back(name);
     for (ITv p = l.begin(); p != l.end(); p++) {      
       ((*p)[0] == '/' ?     frequires :     requires)[name].push_back(*p);
       ((*p)[0] == '/' ? all_frequires : all_requires).insert(*p);
@@ -176,12 +182,6 @@ void getProvides(FD_t fd, int current_hdlist) {
     string s_name = get_name(header, RPMTAG_NAME);
     string name = s_name + "-" + get_name(header, RPMTAG_VERSION) + "-" + get_name(header, RPMTAG_RELEASE);
 
-    packages.push_back(name);
-    name2fullname[s_name] = name;
-    hdlist2names[current_hdlist].insert(name);
-    sizes[name] = get_int(header, RPMTAG_SIZE);
-
-    if (in(s_name, provided_by)) provided_by[s_name].push_back(name);
 
     vector<string> provides = get_info(header, RPMTAG_PROVIDES);
     for (ITv p = provides.begin(); p != provides.end(); p++)
@@ -365,13 +365,15 @@ void printDepslist(ofstream *out1, ofstream *out2) {
   }
 }
 
-void hdlists(void (*f)(FD_t, int), const char *hdlist, int current_hdlist) {
-    FILE *pipe = popen(((string) "bzip2 -d <" + hdlist + " 2>/dev/null").c_str(), "r");
+void hdlists(void (*f)(FD_t, int), const char *file, int current_hdlist) {
+    bool isfile = strlen(file) > 4 && strncmp(file + strlen(file) - 4, ".rpm", 4) == 0;
+    string cmd = isfile ? "rpm2header " : "bzip2 -d <";
+    FILE *pipe = popen((cmd + file + " 2>/dev/null").c_str(), "r");
 
     f(fdDup(fileno(pipe)), current_hdlist);
 
     if (fclose(pipe) != 0) {
-      cerr << "bad hdlist " << hdlist << "\n";
+      cerr << "bad hdlist " << file << "\n";
       exit(1);
     }
 }
@@ -393,10 +395,10 @@ int main(int argc, char **argv)
 
   nb_hdlists = argc - 1;
 
-  for (int i = 1; i < argc; i++) hdlists(getRequires, argv[i], i - 1);
+  for (int i = 1; i < argc; i++) if ((string)argv[i] == "--") break; else hdlists(getRequires, argv[i], i - 1);
   cerr << "getRequires done\n";
 
-  for (int i = 1; i < argc; i++) hdlists(getProvides, argv[i], i - 1);
+  for (int i = 1; i < argc; i++) if ((string)argv[i] == "--") continue; else hdlists(getProvides, argv[i], i - 1);
   cerr << "getProvides done\n";
 
   printDepslist(out1, out2);
