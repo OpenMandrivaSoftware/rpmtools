@@ -14,8 +14,6 @@
 ##- along with this program; if not, write to the Free Software
 ##- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-##- $Id$
-
 package Packdrakeng;
 
 use strict;
@@ -24,10 +22,8 @@ use POSIX;
 use File::Path;
 use File::Temp qw(tempfile);
 use Compress::Zlib;
-use vars qw($VERSION);
 
-my $debug = 1;
-$VERSION = "0.10";
+(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
 my  ($toc_header, $toc_footer) = 
     ('cz[0',      '0]cz');
