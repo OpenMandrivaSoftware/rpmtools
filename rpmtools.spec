@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 8mdk
+%define release 9mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -55,6 +55,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon Mar 10 2003 François Pons <fpons@mandrakesoft.com> 4.5-9mdk
+- add support for noauto: flag in hdlists file.
+- made gendistrib perl_checker compliant.
+
 * Thu Feb 20 2003 François Pons <fpons@mandrakesoft.com> 4.5-8mdk
 - fixed bug 414.
 

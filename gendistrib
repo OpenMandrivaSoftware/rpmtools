@@ -39,7 +39,7 @@ foreach (<F>) {
     chomp;
     s/\s*#.*$//;
     /^\s*$/ and next;
-    m/^\s*(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
+    m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 
     push @hdlists, { synthesis => "$root/Mandrake/base/synthesis.$1", hdlist => "$root/Mandrake/base/$1", dir => $2, descr => $3 };
 }
@@ -47,12 +47,12 @@ close F;
 
 my $headers_dir = ($ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 sub clean_cache {
-    system(($ENV{LD_LOADER} ? ($ENV{LD_LOADER}) : ()), "rm", "-rf", $headers_dir) unless $noclean;
+    system($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}, "rm", "-rf", $headers_dir) unless $noclean;
 }
 
 clean_cache();
 
-for (0..$#hdlists) {
+foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
     my $r;
 
@@ -60,7 +60,7 @@ for (0..$#hdlists) {
     #- listed in the hdlist file.
     #- if the number of root is equal the number of medium, assume a medium
     #- foreach root, else try to find a valid root containing the medium.
-    if (scalar(@hdlists ) == scalar(@root)) {
+    if (scalar(@hdlists) == scalar(@root)) {
 	$r = $root[$_];
     } else {
 	foreach (@root) {
@@ -79,7 +79,7 @@ for (0..$#hdlists) {
 print STDERR "clean data for second pass\n";
 $urpm->unresolved_provides_clean;
 
-for (0..$#hdlists) {
+foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
 
     print STDERR "parsing headers for $e->{descr}\n";
