@@ -15,6 +15,7 @@ Release: %{release}
 Source0: %{name}-%{version}.tar.bz2
 License: GPL
 Group: System/Configuration/Packaging
+URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
@@ -58,6 +59,7 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Mar 10 2003 François Pons <fpons@mandrakesoft.com> 4.5-9mdk
 - add support for noauto: flag in hdlists file.
 - made gendistrib perl_checker compliant.
+- added url (cvsweb of rpmtools).
 
 * Thu Feb 20 2003 François Pons <fpons@mandrakesoft.com> 4.5-8mdk
 - fixed bug 414.
