@@ -107,7 +107,7 @@ foreach ($distrib->listmedia) {
     $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
     if (! -d $distrib->getfullpath($_, 'path')) {
         if ($skipmissingdir) {
-            printf(STDERR "Skiping missing media %s\n", $distrib->getpath($_, 'path')) unless($nooutput);
+            printf STDERR "Skipping missing media %s\n", $distrib->getpath($_, 'path') unless $nooutput;
             next;
         } else {
             die sprintf("Missing dir '%s'  for media '%s'", $distrib->getpath($_, 'path'), $distrib->getvalue($_, 'name'));
