@@ -522,9 +522,21 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
 
     /* start the big loop,
        parse all header from fileno, then extract information to store into iinfo and iprovides. */
-    while (fd_is_hdlist >= 0 ? (fd_is_hdlist > 0 ?
-				((header=headerRead(fd, HEADER_MAGIC_YES)) != 0) :
-				((fd_is_hdlist = -1), rpmReadPackageHeader(fd, &header, &i, NULL, NULL) == 0)) : 0) {
+    if (fd_is_hdlist) {
+      while (fd_is_hdlist < 20 && (header=headerRead(fd, HEADER_MAGIC_YES)) == 0) {
+	struct timeval timeout;
+
+	timeout.tv_sec = 0;
+	timeout.tv_usec = 10000;
+	select(0, NULL, NULL, NULL, &timeout);
+
+	++fd_is_hdlist;
+      }
+    } else {
+      if (rpmReadPackageHeader(fd, &header, &i, NULL, NULL) != 0)
+	header = 0;
+    }
+    while (header != 0) {
       SV *fullname_sv = get_fullname_sv(header);
       HV* header_info = get_info(header, bflag, iprovides);
 
@@ -533,28 +545,13 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
       /* return fullname on stack */
       EXTEND(SP, 1);
       PUSHs(sv_2mortal(fullname_sv));
-#if 0
-      char *name = get_name(header, RPMTAG_NAME);
-      char *version = get_name(header, RPMTAG_VERSION);
-      char *release = get_name(header, RPMTAG_RELEASE);
-      char *arch = get_name(header, RPMTAG_ARCH);
-      char *fullname = (char*)alloca(strlen(name)+strlen(version)+strlen(release)+strlen(arch)+4);
-      STRLEN fullname_len = sprintf(fullname, "%s-%s-%s.%s", name, version, release, arch);
-      HV* header_info = get_info(header, bflag, iprovides);
-
-      /* once the hash header_info is built, store a reference to it
-	 in iinfo.
-	 note sv_name is not incremented here, it has the default value of before. */
-      /* hv_store(iinfo, name, strlen(name), newRV_noinc((SV*)header_info), 0); */
-      hv_store(iinfo, fullname, fullname_len, newRV_noinc((SV*)header_info), 0);
-
-      /* return fullname on stack */
-      EXTEND(SP, 1);
-      PUSHs(sv_2mortal(newSVpv(fullname, fullname_len)));
-#endif
 
       /* dispose of some memory */
       headerFree(header);
+
+      /* continue loop for hdlist */
+      if (fd_is_hdlist)
+	header=headerRead(fd, HEADER_MAGIC_YES);
     }
     fdClose(fd);
   } else croak("bad arguments list");

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 6mdk
+%define release 7mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.0
@@ -54,6 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Jan 17 2002 François Pons <fpons@mandrakesoft.com> 4.0-7mdk
+- added safe guard delay to ensure data is available.
+- updated parsehdlist with such above feature.
+
 * Thu Jan 17 2002 François Pons <fpons@mandrakesoft.com> 4.0-6mdk
 - modified delay management in respect to rpmlib, use
   select to wait for input before giving up to rpmlib.

@@ -1,7 +1,10 @@
+#include <sys/select.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <unistd.h>
 #include <signal.h>
 #include <errno.h>
 #include <rpm/rpmlib.h>
@@ -314,6 +317,15 @@ int main(int argc, char **argv)
 	int fdno[2];
 	if (!pipe(fdno)) {
 	  if ((pid = fork()) != 0) {
+	    fd_set readfds;
+	    struct timeval timeout;
+
+	    FD_ZERO(&readfds);
+	    FD_SET(fdno[0], &readfds);
+	    timeout.tv_sec = 1;
+	    timeout.tv_usec = 0;
+	    select(fdno[0]+1, &readfds, NULL, NULL, &timeout);
+
 	    fd = fdDup(fdno[0]);
 	    close(fdno[0]);
 	    close(fdno[1]);
@@ -376,7 +388,17 @@ int main(int argc, char **argv)
 	long count = 0;
 
 	/* fprintf(stderr, "parsehdlist: reading %s\n", argv[i]); */
-	while ((header=headerRead(fd, HEADER_MAGIC_YES))) {
+	while (count < 20 && (header=headerRead(fd, HEADER_MAGIC_YES)) == 0) {
+	  struct timeval timeout;
+
+	  timeout.tv_sec = 0;
+	  timeout.tv_usec = 10000;
+	  select(0, NULL, NULL, NULL, &timeout);
+
+	  ++count;
+	}
+	count = 0;
+	while (header != 0) {
 	  char *name = get_name(header, RPMTAG_NAME);
 
 	  ++count;
@@ -413,6 +435,7 @@ int main(int argc, char **argv)
 	    }
 	    headerFree(header);
 	  }
+	  header=headerRead(fd, HEADER_MAGIC_YES);
 	}
 	if (!count) exit(3); /* no package is an error */
       }
