@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 11mdk
+%define release 12mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -56,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Fri Aug  1 2003 François Pons <fpons@mandrakesoft.com> 4.5-12mdk
+- rebuild for new perl (DrakX need it).
+
 * Mon May 12 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 4.5-11mdk
 - rebuild for new perl requires/provides
 
