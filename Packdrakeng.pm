@@ -571,8 +571,22 @@ sub getcontent {
     return([ keys(%{$pack->{dir}})], [ keys(%{$pack->{files}}) ], [ keys(%{$pack->{'symlink'}}) ]);
 }
 
+sub infofile {
+    my ($pack, $file) = @_;
+    if (defined($pack->{files}{$file})) {
+        return ('f', $pack->{files}{$file}{size});
+    } elsif (defined($pack->{'symlink'}{$file})) {
+        return ('l', $pack->{'symlink'}{$file});
+    } elsif (defined($pack->{dir}{$file})) {
+        return ('d', undef);
+    } else {
+        return(undef, undef);
+    }
+}
+
 sub list {
-    my ($pack) = @_;
+    my ($pack, $handle) = @_;
+    $handle ||= *STDOUT;
     foreach my $file (keys %{$pack->{dir}}) {
         printf "d %13c %s\n", ' ', $file;
     }
@@ -590,19 +604,20 @@ sub list {
 
 # Print toc info
 sub dumptoc {
-    my ($pack) = @_;
-        foreach my $file (keys %{$pack->{dir}}) {
-        printf "d %13c %s\n", ' ', $file;
+    my ($pack, $handle) = @_;
+    $handle ||= *STDOUT;
+    foreach my $file (keys %{$pack->{dir}}) {
+        printf $handle "d %13c %s\n", ' ', $file;
     }
     foreach my $file (keys %{$pack->{'symlink'}}) {
-        printf "l %13c %s -> %s\n", ' ', $file, $pack->{'symlink'}{$file};
+        printf $handle "l %13c %s -> %s\n", ' ', $file, $pack->{'symlink'}{$file};
     }
     foreach my $file (sort {
             $pack->{files}{$a}{coff} == $pack->{files}{$b}{coff} ?
             $pack->{files}{$a}{off} <=> $pack->{files}{$b}{off} :
             $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff}
         } keys %{$pack->{files}}) {
-        printf "f %d %d %d %d %s\n", $pack->{files}{$file}{size}, $pack->{files}{$file}{off}, $pack->{files}{$file}{csize}, $pack->{files}{$file}{coff}, $file;
+        printf $handle "f %d %d %d %d %s\n", $pack->{files}{$file}{size}, $pack->{files}{$file}{off}, $pack->{files}{$file}{csize}, $pack->{files}{$file}{coff}, $file;
     }
 }
 
@@ -795,6 +810,28 @@ normal file.
 =item B<Packdrakeng->extract($destdir, @files)>
 
 Extract @files from the archive into $destdir prefix.
+
+=item B<Packdrakeng->getcontent()>
+
+Return 3 arrayref about found files into archive, respectively directory list,
+files list and symlink list.
+
+=item B<Packdrakeng->infofile($file)>
+
+Return the type and information about a file into the archive.
+
+- return 'f' and the the size of the file for a plain file
+- return 'l' and the point file for a link
+- return 'd' and undef for a directory
+- return undef if the file can't be found into archive.
+
+=item B<Packdrakeng->infofile($handle)>
+
+Print to $handle (STDOUT if not specified) the content of the archive.
+
+=item B<Packdrakeng->dumptoc($handle)>
+
+Print to $handle (STDOUT if not specified) the table of content of the archive.
 
 =head1 AUTHOR
 

@@ -3,7 +3,7 @@
 # $Id$
 
 use strict;
-use Test::More tests => 37;
+use Test::More tests => 41;
 use Digest::MD5;
 
 use_ok('Packdrakeng');
@@ -111,6 +111,15 @@ ok($pack->add_virtual('l', "symlink", "dest"), "Adding a symlink");
 $pack = undef;
 
 ok($pack = Packdrakeng->open(archive => "packtest.cz"), "Opening the archive");
+my ($type, $info);
+($type, $info) = $pack->infofile("noexist");
+ok(!defined($type), "get info from an non existed file");
+($type, $info) = $pack->infofile("dir");
+ok($type eq 'd', "Get info from a dir");
+($type, $info) = $pack->infofile("symlink");
+ok($type eq 'l' && $info eq 'dest', "Get info from a dir");
+($type, $info) = $pack->infofile("coin");
+ok($type eq 'f' && $info eq length($coin), "Get info from a file");
 ok($pack->extract("test", "dir"), "Extracting dir");
 ok(-d "test/dir", "dir successfully restored");
 ok($pack->extract("test", "symlink"), "Extracting symlink");
