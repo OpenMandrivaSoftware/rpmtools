@@ -1,5 +1,9 @@
 #!/usr/bin/perl
 
+#
+# $Id$
+#
+
 #- Copyright (C) 1999 MandrakeSoft (fpons@mandrakesoft.com)
 #-
 #- This program is free software; you can redistribute it and/or modify
@@ -19,22 +23,63 @@
 use strict;
 use URPM;
 use URPM::Build;
+use Getopt::Long;
 
 my $urpm = new URPM;
-my ($noclean, $nohdlists, $nobasefiles, @root, @hdlists) = (0, 0, 0);
+my ($noclean, $nohdlists, $nobasefiles, $nooutput, $dontdie, $nochkdep, $rootdistrib, @root, @hdlists) = (0, 0, 0, 0);
+my $headers_dir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
-($noclean,     @ARGV) = @ARGV if $ARGV[0] eq "--noclean";
-(undef, @root, @ARGV) = @ARGV if $ARGV[0] eq "--distrib";
+sub usage {
+	print <<EOF;
+Usage $0 [options] dir [dir...]
+First dir should be the top level of distro
+Options:
+  --help              print this message and exit
+  --headersdir dir    put temporary files in dir
+  -s                  silent mode
+  --nochkdep          do not find missing dependancies
+  --nobadrpm          do not stop on bad rpm
+  --noclean           keep cache files
 
-@root > 0 && @ARGV == 0 or die "usage: gendistrib [--noclean] --distrib <root distrib> <root_distrib2> ...\n";
+EOF
+}
+
+my %urpmfiles;
+
+GetOptions(
+	'help|h' => sub { usage(); exit },
+	'noclean' => \$noclean,
+	'distrib=s' => \$rootdistrib,
+	'headersdir=s' => \$headers_dir,
+	'fermetagueule|s' => \$nooutput,
+	'nochkdep' => \$nochkdep,
+	'nobadrpm' => \$dontdie,
+	'depslist=s' => \$urpmfiles{depslist},
+	'provides=s' => \$urpmfiles{provides},
+	'compss=s' => \$urpmfiles{compss},
+	'hdlists=s' => \$urpmfiles{hdlists},
+);
+
+@root = grep { $_ } ($rootdistrib, @ARGV);
+
+@root > 0 or do { usage(); exit 1 };
 
 my $root = $root[0];
-my ($depslist, $provides, $compss, $hdlists) = ("$root/Mandrake/base/depslist.ordered",
-						"$root/Mandrake/base/provides",
-						"$root/Mandrake/base/compss",
-						"$root/Mandrake/base/hdlists");
 
-open F, $hdlists or die "unable to open $hdlists";
+my %default_urpmfiles = (
+	depslist =>  "$root/Mandrake/base/depslist.ordered",
+	provides => "$root/Mandrake/base/provides",
+	compss =>   "$root/Mandrake/base/compss",
+	hdlists =>  "$root/Mandrake/base/hdlists",
+	version =>  "$root/VERSION",
+	md5sum =>   "$root/Mandrake/base/MD5SUM",	
+);
+
+while (my ($k, $v) = each(%default_urpmfiles)) {
+	$urpmfiles{$k} ||= $v;
+}
+
+open F, $urpmfiles{hdlists} or die "unable to open $urpmfiles{hdlists}";
 foreach (<F>) {
     chomp;
     s/\s*#.*$//;
@@ -45,7 +90,6 @@ foreach (<F>) {
 }
 close F;
 
-my $headers_dir = ($ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 sub clean_cache {
     system($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}, "rm", "-rf", $headers_dir) unless $noclean;
 }
@@ -83,33 +127,36 @@ foreach (0..$#hdlists) {
     }
     @files or die "unable to find rpm files in $e->{dir}\n";
 
-    print STDERR "parsing rpm files in directory $r/$e->{dir}\n";
-    my @headers = $urpm->parse_rpms_build_headers(dir  => $headers_dir, rpms => \@files);
+    print STDERR "parsing rpm files in directory $r/$e->{dir}\n" unless $nooutput;
+    my @headers = $urpm->parse_rpms_build_headers(dir  => $headers_dir, rpms => \@files,
+    						dontdie => $dontdie, silent => $nooutput);
     $e->{headers} = \@headers;
 }
 
 #- clean everything to start second pass.
-print STDERR "clean data for second pass\n";
+print STDERR "clean data for second pass\n" unless $nooutput;
 $urpm->unresolved_provides_clean;
 
 foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
 
-    print STDERR "parsing headers for $e->{descr}\n";
+    print STDERR "parsing headers for $e->{descr}\n" unless $nooutput;
     my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
-					     headers => $e->{headers});
+					     headers => $e->{headers},
+				             dontdie => $dontdie,
+					     silent  => $nooutput);
 
-    print STDERR "computing deps\n";
+    print STDERR "computing deps\n" unless $nooutput;
     $urpm->compute_deps;
 
-    print STDERR "building hdlist for medium \"$e->{descr}\"\n";
+    print STDERR "building hdlist for medium \"$e->{descr}\"\n" unless $nooutput;
     $urpm->build_hdlist(start  => $start,
 			end    => $end,
 			dir    => $headers_dir,
 			hdlist => $e->{hdlist},
 			ratio  => 9);
 
-    print STDERR "building synthesis for medium \"$e->{descr}\n";
+    print STDERR "building synthesis for medium \"$e->{descr}\n" unless $nooutput;
     $urpm->build_synthesis(start     => $start,
 			   end       => $end,
 			   synthesis => $e->{synthesis});
@@ -117,36 +164,38 @@ foreach (0..$#hdlists) {
 
 clean_cache();
 
-print STDERR "building base files\n";
-$urpm->build_base_files(depslist => "$root/Mandrake/base/depslist.ordered",
-			provides => "$root/Mandrake/base/provides",
-			compss   => "$root/Mandrake/base/compss");
+print STDERR "building base files\n" unless $nooutput;
+$urpm->build_base_files(depslist => $urpmfiles{depslist},
+			provides => $urpmfiles{provides},
+			compss   => $urpmfiles{compss});
 
 #- safety cleaning
-unlink "$root/Mandrake/base/MD5SUM";
+unlink $urpmfiles{md5sum};
 
 #- check if there are NOTFOUND in dependancy, check if they are in other medium, warn the user.
-foreach (0 .. $#{$urpm->{depslist}}) {
-    my $pkg = $urpm->{depslist}[$_];
+if (! $nochkdep) {
+    foreach (0 .. $#{$urpm->{depslist}}) {
+        my $pkg = $urpm->{depslist}[$_];
 
-    foreach (split " ", $urpm->{deps}[$_]) {
-	/NOTFOUND_(.*)/ or next;
-	print STDERR $pkg->fullname . " requires [$1] which\n";
-	if ($urpm->{provides}{$1}) {
-	    print STDERR "  is available on packages not listed in this medium or previous medium:\n";
-	    foreach (keys %{$urpm->{provides}{$1}}) {
-		my $dep_pkg = $urpm->{depslist}[$_];
-		print STDERR "    " . $dep_pkg->fullname . "\n";
-	    }
-	} else {
-	    print STDERR "  is not available in any medium listed\n";
-	    if (/NOTFOUND_(\D*)(\d+[\.\-\d]*)?(.*)?\.so\./) {
-		my $re = (quotemeta $1) . '(\d+[\.\-\d]*)' . (!$2 && "?") . '\.so\.';
-		foreach (keys %{$urpm->{provides}}) {
-		    /$re/ or next;
-		    print STDERR "  but a similar provides is available as [$_], need rebuild ?\n";
-		}
-	    }
-	}
+        foreach (split " ", $urpm->{deps}[$_]) {
+	    /NOTFOUND_(.*)/ or next;
+	    print STDERR $pkg->fullname . " requires [$1] which\n";
+	    if ($urpm->{provides}{$1}) {
+	        print STDERR "  is available on packages not listed in this medium or previous medium:\n";
+	        foreach (keys %{$urpm->{provides}{$1}}) {
+		    my $dep_pkg = $urpm->{depslist}[$_];
+		    print STDERR "    " . $dep_pkg->fullname . "\n";
+	        }
+	    } else {
+	        print STDERR "  is not available in any medium listed\n";
+	        if (/NOTFOUND_(\D*)(\d+[\.\-\d]*)?(.*)?\.so\./) {
+		    my $re = (quotemeta $1) . '(\d+[\.\-\d]*)' . (!$2 && "?") . '\.so\.';
+		    foreach (keys %{$urpm->{provides}}) {
+		        /$re/ or next;
+		        print STDERR "  but a similar provides is available as [$_], need rebuild ?\n";
+		    }
+	        }
+            }
+        }
     }
 }

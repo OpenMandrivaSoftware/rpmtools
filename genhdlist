@@ -1,51 +1,101 @@
 #!/usr/bin/perl
 
+#
+# $Id$
+#
+
+#- Copyright (C) 1999 MandrakeSoft
+#-
+#- This program is free software; you can redistribute it and/or modify
+#- it under the terms of the GNU General Public License as published by
+#- the Free Software Foundation; either version 2, or (at your option)
+#- any later version.
+#-
+#- This program is distributed in the hope that it will be useful,
+#- but WITHOUT ANY WARRANTY; without even the implied warranty of
+#- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#- GNU General Public License for more details.
+#-
+#- You should have received a copy of the GNU General Public License
+#- along with this program; if not, write to the Free Software
+#- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
 use strict;
 use URPM;
 use URPM::Build;
 use File::Find;
 use File::Path;
+use Getopt::Long;
+
+my ($noclean, $nooutput, $dontdie, $suffix) = (0, 0, 0, "", ".");
+my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
+
+sub usage {
+	print <<EOF;
+Usage: $0 [options] [dir...]
+Options:
+  --help              print this message and exit
+  --headersdir dir    put temporary files in dir
+  -s                  silent mode
+  --nobadrpm          do not stop on bad rpm
+  --noclean           keep cache files
+  --suffix SUFFIX     put a suffix on hdlist names
+  
+EOF
+}
+
+GetOptions(
+	'help|h' => sub { usage(); exit },
+	'noclean' => \$noclean,
+	'headersdir=s' => \$tmpdir,
+	'fermetagueule|s' => \$nooutput,
+	'nobadrpm' => \$dontdie,
+	'suffix=s' => \$suffix,
+);
 
 my $urpm = new URPM;
-my $tmpdir = "/tmp/genhdlist";
-my $index="hdlist.cz";
-my $synthesis="synthesis.$index";
-my $dir = @ARGV[0] or die "usage: genhdlist <dir>";
+my $index = "hdlist$suffix.cz";
+my $synthesis = "synthesis.$index";
+my @dir = @ARGV || ("."); 
 
-chdir $dir or die "can't chdir in directory $dir";
+#chdir $rootdistrib or die "can't chdir in directory $rootdistrib";
+rmtree($tmpdir) unless $noclean;
+mkpath($tmpdir);
+
+my @rpms;
+sub wanted {
+    	if (-f $_ && $_ =~ /^.*\.rpm$/ ) {
+		#print "$File::Find::name\n" unless $nooutput;
+        	push(@rpms, $File::Find::name);
+    	}
+}
 
 # get rpm list
-my @rpms;
-File::Find::find({wanted => \&wanted}, ".");
-sub wanted {
-    if (-f $_ && $_ =~ /^.*\.rpm$/ ) {
-        print "$File::Find::name\n";
-        push(@rpms, $File::Find::name);
-    }
+open(LIST, "> list$suffix") or die "can't create list file: $!";
+foreach my $dir (@dir) {
+	@rpms=();
+	File::Find::find({wanted => \&wanted}, $dir);
+	$urpm->parse_rpms_build_headers(dir  => $tmpdir,
+					rpms => \@rpms,
+			        	dontdie => $dontdie,
+					silent => $nooutput);
+	foreach my $rpm (@rpms) { print LIST "$rpm\n" };
 }
-if (!@rpms) {
-        print "no rpms found, aborting\n";
-        exit(0);
-}
+close(LIST);
 
 # create index file
-mkpath($tmpdir);
-$urpm->parse_rpms_build_headers(dir  => $tmpdir,
-				rpms => \@rpms);
+# No rpms, exit !
 @{$urpm->{depslist}} > 0 or die "nothing read";
+
 $urpm->build_hdlist(start  => 0,
 		    end    => $#{$urpm->{depslist}},
 		    dir    => $tmpdir,
 		    hdlist => $index,
 		    ratio  => 9);
-rmtree($tmpdir);
+rmtree($tmpdir) unless $noclean;
 
 # create synthesis file
 $urpm->build_synthesis(start     => 0,
 		       end       => $#{$urpm->{depslist}},
 		       synthesis => $synthesis);
 
-# create list file
-open(LIST, "> list") or die "can't create list file list: $!";
-foreach my $rpm (@rpms) { print LIST "$rpm\n" };
-close(LIST);
