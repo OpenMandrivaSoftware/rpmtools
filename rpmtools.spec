@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.1
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Jul 25 2001 François Pons <fpons@mandrakesoft.com> 3.1-2mdk
+- use rpmvercmp for version_compare.
+
 * Mon Jul 23 2001 François Pons <fpons@mandrakesoft.com> 3.1-1mdk
 - allow provides on full package name.
 - fixed multiple version, release or arch of the same

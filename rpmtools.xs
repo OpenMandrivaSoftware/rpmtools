@@ -32,6 +32,9 @@
 #define HDFLAGS_SOURCERPM     0x04000000
 
 
+/* duplicate definition for rpmvercmp (not needed on 4.0.3 but needed on 4.0) */
+int rpmvercmp(const char *a, const char *b);
+
 char *get_name(Header header, int_32 tag) {
   int_32 type, count;
   char *name;
@@ -308,6 +311,11 @@ void callback_empty(void) {}
 
 MODULE = rpmtools			PACKAGE = rpmtools
 
+
+int
+rpmvercmp(a,b)
+  char *a
+  char *b
 
 char *
 arch()

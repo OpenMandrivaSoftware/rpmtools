@@ -601,16 +601,18 @@ sub compat_arch { better_arch(arch(), $_[0]) }
 #- compare a version string, make sure no deadlock can occur.
 #- try to return always a numerical value.
 sub version_compare {
-    my ($a, $b) = @_;
-    local $_;
-
-    while ($a || $b) {
-	my ($sb, $sa) =  map { $1 if $a =~ /^\W*\d/ ? s/^\W*0*(\d+)// : s/^\W*(\D*)// } ($b, $a);
-	$_ = ($sa =~ /^\d/ || $sb =~ /^\d/) && length($sa) <=> length($sb) || $sa cmp $sb and return $_ || 0;
-	$sa eq '' && $sb eq '' and return $a cmp $b || 0;
-    }
-    0;
+    return rpmvercmp(@_);
 }
+#- historical perl version (still breaks on "4m" with "4.1m"...
+#-    my ($a, $b) = @_;
+#-    local $_;
+#-
+#-    while ($a || $b) {
+#-	my ($sb, $sa) =  map { $1 if $a =~ /^\W*\d/ ? s/^\W*0*(\d+)// : s/^\W*(\D*)// } ($b, $a);
+#-	$_ = ($sa =~ /^\d/ || $sb =~ /^\d/) && length($sa) <=> length($sb) || $sa cmp $sb and return $_ || 0;
+#-	$sa eq '' && $sb eq '' and return $a cmp $b || 0;
+#-    }
+#-    0;
 
 #- compare package name to increase chance of avoiding loop in prerequisite chain.
 sub package_name_compare {
