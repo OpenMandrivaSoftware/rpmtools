@@ -21,7 +21,7 @@ foreach (<F>) {
     my $command = "genhdlist_cz2";
     $noclean and $command .= " --noclean";
     -e $depslist and $command .= " --ordered-depslist $depslist";
-    $command .= " -o $hdlist $root/$dir";
+    $command .= " -o $root/Mandrake/base/$hdlist $root/$dir";
 
     system($command);
     system("touch $root/Mandrake/base/$hdlist");

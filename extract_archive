@@ -199,7 +199,7 @@ sub main {
 
     foreach my $file (@file) {
 	#- check for presence of file, but do not abort, continue with others.
-	$data{$_} or print STDERR "unable to find file $_ in archive $archivename\n";
+	$data{$file} or print STDERR "unable to find file $file in archive $archivename\n";
 
 	my $newfile = "$dir/$file";
 
