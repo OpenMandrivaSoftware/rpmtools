@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.1
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Nov 16 2001 François Pons <fpons@mandrakesoft.com> 3.1-6mdk
+- fixed bad generation of hdlist for non standard rpm filename.
+
 * Wed Nov 14 2001 François Pons <fpons@mandrakesoft.com> 3.1-5mdk
 - changed --name behaviour for newer urpmi.
 

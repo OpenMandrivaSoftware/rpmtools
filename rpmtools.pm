@@ -146,13 +146,13 @@ sub build_hdlist {
     foreach (@rpms) {
 	my ($key) = /([^\/]*)\.rpm$/ or next; #- get rpm filename.
 
-	system("rpm2header '$_' > '$dir/$key'") unless -e "$dir/$key";
+	system("rpm2header '$_' > '$dir/$key'") unless -s "$dir/$key";
 	$? == 0 or unlink("$dir/$key"), die "bad rpm $_\n";
 	-s "$dir/$key" or unlink("$dir/$key"), die "bad rpm $_\n";
 
 	my ($name, $version, $release, $arch) = $key =~ /(.*)-([^-]*)-([^-]*)\.([^\.]*)$/;
 	my ($realname, $realversion, $realrelease, $realarch) =
-	  `parsehdlist --raw '$dir/$key'` =~ /(.*)-([^-]*)-([^-]*)\.([^\.]*)\.rpm$/;
+	  `parsehdlist --raw --name '$dir/$key'` =~ /:name:([^\:]*)-([^\:\-]*)-([^\:\-]*)\.([^\-\.\:\s]*)(?::.*\.rpm)?$/;
 	unless (length($name) && length($version) && length($release) && length($arch) &&
 		$name eq $realname && $version eq $realversion && $release eq $realrelease && $arch eq $realarch) {
 	    my $newkey = "$realname-$realversion-$realrelease.$realarch:$key";
