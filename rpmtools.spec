@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 9mdk
+%define release 10mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -50,7 +50,11 @@ rm -rf $RPM_BUILD_ROOT
 %{make} -f Makefile_core install PREFIX=$RPM_BUILD_ROOT%{_prefix}
 
 # compability tools, based upon parsehdlist ones.
-ln -s parsehdlist $RPM_BUILD_ROOT%{_bindir}/hdlist2names
+cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2names
+#!/bin/sh
+%{_bindir}/parsehdlist $*
+EOF
+chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2names
 
 cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2prereq
 #!/bin/sh
@@ -99,6 +103,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Sep 04 2000 François Pons <fpons@mandrakesoft.com> 1.2-10mdk
+- fixed management of basesystem, so that it always keeps all
+  its dependancies in order to keep ability to update base packages
+  when dobles on basesystem exists.
+
 * Sun Sep 03 2000 François Pons <fpons@mandrakesoft.com> 1.2-9mdk
 - fixed write_depslist to avoid resorting, fixes dobles.
 - fixed compute_depslist to use only remove dobles in provides.

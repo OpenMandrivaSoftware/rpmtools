@@ -183,7 +183,7 @@ sub compute_depslist {
 		foreach (@$_) {
 		    my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id},
 							     $params->{use_base_flag} && exists $params->{info}{$_}{base}) : ($_, 0);
-		    $to_drop ||= $id == $pkg->{id} || $requires_id{$id} || $base;
+		    $to_drop ||= $id == $pkg->{id} || $requires_id{$id} || $pkg->{name} ne 'basesystem' && $base;
 		    push @choices_id, $id;
 		}
 		$to_drop or push @requires_id, \@choices_id;
@@ -191,7 +191,7 @@ sub compute_depslist {
 		my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id},
 							 $params->{use_base_flag} && exists $params->{info}{$_}{base}) : ($_, 0);
 		$requires_id{$id} = $_;
-		$id == $pkg->{id} or $base or push @requires_id, $id;
+		$id == $pkg->{id} || $pkg->{name} ne 'basesystem' && $base or push @requires_id, $id;
 	    }
 	}
 	#- cannot remove requires values as they are necessary for closure on incremental job.
