@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.6
+%define version 5.0.7
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -74,6 +74,9 @@ is fully compatible with old packdrake.
 %{_mandir}/*/*
 
 %changelog
+* Thu Dec 30 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.7-1mdk
+- speedup uncompress function
+
 * Fri Dec 17 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.6-1mdk
 - Ensure Packdrakeng::zlib loads properly, and is not used if Compress::Zlib
   is not available. Remove Compress::Zlib from BuildRequires
