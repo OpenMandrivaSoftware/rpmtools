@@ -29,8 +29,8 @@ sub new {
     my $pack = Packdrakeng->open(
         %options,
         archive => $file
-    ) or return undef;
-
+    ) or do { print STDERR "Can't open $file: $!\n"; return undef };
+    #- rebless
     bless($pack, $class);
 }
 
@@ -48,7 +48,10 @@ sub extract_all_archive {
 
 sub list_archive {
     foreach my $archive (@_) {
-        my $pack = Packdrakeng->open(archive => $archive) or next;
+        my $pack = Packdrakeng->open(archive => $archive) or do {
+	    print STDERR "Can't open $archive: $!\n";
+	    next;
+	};
         $pack->list();
     }
 }
@@ -73,7 +76,10 @@ sub build_archive {
 
 sub cat_archive {
     foreach my $archive (@_) {
-        my $pack = Packdrakeng->open(archive => $archive) or next;
+        my $pack = Packdrakeng->open(archive => $archive) or do {
+	    print STDERR "Can't open $archive: $!\n";
+	    next;
+	};
         (undef, my $files, undef) = $pack->getcontent();
         foreach (@$files) {
             $pack->extract_virtual(\*STDOUT, $_);
