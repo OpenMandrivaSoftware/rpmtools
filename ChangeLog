@@ -1,62 +1,993 @@
-2000-09-15  Pixel  <pixel@mandrakesoft.com>
+2004-01-05 23:14  othauvin
 
-	* genhdlist_cz2, packdrake, build_archive: use TMPDIR if exists
+	* rpmtools.spec: -15mdk
 
-2000-08-11 François Pons <fpons@mandrakesoft.com>
+2004-01-05 23:09  othauvin
 
-	* gendepslist2.cc, genhdlist_cz2: modified to use packdrake -c instead of bzcat.
-	* rpm2header.c: added comment about upgrade and removing tags.
+	* Makefile: use %_topdir instead /home/users/olivier
 
-2000-08-11 François Pons <fpons@mandrakesoft.com>
+2004-01-05 22:51  othauvin
 
-	* packdrake: inserted waiting its proper package, new version
-	obsoleting extract_archive and build_archive.
+	* gendistrib, genhdlist: add somes feature
 
-2000-08-03  Pixel  <pixel@mandrakesoft.com>
+2003-12-09 20:38  fpons
 
-	* gendepslist2.cc: skip "rpmlib(..." dependencies
+	* Makefile, rpmtools.spec: added RH 7.3 support
 
-2000-07-27  Pixel  <pixel@mandrakesoft.com>
+2003-08-28 15:44  fpons
 
-	* gendepslist2.cc: cleanup handling of choices in basesystem.
+	* gendistrib: fixed MD5SUM files to be removed, added noarch for
+	  %{ARCH} possible substitution.
 
-2000-06-13  Pixel  <pixel@mandrakesoft.com>
+2003-08-28 15:40  fpons
 
-	* gendepslist2.cc: change fclose to pclose (thanks to diablero)
+	* rpmtools.spec: 4.5-13mdk
 
-2000-04-04 François Pons <fpons@mandrakesoft.com>
+2003-08-28 15:39  fpons
 
-	* extract_archive: allow bad file in filelist, print error but continue.
+	* gendistrib: added %{ARCH} management
 
-2000-03-31 François Pons <fpons@mandrakesoft.com>
+2003-08-01 15:17  fpons
 
-	* genfilelist: new tool to build a filelist from a RPMS repository.
+	* rpmtools.spec: final 4.5-12mdk
 
-2000-03-28  Pixel  <pixel@mandrakesoft.com>
+2003-08-01 14:21  fpons
 
-	* gendepslist2.cc: fix silly bug
+	* rpmtools.spec: 4.5-12mdk
 
-2000-03-26  Pixel  <pixel@mandrakesoft.com>
+2003-05-19 17:26  tvignaud
 
-	* gendepslist2.cc: add ability to handle files (was only
-	hdlist.cz2's), and to output only the package dependencies for
-	some hdlist's/packages (use of "--")
+	* packdrake-pm/packdrake.pm: perl_checker fixes
 
-2000-03-25  Pixel  <pixel@mandrakesoft.com>
+2003-05-12 18:47  gc
 
-	* build_archive (main): fix for perl < 5.005
+	* rpmtools.spec: rebuild for new perl requires/provides
 
-2000-03-10 François Pons <fpons@mandrakesoft.com>
+2003-04-29 22:19  flepied
 
-	* genhdlists: added to build multiple hdlist for each installation CD.
+	* rpmtools.spec: 4.5-10mdk
 
-2000-02-18 Chmouel Boudjnah <chmouel@mandrakesoft.com>
+2003-04-29 22:18  flepied
 
-	* *cc: really fix with rpm-3.0.4 (Fredl).
+	* Makefile: use rpmbuild instead of rpm
 
-2000-02-17  Chmouel Boudjnah  <chmouel@mandrakesoft.com>
+2003-04-29 22:17  flepied
 
-	* rpmtools.spec (BuildRequires): rpm-3.0.4.
-	* gendepslist.cc: port to rpm-3.0.4.
-	* Makefile: cvs support, add -lpopt.
+	* rpm2header.c: added rpm 4.2 support
+
+2003-03-10 11:42  fpons
+
+	* rpmtools.spec: added URL tag.
+
+2003-03-10 11:39  fpons
+
+	* gendistrib, rpmtools.spec: 4.5-9mdk
+
+2003-02-20 16:54  fpons
+
+	* rpmtools.spec, packdrake-pm/packdrake.pm: 4.5-8mdk
+
+2002-12-06 00:43  prigaux
+
+	* rpmtools.spec, packdrake-pm/packdrake.pm: fix a bug in an error
+	  message (as detected by perl_checker)
+
+2002-12-04 22:44  prigaux
+
+	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
+	  perl_checker compliant
+
+2002-11-28 02:01  prigaux
+
+	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
+	  perl_checker compliant
+
+2002-11-26 19:30  prigaux
+
+	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
+	  perl_checker compliant
+
+2002-11-26 15:12  fpons
+
+	* packdrake-pm/packdrake.pm: fix of pixel from perl-checker.
+
+2002-10-16 16:08  fpons
+
+	* rpmtools.spec: updated spec file with obsoletes changed by
+	  conflicts.
+
+2002-10-16 16:07  fpons
+
+	* gendistrib, rpmtools.spec, packdrake-pm/packdrake.pm: 4.5-3mdk
+
+2002-08-05 21:04  prigaux
+
+	* Makefile, Makefile.PL, build_archive, extract_archive,
+	  genbasefiles, gendepslist2.cc, genfilelist, genhdlist_cz2,
+	  genhdlists, hdlist2files.cc, hdlist2groups.cc, hdlist2names.cc,
+	  hdlist2prereq.cc, packdrake.pm, rpm-find-leaves.c, rpmtools.pm,
+	  rpmtools.spec, rpmtools.xs, packdrake-pm/Makefile.PL,
+	  packdrake-pm/packdrake.pm: - remove obsolete stuff - move
+	  packdrake.pm in its own directory to make MakeMaker happy
+
+2002-08-05 17:05  gc
+
+	* Makefile, parsehdlist.c, rpmtools.spec: add --fileswinfo query to
+	  parsehdlist so that we can know more informations on the package
+	  for which we print the files (needed by upcoming rpmdrake
+	  supporting searching in files)
+
+2002-07-23 20:43  fpons
+
+	* rpmtools.spec: 4.4-1mdk
+
+2002-07-23 20:31  fpons
+
+	* Makefile, rpmtools.pm, rpmtools.spec: 4.4-1mdk
+
+2002-07-09 13:00  prigaux
+
+	* rpmtools.spec: adapt to perl 5.8.0
+
+2002-06-28 09:10  fpons
+
+	* distriblint, rpmtools.spec: 4.3-5mdk
+
+2002-06-27 20:28  fpons
+
+	* Makefile, rpmtools.spec: 4.3-4mdk (forget installation of
+	  distriblint)
+
+2002-06-27 20:27  fpons
+
+	* distriblint, rpmtools.spec: 4.3-4mdk
+
+2002-06-18 18:02  fpons
+
+	* Makefile, rpmtools.spec: fixes for real addition and
+	  installation.
+
+2002-06-18 17:57  fpons
+
+	* genhdlist, rpmtools.spec: 4.3-3mdk (added genhdlist)
+
+2002-06-03 14:04  fpons
+
+	* gendistrib: added missing log removed since gendistrib use
+	  perl-URPM.
+
+2002-06-03 13:06  fpons
+
+	* gendistrib, rpmtools.spec: synced gendistrib with URPM 0.02 or
+	  later.
+
+2002-05-31 12:58  fpons
+
+	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec: start using
+	  perl-URPM
+
+2002-05-29 10:11  fpons
+
+	* rpmtools.spec: latest rpmtools 4.2.
+
+2002-05-29 10:10  fpons
+
+	* rpmtools.xs: back fix from URPM module.
+
+2002-04-22 17:59  fpons
+
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: improved generation of
+	  synthesis (smaller)
+
+2002-04-15 15:25  fpons
+
+	* packdrake.pm, rpmtools.spec: fixed with NIS and packdrake
+	  --extract.
+
+2002-04-10 16:33  fpons
+
+	* packdrake.pm, rpmtools.pm, rpmtools.spec: compatible with perl
+	  5.005 and above.
+
+2002-03-20 20:58  flepied
+
+	* rpmtools.spec: 4.2-9mdk
+
+2002-03-06 19:59  fpons
+
+	* rpmtools.pm, rpmtools.spec: 4.2-8mdk, now final 8.2 ?
+
+2002-03-06 19:51  fpons
+
+	* rpmtools.pm, rpmtools.spec: 4.2-7mdk, final ?
+
+2002-02-27 12:02  fpons
+
+	* rpmtools.spec, rpmtools.xs: 4.2-6mdk
+
+2002-02-18 11:54  fpons
+
+	* rpmtools.spec: 4.2-4mdk
+
+2002-02-18 11:50  fpons
+
+	* parsehdlist.c: 4.2-4mdk
+
+2002-02-14 17:26  fpons
+
+	* rpmtools.spec, rpmtools.xs: 4.2-3mdk, memory leak fixed.
+
+2002-02-11 14:32  fpons
+
+	* rpmtools.spec: update date changelog.
+
+2002-02-08 18:06  fpons
+
+	* rpmtools.spec, rpmtools.xs: 4.2-2mdk
+
+2002-02-08 17:55  fpons
+
+	* Makefile, parsehdlist.c, rpmtools.pm, rpmtools.spec: 4.2-1mdk
+
+2002-02-05 17:55  fpons
+
+	* rpmtools.pm, rpmtools.spec: 4.1-4mdk
+
+2002-01-30 12:45  fpons
+
+	* rpmtools.pm, rpmtools.spec: 4.1-3mdk
+
+2002-01-24 10:39  fpons
+
+	* rpmtools.spec, rpmtools.xs: 4.1-2mdk
+
+2002-01-22 19:39  fpons
+
+	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec: new 4.1
+	  version.
+
+2002-01-17 13:01  fpons
+
+	* parsehdlist.c, rpmtools.spec, rpmtools.xs: 4.0-7mdk
+
+2002-01-17 11:05  fpons
+
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: 4.0-6mdk
+
+2002-01-16 19:21  fpons
+
+	* rpmtools.pm, rpmtools.spec: 4.0-5mdk
+
+2002-01-15 18:08  fpons
+
+	* parsehdlist.c, rpmtools.pm, rpmtools.spec: 4.0-4mdk
+
+2002-01-10 10:27  fpons
+
+	* rpmtools.pm, rpmtools.spec: fixed stupid bug in read_hdlist.
+
+2002-01-09 17:32  fpons
+
+	* gendistrib, rpmtools.pm, rpmtools.spec: first snapshot candidate
+	  for first alpha of 8.2.
+
+2001-12-05 17:42  fpons
+
+	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec, rpmtools.xs:
+	  4.0 release (changes of provides internally).
+
+2001-12-05 15:42  fpons
+
+	* parsehdlist.c: fixed bad alloca size.
+
+2001-12-05 12:24  fpons
+
+	* Makefile, parsehdlist.c, rpmtools.pm, rpmtools.spec: 3.2 for
+	  newer urpmi.
+
+2001-11-26 18:46  fpons
+
+	* rpmtools.pm, rpmtools.spec: fixes for alpha.
+
+2001-11-26 17:54  fpons
+
+	* rpmtools.pm, rpmtools.spec: fixed compss file reading.
+
+2001-11-16 15:01  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-11-16 10:32  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-11-14 21:15  fpons
+
+	* rpmtools.spec: new release.
+
+2001-11-14 21:14  fpons
+
+	* rpmtools.spec: [no log message]
+
+2001-11-14 21:11  fpons
+
+	* parsehdlist.c: fixed core dump when name is given with other
+	  argument on some case.  changed --name behaviour to give filename
+	  along with fullname.
+
+2001-08-09 18:47  prigaux
+
+	* rpmtools.spec: [no log message]
+
+2001-07-25 17:12  fpons
+
+	* Makefile: avoid using version_compare.
+
+2001-07-25 16:59  fpons
+
+	* Makefile.PL, rpmtools.pm, rpmtools.spec, rpmtools.xs: use rpmlib
+	  version comparison function, force destiny.
+
+2001-07-23 17:15  fpons
+
+	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: first 3.1
+	  major relase, with fullname in info hash.
+
+2001-07-21 12:34  warly
+
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: add sourcerpm tag
+
+2001-07-18 14:50  fpons
+
+	* Makefile, Makefile.PL, rpmtools.spec: new release with new rpm.
+
+2001-07-05 15:32  fpons
+
+	* rpmtools.pm, rpmtools.spec: added compute_id method.
+
+2001-07-02 14:39  fpons
+
+	* parsehdlist.c, rpmtools.spec: added arch support for parsehdlist.
+
+2001-06-28 18:40  fpons
+
+	* rpmtools.pm: dependencies is right.
+
+2001-06-28 17:42  fpons
+
+	* rpmtools.pm, rpmtools.spec: cleaned rpmtools.
+
+2001-06-27 17:18  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-06-27 11:53  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-06-26 17:10  fpons
+
+	* rpmtools.pm, rpmtools.spec: fixes for bad behaviour of
+	  build_hdlist.  added better relocation code.
+
+2001-06-25 14:55  fpons
+
+	* rpmtools.spec: late time fix.
+
+2001-06-25 14:54  fpons
+
+	* rpmtools.pm: updated to use @ separator char instead of : in
+	  provides file.
+
+2001-06-25 13:54  fpons
+
+	* rpmtools.spec: fix version_compare 3.0-2mdk
+
+2001-06-25 13:49  fpons
+
+	* rpmtools.pm: fix version compare for string like "0.beta4"
+	  compared to "0.rc1", the latest should be the greatest on
+	  comparing "beta" and "rc".
+
+2001-06-21 18:25  fpons
+
+	* Makefile, Makefile.PL, parsehdlist.c, rpmtools.pm, rpmtools.spec,
+	  rpmtools.xs: new 3.0 release, see rpmtools.spec.
+
+2001-06-14 10:59  fpons
+
+	* Makefile, Makefile.PL, rpmtools.spec: [no log message]
+
+2001-06-06 15:34  fpons
+
+	* rpmtools.pm, rpmtools.spec: fix ordering of packages to avoid
+	  some nasty loop in prerequisite chain as for GConf and libGConf
+	  currently.
+
+2001-05-22 15:36  fpons
+
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: added arch support.
+
+2001-04-16 18:47  fpons
+
+	* rpmtools.spec: [no log message]
+
+2001-04-16 18:46  fpons
+
+	* parsehdlist.c: added back kill to child process as some report of
+	  locking ?
+
+2001-04-14 16:27  fpons
+
+	* rpmtools.spec: final for 8.0 ?
+
+2001-04-14 16:23  fpons
+
+	* rpmtools.pm: fixed absurd mismatch of use <=> and cmp.
+
+2001-04-14 13:55  fpons
+
+	* rpmtools.spec: [no log message]
+
+2001-04-14 13:52  fpons
+
+	* parsehdlist.c: fixed interactive mode with provides tag to return
+	  flags and version, commented print_list no more used.
+
+2001-04-14 13:47  fpons
+
+	* parsehdlist.c: simplified header construction and fixed --compact
+	  to match exactly what is needed for synthesis file.
+
+2001-04-12 14:58  fpons
+
+	* packdrake.pm, rpmtools.spec: [no log message]
+
+2001-04-03 14:50  fpons
+
+	* parsehdlist.c, rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-03-26 17:14  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-03-26 15:39  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-03-23 15:20  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-03-23 15:14  fpons
+
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
+
+2001-03-23 14:37  fpons
+
+	* parsehdlist.c: added --compact option to help producing synthesis
+	  file (need s/:/@/g).
+
+2001-03-23 14:36  fpons
+
+	* rpmtools.xs: try to be cleaner for subscript but not enough.
+
+2001-03-23 14:35  fpons
+
+	* rpmtools.pm: workarount hashes subscript error of perl.
+
+2001-03-23 14:35  fpons
+
+	* rpmtools.spec: 2.3-13mdk.
+
+2001-03-12 16:25  fpons
+
+	* rpmtools.spec: [no log message]
+
+2001-03-12 16:20  fpons
+
+	* packdrake.pm, parsehdlist.c, rpmtools.spec: [no log message]
+
+2001-03-12 15:02  flepied
+
+	* Makefile.PL: don't link explicitly with db libs.
+
+2001-03-08 18:15  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-03-07 16:34  fpons
+
+	* parsehdlist.c, rpmtools.spec: [no log message]
+
+2001-03-05 14:40  fpons
+
+	* rpmtools.spec: [no log message]
+
+2001-03-04 19:22  warly
+
+	* Makefile: add db1 and db-3.1 to the static build for
+	  rpm2header_static
+
+2001-03-01 18:06  fpons
+
+	* gendistrib, rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-02-27 18:05  fpons
+
+	* gendistrib, rpmtools.spec: [no log message]
+
+2001-02-26 16:06  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-02-19 17:45  fpons
+
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
+
+2001-02-19 15:56  fpons
+
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
+
+2001-02-16 14:00  fpons
+
+	* parsehdlist.c, rpmtools.spec, rpmtools.xs: [no log message]
+
+2001-02-14 14:29  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-02-14 14:20  fpons
+
+	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log
+	  message]
+
+2001-02-13 16:01  fpons
+
+	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: added faster
+	  method to rpmtools.xs, fixed code and added exit too.
+
+2001-01-30 18:47  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2001-01-23 20:30  fpons
+
+	* rpmtools.spec: 2.1-9mdk
+
+2001-01-23 20:20  fpons
+
+	* gendistrib: updated to use new build_hdlist.
+
+2001-01-23 20:18  fpons
+
+	* packdrake, packdrake.pm, rpmtools.pm, rpmtools.spec: added --dir
+	  and -d flag for packdrake*.  management of specific directory for
+	  building archive.
+
+2001-01-22 18:35  fpons
+
+	* rpmtools.pm: added base selection in choices, for glibc.  so when
+	  glibc or compat-glibc are required, only glibc is requested.
+
+2001-01-22 13:53  fpons
+
+	* genhdlists: modified to use rpmtools module.
+
+2001-01-17 16:51  fpons
+
+	* Makefile: added gendistrib and removed obsolete tools.
+
+2001-01-17 16:50  fpons
+
+	* gendistrib: initial revision.
+
+2001-01-17 16:47  fpons
+
+	* rpmtools.pm: fixed volative current working directory in
+	  build_hdlist and use of noclean options.
+
+2001-01-17 16:46  fpons
+
+	* rpmtools.spec: added gendistrib in %files and removed genhdlists,
+	  genhdlist_cz2 and genbasefiles.
+
+2001-01-17 16:45  fpons
+
+	* rpmtools.spec: 2.1-8mdk
+
+2001-01-16 17:40  fpons
+
+	* packdrake.pm: fixed use of white space in archive name.
+
+2001-01-16 17:39  fpons
+
+	* parsehdlist.c: added --output options.
+
+2001-01-16 17:39  fpons
+
+	* rpmtools.pm: add build_hdlist method.  increase version to 0.03.
+
+2001-01-16 17:38  fpons
+
+	* rpmtools.spec: 2.1-7mdk snapshot.
+
+2001-01-05 16:54  fpons
+
+	* rpmtools.spec: [no log message]
+
+2001-01-05 16:24  fpons
+
+	* packdrake.pm: really fixe exit in child process (when used with
+	  DrakX, exit is not allowed)
+
+2001-01-05 15:40  fpons
+
+	* packdrake.pm: changed exit by exec 'true'
+
+2001-01-05 11:54  fpons
+
+	* packdrake.pm: fixed printing to STDOUT while extracting (usefull
+	  if extracting to STDOUT :-)
+
+2001-01-04 19:36  fpons
+
+	* parsehdlist.c: removed need of packdrake, so live update will be
+	  nicer
+
+2001-01-04 16:20  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-12-08 16:48  fpons
+
+	* packdrake, parsehdlist.c, rpmtools.pm, rpmtools.spec,
+	  rpmtools.xs, packdrake.pm: [no log message]
+
+2000-11-23 19:14  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-11-23 19:12  fpons
+
+	* parsehdlist.c: fixed memory leaks that were causing problems if
+	  used interactively.
+
+2000-11-23 19:11  fpons
+
+	* rpmtools.pm: fixed deadlock in some case on version_compare.
+
+2000-11-20 19:47  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-11-20 19:46  fpons
+
+	* parsehdlist.c: removed extra log on stdout (killer this one)
+
+2000-11-20 18:17  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-11-20 18:15  fpons
+
+	* Makefile, parsehdlist.c: fixed big bug for execvl (thanks to
+	  francis)
+
+2000-11-20 17:32  fpons
+
+	* parsehdlist.c: added fflush after (avoid deadock with DrakX)
+
+2000-11-20 16:25  fpons
+
+	* Makefile: [no log message]
+
+2000-11-20 15:44  fpons
+
+	* Makefile, rpmtools.spec: [no log message]
+
+2000-11-20 15:12  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-11-20 14:59  fpons
+
+	* parsehdlist.c: adding interactive mode for DrakX client/server
+	  approach.
+
+2000-11-16 17:28  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2000-11-15 14:25  prigaux
+
+	* rpmtools.spec: [no log message]
+
+2000-10-19 17:28  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2000-10-19 14:26  flepied
+
+	* rpmtools.spec: 2.0-1mdk
+
+2000-10-19 14:25  flepied
+
+	* rpmtools.xs, rpm-find-leaves.c: use iterators.
+
+2000-10-19 14:24  flepied
+
+	* Makefile, Makefile.PL: added new lib for rpm.
+
+2000-09-15 12:55  prigaux
+
+	* ChangeLog, build_archive, genhdlist_cz2, packdrake,
+	  rpmtools.spec: use TMPDIR if available
+
+2000-09-04 18:41  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2000-09-03 19:28  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-09-03 19:18  fpons
+
+	* rpmtools.pm: [no log message]
+
+2000-09-03 19:03  fpons
+
+	* genbasefiles, rpmtools.pm, rpmtools.spec: [no log message]
+
+2000-09-03 16:43  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2000-08-29 17:50  fpons
+
+	* rpmtools.pm, rpmtools.spec: [no log message]
+
+2000-08-29 15:51  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-08-29 14:35  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-08-28 17:00  fpons
+
+	* packdrake: [no log message]
+
+2000-08-28 12:24  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-08-28 10:58  fpons
+
+	* Makefile, Makefile.PL, rpmtools.spec: [no log message]
+
+2000-08-25 17:33  fpons
+
+	* rpmtools.pm, Makefile: [no log message]
+
+2000-08-25 16:49  fpons
+
+	* Makefile, Makefile.PL, genbasefiles, rpmtools.pm, rpmtools.spec,
+	  rpmtools.xs: [no log message]
+
+2000-08-24 18:20  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-08-24 18:13  fpons
+
+	* parsehdlist.c: [no log message]
+
+2000-08-24 18:04  fpons
+
+	* ChangeLog, Makefile, gendepslist2.cc, genhdlist_cz2,
+	  rpm2header.c, rpmtools.spec: [no log message]
+
+2000-08-11 19:18  fpons
+
+	* packdrake: [no log message]
+
+2000-08-05 20:03  prigaux
+
+	* ChangeLog, gendepslist2.cc, rpmtools.spec: no_comment
+
+2000-07-27 20:23  prigaux
+
+	* rpmtools.spec: no_comment
+
+2000-07-27 20:01  prigaux
+
+	* ChangeLog, gendepslist2.cc: no_comment
+
+2000-07-12 12:16  prigaux
+
+	* rpmtools.spec: no_comment
+
+2000-06-13 21:02  prigaux
+
+	* ChangeLog, gendepslist2.cc, rpmtools.spec: no_comment
+
+2000-06-08 11:14  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-05-25 17:59  fpons
+
+	* genhdlist_cz2: [no log message]
+
+2000-05-22 20:44  fpons
+
+	* build_archive, gendepslist2.cc, genhdlist_cz2: [no log message]
+
+2000-05-02 15:11  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-05-02 15:02  fpons
+
+	* extract_archive: [no log message]
+
+2000-05-02 14:52  prigaux
+
+	* rpmtools.spec: no_comment
+
+2000-04-28 04:56  prigaux
+
+	* gendepslist2.cc: [no log message]
+
+2000-04-20 20:45  fpons
+
+	* build_archive, extract_archive, genfilelist, rpmtools.spec: [no
+	  log message]
+
+2000-04-19 14:42  prigaux
+
+	* gendepslist2.cc: no_comment
+
+2000-04-19 14:38  fpons
+
+	* rpmtools.spec: [no log message]
+
+2000-04-17 14:35  prigaux
+
+	* extract_archive, genhdlists, rpmtools.spec: no_comment
+
+2000-04-14 21:50  prigaux
+
+	* rpmtools.spec: no_comment
+
+2000-04-14 12:02  fpons
+
+	* genhdlists: [no log message]
+
+2000-04-04 15:08  fpons
+
+	* genfilelist: [no log message]
+
+2000-04-04 13:14  fpons
+
+	* ChangeLog, extract_archive: [no log message]
+
+2000-03-31 18:40  fpons
+
+	* genfilelist: [no log message]
+
+2000-03-31 17:05  fpons
+
+	* Makefile, rpmtools.spec: [no log message]
+
+2000-03-31 16:40  prigaux
+
+	* gendepslist2.cc, rpmtools.spec, hdlist2groups.cc: no_comment
+
+2000-03-31 16:40  prigaux
+
+	* ChangeLog: [no log message]
+
+2000-03-31 16:37  fpons
+
+	* ChangeLog, genfilelist, rpmtools.spec: [no log message]
+
+2000-03-28 00:59  prigaux
+
+	* Makefile, hdlist2names.cc, rpmtools.spec: no_comment
+
+2000-03-26 19:24  prigaux
+
+	* ChangeLog, build_archive, gendepslist2.cc, rpmtools.spec:
+	  no_comment
+
+2000-03-25 13:58  prigaux
+
+	* rpmtools.spec: no_comment
+
+2000-03-24 15:29  prigaux
+
+	* gendepslist2.cc, genhdlist_cz2, rpmtools.spec: no_comment
+
+2000-03-23 13:24  fpons
+
+	* genhdlist_cz2: [no log message]
+
+2000-03-23 13:20  prigaux
+
+	* Makefile, gendepslist2.cc, genhdlist_cz2, rpmtools.spec:
+	  no_comment
+
+2000-03-10 16:44  prigaux
+
+	* gendepslist2.cc: [no log message]
+
+2000-03-10 16:38  prigaux
+
+	* gendepslist2.cc: [no log message]
+
+2000-03-10 16:34  prigaux
+
+	* gendepslist2.cc: [no log message]
+
+2000-03-10 15:39  prigaux
+
+	* gendepslist2.cc: [no log message]
+
+2000-03-10 15:34  prigaux
+
+	* Makefile, gendepslist2.cc: no_comment
+
+2000-03-10 14:44  prigaux
+
+	* gendepslist2.cc, rpmtools.spec: no_comment
+
+2000-03-10 13:36  fpons
+
+	* ChangeLog, Makefile, genhdlists: [no log message]
+
+2000-03-08 00:36  prigaux
+
+	* Makefile, rpmtools.spec, gendepslist2.cc, genhdlist_cz2,
+	  build_archive, extract_archive, hdlist2prereq.cc: no_comment
+
+2000-03-08 00:32  prigaux
+
+	* Makefile, gendepslist.cc, hdlist2files.cc, rpmtools.spec:
+	  no_comment
+
+2000-02-23 18:49  chmouel
+
+	* ChangeLog, rpmtools.spec: "See_The_Changelog"
+
+2000-02-18 20:27  chmouel
+
+	* .cvsignore, ChangeLog, rpmtools.spec: "See_The_Changelog"
+
+2000-02-18 18:21  flepied
+
+	* hdlist2files.cc, gendepslist.cc:	* new way to retrieve file
+	  names in 3.0.4.
+
+2000-02-18 18:19  flepied
+
+	* rpm2header.c: 	* close files !
+		  * don't dup many times.
+
+2000-02-17 19:04  chmouel
+
+	* Makefile, rpmtools.spec, ChangeLog: "See_The_Changelog"
+
+2000-02-17 18:58  chmouel
+
+	* Makefile, gendepslist.cc, hdlist2files.cc, hdlist2names.cc,
+	  rpm-find-leaves.c, rpm2header.c, rpmtools.spec: First_Import
+
+2000-02-17 18:58  chmouel
+
+	* Makefile, gendepslist.cc, hdlist2files.cc, hdlist2names.cc,
+	  rpm-find-leaves.c, rpm2header.c, rpmtools.spec: Initial revision
 
