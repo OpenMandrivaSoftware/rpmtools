@@ -3,7 +3,7 @@
 # $Id$
 
 use strict;
-use Test::More tests => 32;
+use Test::More tests => 37;
 use Digest::MD5;
 
 use_ok('Packdrakeng');
@@ -79,6 +79,20 @@ sub test_packing {
     $pack = undef;
 }
 
+# Testing simple additionnal function:
+clean_test_files();
+
+{
+my ($handle, $filename) = Packdrakeng::tempfile();
+ok($handle && $filename, "can create temp file");
+ok(-f $filename, "Temp file exist");
+ok(print($handle $coin), "can write into file");
+close($handle);
+unlink($filename);
+
+ok(Packdrakeng::mkpath('test/parent/child'), "can create dir like mkdir -p");
+ok(-d 'test/parent/child', "the dir really exist");
+}
 
 # Single test:
 {

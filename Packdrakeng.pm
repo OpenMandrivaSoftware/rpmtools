@@ -19,14 +19,35 @@ package Packdrakeng;
 use strict;
 use warnings;
 use POSIX qw(O_WRONLY O_TRUNC O_CREAT O_RDONLY);
-use File::Path;
-use File::Temp qw(tempfile);
 
 (our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
 my  ($toc_header, $toc_footer) = 
     ('cz[0',      '0]cz');
 
+# File::Temp qw(tempfile) hack to not require it
+sub tempfile {
+    my ($count, $fname, $handle) = (0, undef, undef);
+    do {
+        ++$count > 10 and return (undef, undef);
+        $fname = sprintf("%s/packdrakeng.%s.%s",
+            $ENV{TMP} || '/tmp',
+            $$,
+            # Generating an random name
+            join("", map { $_=rand(51); $_ += $_ > 25 && $_ < 32 ? 91 : 65 ; chr($_) } (0 .. 4)));
+    } while ( ! sysopen($handle, $fname, O_WRONLY | O_APPEND | O_CREAT));
+    ($handle, $fname)
+}
+
+# File::Path hack to not require it
+sub mkpath {
+    my ($path) = @_;
+    $path =~ s:/*$::; # removing leading '/'
+    my $parent = substr($path, 0, length($path) - rindex($path, '/')+1);
+    -d $path and return 1;
+    -d $parent || mkpath($parent) or return 0;
+    mkdir($path);
+}
 
 sub _new {
     my ($class, %options) = @_;
