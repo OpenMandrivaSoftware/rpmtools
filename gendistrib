@@ -25,12 +25,13 @@ use Cwd;
 use URPM;
 use URPM::Build;
 use Getopt::Long;
+use Distribconf;
 
 my $urpm = new URPM;
 my $headers_dir = (-d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp") . "/.build_hdlist";
 
 sub usage {
-    print <<EOF;
+	print STDERR <<EOF;
 Usage: $0 [options] dir
 dir should be the top level of distro
 Options:
@@ -59,6 +60,7 @@ GetOptions(
     'distrib=s' => \my $rootdistrib,
     'fermetagueule|s' => \my $nooutput,
     'hdlists=s' => \$urpmfiles{hdlists},
+    'mediacfg=s' => \$urpmfiles{mediacfg},
     'headersdir=s' => \$headers_dir,
     'nobadrpm' => \my $dontdie,
     'nochkdep' => \my $nochkdep,
@@ -72,15 +74,24 @@ my @root = grep { $_ } ($rootdistrib, @ARGV);
 
 @root > 0 or do { usage(); exit 1 };
 
-my $root = $root[0];
+my $distrib = Distribconf->new($root[0]);
+
+$distrib->loadtree or die "$root[0] does not seems to be a distrib tree";
+
+if (defined($urpmfiles{mediacfg})) {
+    $distrib->parse_mediacfg($urpmfiles{mediacfg}) or die "Can't read $urpmfiles{mediacfg}";
+} elsif (defined($urpmfiles{hdlists})) {
+    $distrib->parse_hdlists($urpmfiles{hdlists}) or die "Can't read $urpmfiles{hdlists}";
+} else {
+    $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the dsitrib config";
+}
 
 my %default_urpmfiles = (
-    depslist => "$root/media/media_info/depslist.ordered",
-    provides => "$root/media/media_info/provides",
-    compss =>   "$root/media/media_info/compss",
-    hdlists =>  "$root/media/media_info/hdlists",
-    version =>  "$root/VERSION",
-    md5sum =>   "$root/media/media_info/MD5SUM",
+    depslist => $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/depslist.ordered",
+    provides => $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/provides",
+    compss =>   $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/compss",
+    version =>  $distrib->getpath(undef, "root") . "/VERSION",
+    md5sum =>   $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/MD5SUM",
 );
 
 while (my ($k, $v) = each(%default_urpmfiles)) {
@@ -88,29 +99,19 @@ while (my ($k, $v) = each(%default_urpmfiles)) {
 }
 
 my @hdlists;
-open my $fh, $urpmfiles{hdlists} or die "unable to open $urpmfiles{hdlists}";
-foreach (<$fh>) {
-    chomp;
-    s/\s*#.*$//;
-    /^\s*$/ and next;
-    /^(?:askmedia|suppl)/ and next;
-    my ($name, $dir, $descr) = m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/
-	or die qq(invalid hdlist description "$_" in hdlists file\n);
-
-    $descr =~ s/\([^(]+\)\s*$//; #- remove trailing size info
-    $descr =~ s/\s*$//;
+foreach ($distrib->listmedia) {
     push @hdlists, {
-	synthesis => "$root/media/media_info/synthesis.$name",
-	hdlist => "$root/media/media_info/$name",
-	dir => $dir,
-	descr => $descr,
-	mediainfo => "$root/$dir/media_info",
-	synthesis2 => "$root/$dir/media_info/synthesis.hdlist.cz",
-	hdlist2 => "$root/$dir/media_info/hdlist.cz",
-	md5sum => "$root/$dir/media_info/MD5SUM",
+        synthesis => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'synthesis'),
+        hdlist => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'hdlist'),
+        dir => $distrib->getpath($_, 'path'),
+        descr => $distrib->getvalue($_, 'name'),
+        mediainfo => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir'),
+        thismediainfo => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info",
+        synthesis2 => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info/synthesis.hdlist.cz",
+        hdlist2 => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info/hdlist.cz",
+        md5sum => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info/MD5SUM",
     };
 }
-close $fh;
 
 sub clean_cache {
     unless ($noclean) {
@@ -192,11 +193,17 @@ foreach (0..$#hdlists) {
 			   synthesis => $e->{synthesis});
 
     unless ($nomediainfo && $nomd5sum) {
-	mkdir $e->{mediainfo}, 0755
-	    or print STDERR qq(Can't create directory "$e->{mediainfo}": $!\n);
+        if (! -d $e->{mediainfo}) {
+        	mkdir $e->{mediainfo}, 0755
+	            or print STDERR qq(Can't create directory "$e->{mediainfo}": $!\n);
+        }
     }
 
     unless ($nomediainfo) {
+    if (! -d $e->{thismediainfo}) {
+        mkdir $e->{thismediainfo}, 0755
+            or print STDERR qq(Can't create directory "$e->{thismediainfo}": $!\n);
+    }
 	print STDERR qq(link alternate locations of synthesis and hdlists\n) unless $nooutput;
 	unlink $e->{hdlist2}, $e->{synthesis2};
 	link $e->{hdlist}, $e->{hdlist2}
@@ -227,11 +234,23 @@ $urpm->build_base_files(depslist => $urpmfiles{depslist},
 			provides => $urpmfiles{provides},
 			compss   => $urpmfiles{compss});
 
+#compatibility
+if (-f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/media.cfg') {
+    if (! -f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists' ||
+        ((stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/media.cfg'))[9] >
+            (stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists'))[9])) {
+            print STDERR "Write hdlists files" unless($nooutput);
+            $distrib->write_hdlists();
+    }
+}
+    
+    
+        
 #- safety cleaning
 unlink $urpmfiles{md5sum};
 unless ($nomd5sum) {
     my $here = getcwd();
-    chdir "$root/media/media_info";
+    chdir $distrib->getpath(undef, 'root') . "/" . $distrib->getpath(undef, 'infodir');
     my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
     chdir $here;
     if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {

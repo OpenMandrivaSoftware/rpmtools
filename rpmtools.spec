@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.10
+%define version 5.0.11
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -65,6 +65,10 @@ is fully compatible with old packdrake.
 %{_bindir}/gendistrib
 %{_bindir}/genhdlist
 %{_bindir}/rpm2cpio.pl
+%{_bindir}/dumpdistribconf
+%{perl_vendorlib}/Distribconf.pm
+%{_mandir}/man1/*
+%{_mandir}/man3/Distribconf.*
 
 %files -n packdrake
 %defattr(-,root,root)
@@ -72,9 +76,13 @@ is fully compatible with old packdrake.
 %{perl_vendorlib}/packdrake.pm
 %{perl_vendorlib}/Packdrakeng.pm
 %{perl_vendorlib}/Packdrakeng/zlib.pm
-%{_mandir}/*/*
+%{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Sun Feb 20 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.11-1mdk
+- add Distribconf.pm and dumpdistribconf to manage distrib config
+- gendistrib use Distribconf.pm
+
 * Thu Feb 17 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.10-1mdk
 - gendistrib:
   - Generate hdlists and synthesis as hard links in <name>/media_info
