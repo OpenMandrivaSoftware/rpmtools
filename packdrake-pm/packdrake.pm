@@ -393,15 +393,15 @@ sub extract_archive {
 	    #- $curr_off is used to handle the reading in a pipe and simulating
 	    #- a seek on it as done by catsksz, so last file position is
 	    #- last byte not read (ie last block read start + last block read size).
+	    local *FILE;
 	    my $curr_off = 0;
 	    foreach (sort { $a->[1] <=> $b->[1] } @{$extract_table{$_}[1]}) {
 		my ($newfile, $off, $siz) = @$_;
-		local *FILE;
 		open FILE, $dir ? ">$newfile" : ">&STDOUT";
 		catsksz(\*OUTPUT, $off - $curr_off, $siz, \*FILE);
 		$curr_off = $off + $siz;
+		close FILE;
 	    }
-	    close FILE;
 	} else {
 	    local *BUNZIP2;
 	    open BUNZIP2, "| $ENV{LD_LOADER} $packer->{uncompress}";
