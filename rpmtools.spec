@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.1
@@ -54,6 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Feb  5 2002 François Pons <fpons@mandrakesoft.com> 4.1-4mdk
+- added possible fixes for using build_hdlist in specific
+  environment.
+
 * Wed Jan 30 2002 François Pons <fpons@mandrakesoft.com> 4.1-3mdk
 - make sure msec is installed before chkconfig for most
   packages except modutils and initscripts (in order to be

@@ -170,14 +170,14 @@ sub build_hdlist {
 	my ($key) = /([^\/]*)\.rpm$/ or next; #- get rpm filename.
 
 	unless (-s "$dir/$key") {
-	    system("rpm2header '$_' > '$dir/$key'");
+	    system("$ENV{LD_LOADER} rpm2header '$_' > '$dir/$key'");
 	    $? == 0 or unlink("$dir/$key"), die "bad rpm $_\n";
 	}
 	-s "$dir/$key" or unlink("$dir/$key"), die "bad rpm $_\n";
 
 	my ($name, $version, $release, $arch) = $key =~ /(.*)-([^-]*)-([^-]*)\.([^\.]*)$/;
-	my ($realname, $realversion, $realrelease, $realarch) =
-	  `parsehdlist --raw --name '$dir/$key'` =~ /:name:([^\:]*)-([^\:\-]*)-([^\:\-]*)\.([^\-\.\:\s]*)(?::.*\.rpm)?$/;
+	my ($realname, $realversion, $realrelease, $realarch) = `$ENV{LD_LOADER} parsehdlist --raw --name '$dir/$key'` =~
+	  /:name:([^\:]*)-([^\:\-]*)-([^\:\-]*)\.([^\-\.\:\s]*)(?::.*\.rpm)?$/;
 	unless (length($name) && length($version) && length($release) && length($arch) &&
 		$name eq $realname && $version eq $realversion && $release eq $realrelease && $arch eq $realarch) {
 	    my $newkey = "$realname-$realversion-$realrelease.$realarch:$key";
@@ -195,7 +195,7 @@ sub build_hdlist {
     #-   5        9.5 sec     8.20Mb
     #-   4        8.6 sec     8.30Mb   -> good for urpmi
     #-   3        7.6 sec     8.60Mb
-    open B, "| packdrake -b${ratio}ds '$hdlist' '$dir' 400000";
+    open B, "| $ENV{LD_LOADER} packdrake -b${ratio}ds '$hdlist' '$dir' 400000";
     foreach (@{$params->{depslist}}) {
 	if (my $keys = delete $names{$_->{name}}) {
 	    print B "$_\n" foreach @$keys;
@@ -206,7 +206,7 @@ sub build_hdlist {
     }
     close B or die "packdrake failed\n";
 
-    system("rm", "-rf", $dir) unless $dir eq '.' || $noclean;
+    system(($ENV{LD_LOADER} ? ($ENV{LD_LOADER}) : ()), "rm", "-rf", $dir) unless $dir eq '.' || $noclean;
 }
 
 #- read one or more rpm files.
