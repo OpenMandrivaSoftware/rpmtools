@@ -36,11 +36,14 @@ sub new {
 
 sub extract_archive {
     my ($pack, $dir, @files) = @_;
-    if (! scalar(@files)) {
-        my ($d, $f, $l) = $pack->getcontent();
-        push(@files, @$d, @$f, @$l);
-    }
+    @files or return;
     $pack->extract($dir, @files);
+}
+
+sub extract_all_archive {
+    my ($pack, $dir) = @_;
+    my ($d, $f, $l) = $pack->getcontent();
+    $pack->extract($dir, @$d, @$f, @$l);
 }
 
 sub list_archive {
@@ -122,6 +125,10 @@ Return undef on failure.
 =item B<< packdrake->extract_archive($dir, @files) >>
 
 Extract files list into the specified directory.
+
+=item B<< packdrake->extract_all_archive($dir) >>
+
+Extract all files into the specified directory.
 
 =item B<packdrake::list_archive(@list)>
 
