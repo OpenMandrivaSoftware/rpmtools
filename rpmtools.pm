@@ -49,7 +49,7 @@ rpmtools - Mandrake perl tools to handle rpm files and hdlist files
 =head1 DESCRIPTION
 
 C<rpmtools> extend perl to manipulate hdlist file used by
-Linux-Mandrake distribution to compute dependancy file.
+Linux-Mandrake distribution to compute dependency file.
 
 =head1 SEE ALSO
 
@@ -95,7 +95,7 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 		 'sparc64' => 'sparc32',
 	       );
 
-#- build an empty params struct that can be used to compute dependancies.
+#- build an empty params struct that can be used to compute dependencies.
 sub new {
     my ($class, @tags) = @_;
     my %tags; @tags{@_} = ();
@@ -191,9 +191,9 @@ sub read_rpms {
     map { rpmtools::_parse_($_, $params->{flags}, $params->{info}, $params->{provides}) } @rpms;
 }
 
-#- compute dependancies, result in stored in info values of params.
+#- compute dependencies, result in stored in info values of params.
 #- operations are incremental, it is possible to read just one hdlist, compute
-#- dependancies and read another hdlist, and again.
+#- dependencies and read another hdlist, and again.
 sub compute_depslist {
     my ($params) = @_;
 
