@@ -1,3 +1,32 @@
+2005-03-14 13:47  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* gendistrib: Build hdlists in temporary locations
+
+2005-03-07 16:06  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.17-1mdk
+
+2005-03-07 16:00  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* gendistrib: Factorisation of paths
+
+2005-03-07 15:20  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* gendistrib: Generate media-specific MD5SUM files in
+	  'thismediainfo' dir, not 'mediainfo'
+
+2005-03-07 14:45  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* Distribconf.pm: Doc and POD fixes
+
+2005-03-07 11:59  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* gendistrib: Spelling fix
+
+2005-03-01 12:46  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.16-1mdk
+
 2005-03-01 12:33  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
 
 	* parsehdlist.c: Output help to stdout
