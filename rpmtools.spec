@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.0
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Oct 19 2000 François Pons <fpons@mandrakesoft.com> 2.0-2mdk
+- fixed speed problem of rpmtools depslist computation, now 10x faster!
+
 * Thu Oct 19 2000 Frederic Lepied <flepied@mandrakesoft.com> 2.0-1mdk
 - updated for rpm 4.
 

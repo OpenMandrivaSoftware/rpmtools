@@ -79,6 +79,7 @@ sub compute_depslist {
 	my @requires = keys %requires;
 
 	while (my $req = shift @requires) {
+	    $req eq 'basesystem' and next; #- never need to requires basesystem directly as always required! what a speed up!
 	    ref $req or $req = $params->{provides}{$req} || ($req =~ /rpmlib\(/ ? [] :
 							     [ ($req !~ /NOTFOUND_/ && "NOTFOUND_") . $req ]);
 	    if (@$req > 1) {
