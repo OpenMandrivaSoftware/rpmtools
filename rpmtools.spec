@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 11mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 1.2
+%define version 2.0
 
 Summary: contains various rpm command-line tools
 Name: %{name}
@@ -15,8 +15,8 @@ Copyright: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= 3.0.5-0.20mdk bzip2 popt-devel zlib-devel
-Requires: /usr/bin/perl rpm >= 3.0.5-0.20mdk bzip2 >= 1.0
+BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel
+Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Oct 19 2000 Frederic Lepied <flepied@mandrakesoft.com> 2.0-1mdk
+- updated for rpm 4.
+
 * Fri Sep 15 2000 Pixel <pixel@mandrakesoft.com> 1.2-11mdk
 - genhdlist_cz2, packdrake, build_archive: use TMPDIR if exists
 
