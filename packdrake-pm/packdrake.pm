@@ -3,13 +3,13 @@ package packdrake;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = "0.03";
+$VERSION = "0.04";
 
 =head1 NAME
 
 packdrake - Mandrake Simple Archive Extractor/Builder
 
-=head1 SYNOPSYS
+=head1 SYNOPSIS
 
     require packdrake;
 

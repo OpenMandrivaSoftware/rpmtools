@@ -8,7 +8,7 @@ my $default_size = 400000;
 my $default_ratio = 6;
 
 sub usage {
-    die "packdrake version " . $packdrake::VERSION . "
+    die qq(packdrake version $packdrake::VERSION
 Copyright (C) 2000 MandrakeSoft.
 This is free software and may be redistributed under the terms of the GNU GPL.
 
@@ -17,7 +17,7 @@ usage:
   --build <file>         - build archive <file> with filenames given on
                            standard input.
     -[1..9]              - select appropriate compression ratio, $default_ratio by default.
-    --dir <srcdir>       - set source directory where to search files, \".\" by default.
+    --dir <srcdir>       - set source directory where to search files, "." by default.
     --size <cmd>         - set maximun chunk size, $default_size by default.
     --method <cmd>       - select standard compression command method, default
                            is set according to archive filename, example is
@@ -30,15 +30,16 @@ usage:
   --list <file>          - list contents of archive.
   --cat <file>           - dump archive, only supported with gzip and bzip2,
                            this write the contents of all file in archive.
-";
+  --quiet		 - quiet operation
+);
 }
 
 sub main {
-    my ($file, $mode, $dir, $size, $method, $compress, $uncompress, $ratio);
+    my ($file, $mode, $dir, $size, $method, $compress, $uncompress, $ratio, $quiet);
     my @nextargv = (\$file);
     my @list = ();
 
-    #- some quite usefull error message.
+    #- some quite useful error message.
     my $error_mode = "packdrake: choose only --build, --extract, --list or --cat\n";
     for (@_) {
 	/^--help$/       and do { usage; next };
@@ -51,6 +52,7 @@ sub main {
 	/^--method$/     and do { push @nextargv, \$method; next };
 	/^--compress$/   and do { push @nextargv, \$compress; next };
 	/^--uncompress$/ and do { push @nextargv, \$uncompress; next };
+	/^--quiet$/	 and $quiet = 1, next;
 	/^-(.*)$/ and do { foreach (split //, $1) {
 	    /[1-9]/  and do { $ratio = $_; next };
 	    /b/      and do { $mode and die $error_mode; $mode = "build"; @nextargv = (\$file); next };
@@ -60,8 +62,10 @@ sub main {
 	    /d/      and do { push @nextargv, \$dir; next };
 	    /s/      and do { push @nextargv, \$size; next };
 	    /m/      and do { push @nextargv, \$method; next };
-	    die "packdrake: unknown option \"-$1\", check usage with --help\n"; } next };
-	$mode =~ /extract|list|cat/ or @nextargv or die "packdrake: unknown option \"$_\", check usage with --help\n";
+	    die qq(packdrake: unknown option "-$1", check usage with --help\n) } next };
+	$mode =~ /extract|list|cat/
+	    or @nextargv
+	    or die qq(packdrake: unknown option "$_", check usage with --help\n);
 	my $ref = shift @nextargv; $ref ? $$ref = $_ : push @list, $_;
 	$mode ||= "list";
     }
@@ -82,7 +86,11 @@ sub main {
     $mode =~ /extract/ && !$dir && !@list and ($mode, @list) = ('list', $file);
     for ($mode) {
 	/build/   and do { packdrake::build_archive(\*STDIN, $dir, $file, $size, $compress, $uncompress); last };
-	/extract/ and do { my $packer = new packdrake($file); $packer->extract_archive($dir, @list); last };
+	/extract/ and do {
+	    my $packer = new packdrake($file, quiet => $quiet);
+	    $packer->extract_archive($dir, @list);
+	    last;
+	};
 	/list/    and do { packdrake::list_archive($file, @list); last };
 	/cat/     and do { packdrake::cat_archive($file, @list); last };
 	die "packdrake: internal error, unable to select right mode?\n";
