@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.0
@@ -54,6 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Jun 25 2001 François Pons <fpons@mandrakesoft.com> 3.0-2mdk
+- fixed version_compare to match rpm behaviour on some cases,
+  needed for Garbage Collector cases.
+
 * Thu Jun 21 2001 François Pons <fpons@mandrakesoft.com> 3.0-1mdk
 - changed depslist format to fix support multi-arch.
 - changed depslist format to add serial support.
