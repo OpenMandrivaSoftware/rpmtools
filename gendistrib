@@ -155,10 +155,10 @@ foreach my $pkg (@{$params->{depslist}}) {
 	    }
 	} else {
 	    print STDERR "  is not available in any medium listed\n";
-	    if (/NOTFOUND_(.*?)(-\d+.*)?\.so\./) {
-		my $libname = quotemeta $1;
+	    if (/NOTFOUND_(\D*)(\d+[\.\-\d]*)?(.*)?\.so\./) {
+		my $re = (quotemeta $1) . '(\d+[\.\-\d]*)' . (!$2 && "?") . '\.so\.';
 		foreach (keys %{$params->{provides}}) {
-		    /$libname [\.-]/x or next;
+		    /$re/ or next;
 		    print STDERR "  but a similar provides is available as [$_], need rebuild ?\n";
 		}
 	    }

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.0
@@ -54,6 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Jan  9 2002 François Pons <fpons@mandrakesoft.com> 4.0-2mdk
+- slightly modified code to dump hdlist (avoid 1 tempory process).
+- improved warning display of gendistrib.
+
 * Wed Dec  5 2001 François Pons <fpons@mandrakesoft.com> 4.0-1mdk
 - improved provides management but breaks older urpmi.
 

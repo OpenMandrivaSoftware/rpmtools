@@ -113,23 +113,30 @@ sub read_hdlists {
     my ($params, @hdlists) = @_;
     my @names;
 
-    local (*I, *O); pipe I, O;
-    if (my $pid = fork()) {
-	close O;
+    foreach my $hdlist (@hdlists) {
+	local (*I, *O); pipe I, O;
+	if (my $pid = fork()) {
+	    close O;
 
-	push @names, rpmtools::_parse_(fileno *I, $params->{flags}, $params->{info}, $params->{provides});
+	    push @names, rpmtools::_parse_(fileno *I, $params->{flags}, $params->{info}, $params->{provides});
 
-	close I;
-	waitpid $pid, 0;
-    } else {
-	close I;
-	open STDOUT, ">&O" or die "unable to redirect output";
+	    close I;
+	    waitpid $pid, 0;
+	} else {
+	    close I;
+	    open STDIN, "<$hdlist" or die "unable to open archive $hdlist";
+	    open STDOUT, ">&O" or die "unable to redirect output";
+	    open STDERR, ">/dev/null" or die "unable to open /dev/null";
 
-	require packdrake;
-	packdrake::cat_archive(@hdlists);
+	    require packdrake;
+	    my $packer = new packdrake;
 
-	close O;
-	exit 0;
+	    $packer->read_toc_trailer($_);
+
+	    exec (($ENV{LD_LOADER} ? ($ENV{LD_LOADER}) : ()), split " ", $packer->{uncompress});
+
+	    die "unable to cat the archive with $packer->{uncompress}";
+	}
     }
     @names;
 }
