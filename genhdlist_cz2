@@ -10,15 +10,21 @@ $hdlist && @ARGV == 1 || $root && @ARGV == 0 or die
    or  genhdlist_cz2 [--noclean] --distrib <root distrib>
 ";
 
+chop($pwd = `pwd`);
+
 if ($root) {
+    $root = "$pwd/$root" if $root !~ m|^/|;
     $depslist = "$root/Mandrake/base/depslist.ordered";
-    $hdlist = "$root/Mandrake/base/hdlist.cz2";
-    $dir = "$root/Mandrake/RPMS";
+    $hdlist   = "$root/Mandrake/base/hdlist.cz2";
+    $dir      = "$root/Mandrake/RPMS";
     $ENV{PATH} = "$ENV{PATH}:$root/misc";
 } else {
     ($dir) = @ARGV;
 }
 
+$depslist = "$pwd/$depslist" if $depslist !~ m|^/|;
+$hdlist   = "$pwd/$hdlist"   if $hdlist   !~ m|^/|;
+$dir      = "$pwd/$dir"      if $dir      !~ m|^/|;
 
 $work_dir = "/tmp/.build_hdlist";
 
@@ -44,7 +50,7 @@ if (-e $depslist) {
 @keys = grep { delete $keys{$_} } @keys; 
 
 open B, "| build_archive $hdlist 400000";
-print B "$_\n" foreach @keys, keys %keys;
+foreach (@keys, keys %keys) { print B "$_\n" }
 close B or die "build_archive failed\n";
 
 system("rm -rf $work_dir") unless $noclean;

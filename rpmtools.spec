@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 8mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -16,7 +16,7 @@ Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 3.0.4
-Requires: /usr/bin/perl
+Requires: /usr/bin/perl rpm >= 3.0.4
 
 %description
 Various rpmtools.
@@ -31,7 +31,7 @@ Various devel rpm tools.
 %setup
 
 %build
-make
+make CFLAGS="$RPM_OPT_FLAGS"
 
 %install
 make install PREFIX=$RPM_BUILD_ROOT
@@ -56,6 +56,17 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genhdlists
 
 %changelog
+* Thu Mar 23 2000 Pixel <pixel@mandrakesoft.com> 1.1-8mdk
+- gendepslist2 now handles virtual basesystem requires
+
+* Wed Mar 22 2000 Pixel <pixel@mandrakesoft.com> 1.1-7mdk
+- add require rpm >= 3.0.4
+- gendepslist2 now puts basesystem first in depslist.ordered
+- gendepslist2 orders better 
+
+* Mon Mar 20 2000 Pixel <pixel@mandrakesoft.com> 1.1-5mdk
+- fix a bug in gendepslist2 (in case of choices)
+
 * Tue Mar  7 2000 Pixel <pixel@mandrakesoft.com> 1.1-1mdk
 - new version (gendepslist2 instead of gendepslist, hdlist2prereq)
 - host build_archive/extract_archive until francois put them somewhere else :)

@@ -12,8 +12,6 @@
 
 #define COMPATIBILITY
 
-string put_first = "setup filesystem";
-
 
 /********************************************************************************/
 /* C++ template functions *******************************************************/
@@ -32,7 +30,7 @@ vector<string> split(char sep, const string &l) {
   vector<string> r;
   for (int pos = 0, pos2 = 0; pos2 >= 0;) {
     pos2 = l.find(sep, pos);
-    r.push_back(l.substr(pos, pos2));
+    r.push_back(l.substr(pos, pos2 - pos));
     pos = pos2 + 1;
   }
   return r;
@@ -151,7 +149,7 @@ map<string, string> name2fullname;
 map<string, vector<string> > requires, frequires;
 map<string, vector<string> > provided_by, fprovided_by;
 
-void getRequires(FD_t fd) {
+void getRequires(FD_t fd, int) {
   set<string> all_requires, all_frequires;
   Header header;
 
@@ -272,43 +270,60 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 
   map<string, set<string> > closed = closure(names);
   for (ITms p = closed.begin(); p != closed.end(); p++) p->second.erase(p->first);
-
   names = closed;
-  map<string,int> length;
-  for (ITms p = names.begin(); p != names.end(); p++) {
-    int l = p->second.size();
-    for (ITs q = p->second.begin(); q != p->second.end(); q++) if (q->find('|') != string::npos) l += 1000;
-    length[p->first] = l;
-  }
 
-  vector<string> put_first_ = split(' ', put_first);
   vector<string> packages;
+  set<string> list = hdlist2names[0];
   int nb2hdlist[names.size()];
-  for (int i = 0; i < nb_hdlists; i++) {
-    set<string> list = hdlist2names[i];
-    while (list.begin() != list.end()) {
-      string n;
-      unsigned int l_best = 9999;
+  int i = 0;
+  string n;
 
-      for (ITv p = put_first_.begin(); p != put_first_.end(); p++)
-	if (in(name2fullname[*p], list)) { n = name2fullname[*p]; goto found; }
+  map<string,int> nb_deps_done;
+  for (ITms p = names.begin(); p != names.end(); p++) nb_deps_done[p->first] = 0;
 
-      for (ITs p = list.begin(); p != list.end(); p++) 
-	if (names[*p].size() < l_best) {
-	  l_best = names[*p].size();
-	  n = *p;
-	  if (l_best == 0) break;
+
+
+  for (int i = -1, nb = 0; i < nb_hdlists; i++, nb++) {
+    set<string> list;
+
+    if (i == -1) {
+      list = names[name2fullname["basesystem"]];
+      list.insert(name2fullname["basesystem"]);
+      for (ITs p = list.begin(); p != list.end(); p++) {
+	if (p->find('|') != string::npos) { 
+	  list.erase(*p);
+	  vector<string> l = split('|', *p);
+	  for (ITv k = l.begin(); k != l.end(); k++) {
+	    list.insert(*k);
+	    add(list, names[*k]);
+	  }
 	}
-    found:
+      }
+      for (ITs p = list.begin(); p != list.end(); p++) hdlist2names[0].erase(*p);
+    } else {
+      list = hdlist2names[i];
+    }
+    while (list.begin() != list.end()) {
+      int l_best = 9999;
+
+      for (ITs p = list.begin(); p != list.end(); p++) {
+	int lo = names[*p].size() - nb_deps_done[*p];
+	if (lo < l_best) {
+	  l_best = lo;
+	  n = *p;
+	  if (l_best == -1) break;
+	}
+      }
       names.erase(n);
       list.erase(n);
-      nb2hdlist[packages.size()] = i;
+      nb2hdlist[nb++] = i;
       packages.push_back(n);
       for (ITms p = names.begin(); p != names.end(); p++) p->second.erase(n);
     }
   }
+  cerr << "ordering done\n";
 
-  int i = 0;
+  i = 0;
   map<string,int> where;
   for (ITv p = packages.begin(); p != packages.end(); p++, i++) where[*p] = i;
 
@@ -319,9 +334,19 @@ void printDepslist(ofstream *out1, ofstream *out2) {
     for (ITs q = dep.begin(); q != dep.end(); q++) {
       if (q->find('|') != string::npos) {
 	vector<string> l = split('|', *q);
+
+	int skip = 0;
+	for (ITv k = l.begin(); k != l.end(); k++) if (*p == *k) { skip = 1; break; }
+	if (skip) continue;
+
+	*out2 << " ";
+	int previous = 0;
 	for (ITv k = l.begin(); k != l.end(); k++) {
+	  if (previous) *out2 << "|";
+	  previous = 1;
+
 	  verif(nb2hdlist[i], nb2hdlist[where[*k]], *p, *k);
-	  *out2 << " " << where[*k];
+	  *out2 << where[*k];
 	}
       } else if (q->compare("NOTFOUND_") > 1) {
 	*out2 << " " << *q;
@@ -334,8 +359,15 @@ void printDepslist(ofstream *out1, ofstream *out2) {
   }
 }
 
-FD_t hdlists(const char *hdlist) {
-  return fdDup(fileno(popen(((string) "bzip2 -dc " + hdlist + " 2>/dev/null").c_str(), "r")));
+void hdlists(void (*f)(FD_t, int), const char *hdlist, int current_hdlist) {
+    FILE *pipe = popen(((string) "bzip2 -d <" + hdlist + " 2>/dev/null").c_str(), "r");
+
+    f(fdDup(fileno(pipe)), current_hdlist);
+
+    if (fclose(pipe) != 0) {
+      cerr << "bad hdlist " << hdlist << "\n";
+      exit(1);
+    }
 }
 
 int main(int argc, char **argv) 
@@ -355,10 +387,10 @@ int main(int argc, char **argv)
 
   nb_hdlists = argc - 1;
 
-  for (int i = 1; i < argc; i++) getRequires(hdlists(argv[i]));
+  for (int i = 1; i < argc; i++) hdlists(getRequires, argv[i], i - 1);
   cerr << "getRequires done\n";
 
-  for (int i = 1; i < argc; i++) getProvides(hdlists(argv[i]), i - 1);
+  for (int i = 1; i < argc; i++) hdlists(getProvides, argv[i], i - 1);
   cerr << "getProvides done\n";
 
   printDepslist(out1, out2);

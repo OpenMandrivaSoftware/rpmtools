@@ -2,9 +2,12 @@ VERSION = 1.1
 NAME = rpmtools
 FROMC = rpm2header #rpm-find-leaves
 FROMCC = gendepslist2 hdlist2names hdlist2files hdlist2prereq
+FROMC_STATIC  = $(FROMC:%=%_static)
+FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)
+ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
 CFLAGS = -Wall -g
-LIBRPM = /usr/lib/librpm.so.0 -ldb1 -lz -I/usr/include/rpm -lpopt
+LIBRPM = -lrpm -ldb1 -lz -lbz2 -I/usr/include/rpm -lpopt
 
 all: $(ALL)
 
@@ -16,11 +19,17 @@ install: $(ALL)
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) $< $(LIBRPM) -o $@
 
+$(FROMCC_STATIC): %_static: %.cc 
+	$(CXX) -s -static $(CFLAGS) $< $(LIBRPM) -o $@
+
 $(FROMC): %: %.c
 	$(CC) $(CFLAGS) $< $(LIBRPM) -o $@
 
+$(FROMC_STATIC): %_static: %.c
+	$(CC) -s -static $(CFLAGS) $< $(LIBRPM) -o $@
+
 clean: 
-	rm -rf *~ $(ALL)
+	rm -rf *~ $(ALL) $(ALL_STATIC)
 
 dis: clean
 	rm -rf $(NAME)-$(VERSION) ../$(NAME)-$(VERSION).tar*
