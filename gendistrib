@@ -4,7 +4,7 @@
 # $Id$
 #
 
-#- Copyright (C) 1999-2004 Mandrakesoft (fpons@mandrakesoft.com)
+#- Copyright (C) 1999-2005 Mandrakesoft
 #-
 #- This program is free software; you can redistribute it and/or modify
 #- it under the terms of the GNU General Public License as published by
@@ -35,31 +35,35 @@ Usage: $0 [options] dir
 dir should be the top level of distro
 Options:
   --help              print this message and exit
-  --headersdir dir    put temporary files in dir
-  -s                  silent mode
-  --nochkdep          do not find missing dependancies
+  --compss file       path of compss file (default media/media_info/compss)
+  --depslist file     path of depslist file
+                      (default media/media_info/depslist.ordered)
+  --hdlists file      path of hdlists file (default media/media_info/hdlists)
+  --headersdir dir    put temporary files in this dir (default \$TMPDIR)
   --nobadrpm          do not stop on bad rpm
+  --nochkdep          do not find missing dependancies
   --noclean           keep cache files
   --provides file     path of provides file (default media/media_info/provides)
-  --compss file       path of compss file (default media/media_info/compss)
-  --hdlists file      path of hdlists file (default media/media_info/hdlists)
+  --nomediainfo       don't create per-media media_info subdirectories
+  -s                  silent mode
 EOF
 }
 
 my %urpmfiles;
 
 GetOptions(
-	'help|h' => sub { usage(); exit },
-	'noclean' => \$noclean,
-	'distrib=s' => \$rootdistrib,
-	'headersdir=s' => \$headers_dir,
-	'fermetagueule|s' => \$nooutput,
-	'nochkdep' => \$nochkdep,
-	'nobadrpm' => \$dontdie,
-	'depslist=s' => \$urpmfiles{depslist},
-	'provides=s' => \$urpmfiles{provides},
-	'compss=s' => \$urpmfiles{compss},
-	'hdlists=s' => \$urpmfiles{hdlists},
+    'help|h' => sub { usage(); exit },
+    'compss=s' => \$urpmfiles{compss},
+    'depslist=s' => \$urpmfiles{depslist},
+    'distrib=s' => \$rootdistrib,
+    'fermetagueule|s' => \$nooutput,
+    'hdlists=s' => \$urpmfiles{hdlists},
+    'headersdir=s' => \$headers_dir,
+    'nobadrpm' => \$dontdie,
+    'nochkdep' => \$nochkdep,
+    'noclean' => \$noclean,
+    'provides=s' => \$urpmfiles{provides},
+    'nomediainfo' => \my $nomediainfo,
 );
 
 @root = grep { $_ } ($rootdistrib, @ARGV);
@@ -95,8 +99,11 @@ foreach (<$fh>) {
     push @hdlists, {
 	synthesis => "$root/media/media_info/synthesis.$name",
 	hdlist => "$root/media/media_info/$name",
+	synthesis2 => "$root/$dir/media_info/synthesis.hdlist.cz",
+	hdlist2 => "$root/$dir/media_info/hdlist.cz",
 	dir => $dir,
 	descr => $descr,
+	md5sum => "$root/$dir/media_info/MD5SUM",
     };
 }
 close $fh;
@@ -175,6 +182,14 @@ foreach (0..$#hdlists) {
     $urpm->build_synthesis(start     => $start,
 			   end       => $end,
 			   synthesis => $e->{synthesis});
+
+    unless ($nomediainfo) {
+	print STDERR qq(link alternate locations of synthesis and hdlists\n) unless $nooutput;
+	link $e->{hdlist}, $e->{hdlist2}
+	    or print STDERR qq(link failed for "$e->{hdlist2}": $!\n);
+	link $e->{synthesis}, $e->{synthesis2}
+	    or print STDERR qq(link failed for "$e->{synthesis2}": $!\n);
+    }
 }
 
 clean_cache();
