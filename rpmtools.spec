@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 9mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 3.1
+%define version 3.2
 
 %{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Dec  5 2001 François Pons <fpons@mandrakesoft.com> 3.2-1mdk
+- added --info to parsehdlist, needed for brand new urpmi.
+
 * Mon Nov 26 2001 François Pons <fpons@mandrakesoft.com> 3.1-9mdk
 - fixed bad rpm2header error analysis (especially under alpha).
 

@@ -28,6 +28,7 @@ static int raw_hdlist = 0;
 static int interactive_mode = 0;
 static int print_quiet = 0;
 static int print_name = 0;
+static int print_info = 0;
 static int print_group = 0;
 static int print_size = 0;
 static int print_serial = 0;
@@ -66,6 +67,17 @@ int get_int(Header header, int_32 tag) {
 
   headerGetEntry(header, tag, &type, (void **) &i, &count);
   return i ? *i : 0; /* assume for default, necessary for RPMTAG_SERIAL */
+}
+
+char *
+printable_header(int quiet, char *name, char sep, char* final)
+{
+  static char buff[128];
+  int n = sprintf(buff, "%%s%c", sep ? sep : ':');
+  if (!quiet) n += sprintf(buff + n, "%s%c", name, sep ? sep : ':');
+  n += sprintf(buff + n, !strcmp(name, "size") || !strcmp(name, "serial") ? "%%d" : "%%s");
+  if (final) n += sprintf(buff + n, "%s", final);
+  return buff; /* static string, this means to use result before calling again */
 }
 
 static
@@ -145,6 +157,38 @@ void print_list_files(Header header, char *format, char *name) {
 }
 
 static
+void print_list_name(Header header, char *format, char print_sep, int extension) {
+  char *name = get_name(header, RPMTAG_NAME);
+  char *version = get_name(header, RPMTAG_VERSION);
+  char *release = get_name(header, RPMTAG_RELEASE);
+  char *arch = get_name(header, RPMTAG_ARCH);
+  char *buff = alloca(strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 4);
+
+  printf(format, name, "");
+
+  sprintf(buff, "%s-%s-%s.%s.rpm", name, version, release, arch);
+  if (!strcmp(buff, get_name(header, FILENAME_TAG))) {
+    if (extension)
+      printf("%s-%s-%s.%s%c%u%c%u%c%s\n", name, version, release, arch,
+	     print_sep ? print_sep : ':', get_int(header, RPMTAG_EPOCH),
+	     print_sep ? print_sep : ':', get_int(header, RPMTAG_SIZE),
+	     print_sep ? print_sep : ':', get_name(header, RPMTAG_GROUP));
+    else
+      printf("%s-%s-%s.%s\n", name, version, release, arch);
+  } else {
+    if (extension)
+      printf("%s-%s-%s.%s%c%u%c%u%c%s%c%s\n", name, version, release, arch,
+	     print_sep ? print_sep : ':', get_int(header, RPMTAG_EPOCH),
+	     print_sep ? print_sep : ':', get_int(header, RPMTAG_SIZE),
+	     print_sep ? print_sep : ':', get_name(header, RPMTAG_GROUP),
+	     print_sep ? print_sep : ':', get_name(header, FILENAME_TAG));
+    else
+      printf("%s-%s-%s.%s%c%s\n", name, version, release, arch,
+	     print_sep ? print_sep : ':', get_name(header, FILENAME_TAG));
+  }
+}
+
+static
 void print_help(void) {
   fprintf(stderr,
 	  "parsehdlist version " VERSION_STRING "\n"
@@ -152,28 +196,29 @@ void print_help(void) {
 	  "This is free software and may be redistributed under the terms of the GNU GPL.\n"
 	  "\n"
 	  "usage:\n"
-	  "  --help          - print this help message.\n"
-	  "  --raw           - assume raw hdlist (always the case for -).\n"
-	  "  --interactive   - interactive mode (following options are taken from stdin\n"
-	  "                    and output only the necessary data, end as emtpy line, not\n"
-	  "                    compatible with any print tag commands).\n"
-	  "  --quiet         - do not print tag name (default if no tag given on command\n"
-	  "                    line, incompatible with interactive mode).\n"
-	  "  --compact       - print compact provides, requires, conflicts, obsoletes flags.\n"
-	  "  --all           - print all tags (incompatible with interactive mode).\n"
-	  "  --name          - print tag name: rpm filename (assumed if no tag given on\n"
-	  "                    command line but without package name).\n"
-	  "  --group         - print tag group: group.\n"
-	  "  --size          - print tag size: size.\n"
-	  "  --serial        - print tag serial: serial.\n"
-	  "  --summary       - print tag summary: summary.\n"
-	  "  --description   - print tag description: description.\n"
-	  "  --provides      - print tag provides: all provides (mutliple lines).\n"
-	  "  --requires      - print tag requires: all requires (multiple lines).\n"
-	  "  --files         - print tag files: all files (multiple lines).\n"
-	  "  --conflicts     - print tag conflicts: all conflicts (multiple lines).\n"
-	  "  --obsoletes     - print tag obsoletes: all obsoletes (multiple lines).\n"
-	  "  --prereqs       - print tag prereqs: all prereqs (multiple lines).\n"
+	  "  --help         - print this help message.\n"
+	  "  --raw          - assume raw hdlist (always the case for -).\n"
+	  "  --interactive  - interactive mode (following options are taken from stdin\n"
+	  "                   and output only the necessary data, end as emtpy line, not\n"
+	  "                   compatible with any print tag commands).\n"
+	  "  --quiet        - do not print tag name (default if no tag given on command\n"
+	  "                   line, incompatible with interactive mode).\n"
+	  "  --compact      - print compact provides, requires, conflicts, obsoletes flags.\n"
+	  "  --all          - print all tags (incompatible with interactive mode).\n"
+	  "  --name         - print tag name and rpm filename if needed.\n"
+	  "  --info         - print tag name, serial, group and rpm filename if needed\n"
+	  "  --group        - print tag group: group.\n"
+	  "  --size         - print tag size: size.\n"
+	  "  --serial       - print tag serial: serial.\n"
+	  "  --summary      - print tag summary: summary.\n"
+	  "  --description  - print tag description: description.\n"
+	  "  --provides     - print tag provides: all provides (mutliple lines).\n"
+	  "  --requires     - print tag requires: all requires (multiple lines).\n"
+	  "  --files        - print tag files: all files (multiple lines).\n"
+	  "  --conflicts    - print tag conflicts: all conflicts (multiple lines).\n"
+	  "  --obsoletes    - print tag obsoletes: all obsoletes (multiple lines).\n"
+	  "  --prereqs      - print tag prereqs: all prereqs (multiple lines).\n"
+	  "\nwithout any option, print only rpm filenames\n"
 	  "\n");
 }
 
@@ -190,27 +235,13 @@ print_header_flag_interactive(char *in_tag, Header header)
 							      RPMTAG_OBSOLETEVERSION,"%2$s", 0, "");
   else if (!strncmp(in_tag, "files", 5)) print_list_files(header, "%2$s\n", "");
   else if (!strncmp(in_tag, "prereqs", 7)) print_list_prereqs(header, "%2$s\n", "");
+  else if (!strncmp(in_tag, "name", 4)) print_list_name(header, "%2$s", 0, 0);
+  else if (!strncmp(in_tag, "info", 4)) print_list_name(header, "%2$s", 0, 1);
+  else if (!strncmp(in_tag, "serial", 6)) printf("%d\n", get_int(header, RPMTAG_SERIAL));
+  else if (!strncmp(in_tag, "size", 4)) printf("%d\n", get_int(header, RPMTAG_SIZE));
   else if (!strncmp(in_tag, "group", 5)) printf("%s\n", get_name(header, RPMTAG_GROUP));
   else if (!strncmp(in_tag, "summary", 7)) printf("%s\n", get_name(header, RPMTAG_SUMMARY));
   else if (!strncmp(in_tag, "description", 11)) printf("%s\n", get_name(header, RPMTAG_DESCRIPTION));
-  else if (!strncmp(in_tag, "size", 4)) printf("%d\n", get_int(header, RPMTAG_SIZE));
-  else if (!strncmp(in_tag, "serial", 6)) printf("%d\n", get_int(header, RPMTAG_SERIAL));
-  else if (!strncmp(in_tag, "name", 4)) printf("%s-%s-%s.%s.rpm\n", 
-					       get_name(header, RPMTAG_NAME),
-					       get_name(header, RPMTAG_VERSION),
-					       get_name(header, RPMTAG_RELEASE),
-					       get_name(header, RPMTAG_ARCH));
-}
-
-char *
-printable_header(int quiet, char *name, char sep, char* final)
-{
-  static char buff[128];
-  int n = sprintf(buff, "%%s%c", sep ? sep : ':');
-  if (!quiet) n += sprintf(buff + n, "%s%c", name, sep ? sep : ':');
-  n += sprintf(buff + n, !strcmp(name, "size") || !strcmp(name, "serial") ? "%%d" : "%%s");
-  if (final) n += sprintf(buff + n, "%s", final);
-  return buff; /* static string, this means to use result before calling again */
 }
 
 int main(int argc, char **argv) 
@@ -231,6 +262,7 @@ int main(int argc, char **argv)
       else if (strcmp(argv[i], "--quiet") == 0)       print_quiet = 1;
       else if (strcmp(argv[i], "--compact") == 0)     print_sep = '@';
       else if (strcmp(argv[i], "--name") == 0)        print_name = 1;
+      else if (strcmp(argv[i], "--info") == 0)        print_info = 1;
       else if (strcmp(argv[i], "--group") == 0)       print_group = 1;
       else if (strcmp(argv[i], "--size") == 0)        print_size = 1;
       else if (strcmp(argv[i], "--serial") == 0)      print_serial = 1;
@@ -253,7 +285,7 @@ int main(int argc, char **argv)
 	  exit(1);
 	} else ++i; /* avoid parsing filename as an argument */
       } else if (strcmp(argv[i], "--all") == 0) {
-	print_name = 1;
+	print_info = 1;
 	print_group = 1;
 	print_summary = 1;
 	print_provides = 1;
@@ -360,29 +392,15 @@ int main(int argc, char **argv)
 	    if (print_group) printf(printable_header(print_quiet, "group", print_sep, "\n"), name, get_name(header, RPMTAG_GROUP));
 	    if (print_size) printf(printable_header(print_quiet, "size", print_sep, "\n"), name, get_int(header, RPMTAG_SIZE));
 	    if (print_serial) printf(printable_header(print_quiet, "serial", print_sep, "\n"),
-				     name, get_int(header, RPMTAG_SERIAL));
+				     name, get_int(header, RPMTAG_EPOCH));
 	    if (print_summary) printf(printable_header(print_quiet, "summary", print_sep, "\n"),
 				      name, get_name(header, RPMTAG_SUMMARY));
 	    if (print_description) printf(printable_header(print_quiet, "description", print_sep, "\n"),
 					  name, get_name(header, RPMTAG_DESCRIPTION));
-	    if (print_name) {
-	      char *version = get_name(header, RPMTAG_VERSION);
-	      char *release = get_name(header, RPMTAG_RELEASE);
-	      char *arch = get_name(header, RPMTAG_ARCH);
-	      char *buff = alloca(strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 4);
-
-	      printf(printable_header(print_quiet, "name", print_sep, 0), name, "");
-
-	      sprintf(buff, "%s-%s-%s.%s.rpm", name, version, release, arch);
-	      if (!strcmp(buff, get_name(header, FILENAME_TAG))) {
-		printf("%s-%s-%s.%s\n", name, version, release, arch);
-	      } else {
-		printf("%s-%s-%s.%s%c%s\n", name, version, release, arch,
-		       print_sep ? print_sep : ':', get_name(header, FILENAME_TAG));
-	      }
-	    }
-	    if ((print_name | print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs |
-		 print_group | print_size | print_serial | print_summary | print_description) == 0) {
+	    if (print_name) print_list_name(header, printable_header(print_quiet, "name", print_sep, 0), print_sep, 0);
+	    if (print_info) print_list_name(header, printable_header(print_quiet, "info", print_sep, 0), print_sep, 1);
+	    if ((print_name | print_info | print_group | print_size | print_serial | print_summary | print_description |
+		 print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs) == 0) {
 	      printf("%s\n", get_name(header, FILENAME_TAG));
 	    }
 	    headerFree(header);
