@@ -1,3 +1,24 @@
+2004-12-13 16:13  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* MANIFEST: - add Packdrakeng/zlib.pm
+
+2004-12-13 16:10  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng/zlib.pm: - externalize Compress::Zlib
+
+2004-12-13 16:10  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm: - s/use/eval {require}/ on Compress::Zlib, so it
+	  can works without it
+
+2004-12-13 16:06  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - split package - 5.0.1
+
+2004-12-09 14:04  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.0-2mdk
+
 2004-12-09 13:56  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
 
 	* Makefile.PL: Refine "rpm" make target
