@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 10mdk
+%define release 11mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -56,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Mon May 12 2003 Guillaume Cottenceau <gc@mandrakesoft.com> 4.5-11mdk
+- rebuild for new perl requires/provides
+
 * Tue Apr 29 2003 Frederic Lepied <flepied@mandrakesoft.com> 4.5-10mdk
 - added support for rpm 4.2
 
