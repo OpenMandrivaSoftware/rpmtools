@@ -472,13 +472,13 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
     while (fd_is_hdlist >= 0 ? (fd_is_hdlist > 0 ?
 				((header=headerRead(fd, HEADER_MAGIC_YES)) != 0) :
 				((fd_is_hdlist = -1), rpmReadPackageHeader(fd, &header, &i, NULL, NULL) == 0)) : 0) {
-      SV* sv_name = newSVpv(get_name(header, RPMTAG_NAME), 0);
+      char *name = get_name(header, RPMTAG_NAME);
       HV* header_info = get_info(header, bflag, iprovides);
 
       /* once the hash header_info is built, store a reference to it
 	 in iinfo.
 	 note sv_name is not incremented here, it has the default value of before. */
-      hv_store_ent(iinfo, sv_name, newRV_noinc((SV*)header_info), 0);
+      hv_store(iinfo, name, strlen(name), newRV_noinc((SV*)header_info), 0);
 
       /* dispose of some memory */
       headerFree(header);

@@ -392,6 +392,7 @@ sub relocate_depslist {
     if ($relocated_entries) {
 	for (0 .. scalar(@{$params->{depslist}}) - 1) {
 	    my $pkg = $params->{depslist}[$_];
+	    $pkg->{source} and next; #- hack to avoid losing local package.
 	    $params->{depslist}[$_] = $params->{info}{$pkg->{name}};
 	}
     }
@@ -530,17 +531,17 @@ sub write_compss {
 }
 
 #- compare a version string, make sure no deadlock can occur.
-#- bug: "0" and "" are equal (same for "" and "0"), should be
-#- trapped by release comparison (unless not correct).
+#- try to return always a numerical value.
 sub version_compare {
     my ($a, $b) = @_;
     local $_;
 
     while ($a || $b) {
 	my ($sb, $sa) =  map { $1 if $a =~ /^\W*\d/ ? s/^\W*0*(\d+)// : s/^\W*(\D*)// } ($b, $a);
-	$_ = length($sa) cmp length($sb) || $sa cmp $sb and return $_;
-	$sa eq '' && $sb eq '' and return $a cmp $b;
+	$_ = length($sa) cmp length($sb) || $sa cmp $sb and return $_ || 0;
+	$sa eq '' && $sb eq '' and return $a cmp $b || 0;
     }
+    0;
 }
 
 #- compability function which should be removed soon, do not use anymore and replace code.
