@@ -449,9 +449,10 @@ sub get_unresolved_provides_files {
 
 #- clean everything on provides but keep the files key entry on undef.
 #- this is necessary to try a second pass.
+#- support sense in flags.
 sub keep_only_cleaned_provides_files {
     my ($params) = @_;
-    my @keeplist = map { /^\// } keys %{$params->{provides}};
+    my @keeplist = map { s/\[\*\]//g; $_ } grep { /^\// } keys %{$params->{provides}};
 
     #- clean everything at this point, but keep file referenced.
     $params->{info} = {};

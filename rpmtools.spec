@@ -53,7 +53,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Fri Mar 23 2001 François Pons <fpons@mandrakesoft.com> 2.3-14mdk
 - reverted rpmtools.xs modification.
-- simplified the semi fix.
+- simplified cleaner (include support for sense flag).
 
 * Fri Mar 23 2001 François Pons <fpons@mandrakesoft.com> 2.3-13mdk
 - semi-fixed hashes subscript error (workaround).
