@@ -27,7 +27,7 @@ use File::Find;
 use File::Path;
 use Getopt::Long;
 
-my ($noclean, $nooutput, $dontdie, $suffix) = (0, 0, 0, "", ".");
+my ($noclean, $nooutput, $dontdie, $suffix, $dest) = (0, 0, 0, "");
 my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
 sub usage {
@@ -36,6 +36,7 @@ Usage: $0 [options] [dir...]
 Options:
   --help              print this message and exit
   --headersdir dir    put temporary files in dir
+  --dest              build index from this dir
   -s                  silent mode
   --nobadrpm          do not stop on bad rpm
   --noclean           keep cache files
@@ -49,6 +50,7 @@ GetOptions(
 	'noclean' => \$noclean,
 	'headersdir=s' => \$tmpdir,
 	'fermetagueule|s' => \$nooutput,
+	'dest=s' => \$dest,
 	'nobadrpm' => \$dontdie,
 	'suffix=s' => \$suffix,
 );
@@ -56,16 +58,17 @@ GetOptions(
 my $urpm = new URPM;
 my $index = "hdlist$suffix.cz";
 my $synthesis = "synthesis.$index";
-my @dir = @ARGV || ("."); 
+my @dir = @ARGV ? @ARGV : ("."); 
 
-#chdir $rootdistrib or die "can't chdir in directory $rootdistrib";
+grep { m!^/! } @dir and die "Directory path to parse should be relative";
+
+$dest and chdir $dest or die "can't chdir in directory $dest";
 rmtree($tmpdir) unless $noclean;
 mkpath($tmpdir);
 
 my @rpms;
 sub wanted {
     	if (-f $_ && $_ =~ /^.*\.rpm$/ ) {
-		#print "$File::Find::name\n" unless $nooutput;
         	push(@rpms, $File::Find::name);
     	}
 }
@@ -73,6 +76,7 @@ sub wanted {
 # get rpm list
 open(LIST, "> list$suffix") or die "can't create list file: $!";
 foreach my $dir (@dir) {
+	print "parsing $dir\n" unless $nooutput;
 	@rpms=();
 	File::Find::find({wanted => \&wanted}, $dir);
 	$urpm->parse_rpms_build_headers(dir  => $tmpdir,
