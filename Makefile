@@ -1,4 +1,5 @@
 VERSION = 4.5
+PREFIX = /usr/local
 NAME = rpmtools
 FROMC = parsehdlist rpm2header #rpm-find-leaves
 FROMCC = #gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups
@@ -11,6 +12,7 @@ LIBRPM = -lrpm -lrpmio `perl -e 'local $$_ = qx(rpm -q --qf %{VERSION} rpm); /^4
 LIBRPM_STATIC = 
 
 all: $(ALL)
+	echo $(INSTALLVENDORLIB)
 
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin

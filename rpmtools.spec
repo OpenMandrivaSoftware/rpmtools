@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -28,14 +28,17 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %setup
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
-%{make} -f Makefile_core OPTIMIZE="$RPM_OPT_FLAGS"
+(
+  cd packdrake-pm ;
+  %{__perl} Makefile.PL INSTALLDIRS=vendor
+  %{make} OPTIMIZE="$RPM_OPT_FLAGS"
+)
 %{make} CFLAGS="$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
 %{make} install PREFIX=$RPM_BUILD_ROOT
-%{make} -f Makefile_core install PREFIX=$RPM_BUILD_ROOT%{_prefix}
+%{make} -C packdrake-pm install PREFIX=$RPM_BUILD_ROOT%{_prefix}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -48,13 +51,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gendistrib
 %{_bindir}/distriblint
 %{_bindir}/genhdlist
-#%{perl_vendorarch}/auto/rpmtools
-%{perl_vendorarch}/packdrake.pm
-#%{perl_vendorarch}/rpmtools.pm
-#%{_mandir}/*/*
-%{_mandir}/*/packdrake*
+%{perl_vendorlib}/packdrake.pm
+%{_mandir}/*/*
 
 %changelog
+* Mon Aug  5 2002 Pixel <pixel@mandrakesoft.com> 4.5-2mdk
+- have packdrake.pm in non-arch dependent directory
+
 * Mon Aug  5 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 4.5-1mdk
 - add --fileswinfo query to parsehdlist so that we can know more
   informations on the package for which we print the files (needed by
