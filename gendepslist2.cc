@@ -158,7 +158,7 @@ void getRequires(FD_t fd, int current_hdlist) {
     string s_name = get_name(header, RPMTAG_NAME);
     string name = s_name + "-" + get_name(header, RPMTAG_VERSION) + "-" + get_name(header, RPMTAG_RELEASE);
     vector<string> l = get_info(header, RPMTAG_REQUIRENAME);
-    
+    if (in(s_name, name2fullname)) continue;
     packages.push_back(name);
     name2fullname[s_name] = name;
     hdlist2names[current_hdlist].insert(name);
@@ -179,11 +179,14 @@ bool notfound(const string &s) {
 }
 
 void getProvides(FD_t fd, int current_hdlist) {
+  map<string,bool> used;
   Header header;
   while ((header=headerRead(fd, HEADER_MAGIC_YES))) 
   {
     string s_name = get_name(header, RPMTAG_NAME);
     string name = s_name + "-" + get_name(header, RPMTAG_VERSION) + "-" + get_name(header, RPMTAG_RELEASE);
+    if (in(s_name, used)) continue;
+    used[s_name] = true;
 
     if (in(s_name, provided_by)) provided_by[s_name].push_back(name);
 

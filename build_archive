@@ -48,6 +48,9 @@
 
 #+use strict qw(subs vars refs);
 
+#- tempory file used for building.
+my $tmpz = "/tmp/tmp.z.$$";
+
 sub toc_line {
     my ($file, $data) = @_;
 
@@ -57,6 +60,26 @@ sub toc_line {
 	       /f/ && pack("anNNNNa*", 'f', length($file), $data->[1], $data->[2], $data->[3], $data->[4], $file) ||
 	       die "unknown extension $_\n");
     }
+}
+
+sub cat_compress {
+    my ($compress, @filenames) = @_;
+    local *F;
+    open F, "| $compress >$tmpz" or die "cannot start \"$compress\"\n";
+    foreach (@filenames) {
+	my ($buf, $siz, $sz);
+	local *FILE;
+	open FILE, $_ or die "cannot open $_: $!\n";
+	$siz = -s $_;
+	while (($sz = sysread(FILE, $buf, $siz > 16384 ? 16384 : $siz))) {
+	    $siz -= $sz;
+	    syswrite(F, $buf);
+	    last unless $siz > 0;
+	}
+	close FILE;
+    }
+    close F;
+    -s $tmpz;
 }
 
 sub main {
@@ -79,7 +102,7 @@ sub main {
     print STDERR "choosing compression method with \"$compress\" for archive $archivename\n";
 
     unlink "$archivename";
-    unlink "tmp.z";
+    unlink $tmpz;
 
     foreach (<STDIN>) {
 	chomp;
@@ -100,12 +123,11 @@ sub main {
 	    $data{$file} = [ 'f', -1, -1, $off2, $siz2 ];
 
 	    if ($off2 + $siz2 > $maxsiz) { #- need compression.
-		system "cat @filelist | $compress >tmp.z";
-		$siz1 = -s "tmp.z";
+		$siz1 = cat_compress($compress, @filelist);
 
 		foreach (@filelist) { $data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] }
 
-		system "cat tmp.z >>$archivename";
+		system "cat $tmpz >>$archivename";
 		$off1 += $siz1;
 		$off2 = 0; $siz2 = 0;
 		@filelist = ();
@@ -114,12 +136,11 @@ sub main {
 	}
     }
     if (scalar @filelist) {
-	system "cat @filelist | $compress >tmp.z";
-	$siz1 = -s "tmp.z";
+	$siz1 = cat_compress($compress, @filelist);
 
 	foreach (@filelist) { $data{$_} = [ 'f', $off1, $siz1, $data{$_}[3], $data{$_}[4] ] }
 
-	system "cat tmp.z >>$archivename";
+	system "cat $tmpz >>$archivename";
 	$off1 += $siz1;
 	print STDERR "real archive size of $archivename is $off1\n";
     }
@@ -172,4 +193,4 @@ sub toc_trailer {
 }
 
 main(@ARGV);
-unlink "tmp.z";
+unlink $tmpz;

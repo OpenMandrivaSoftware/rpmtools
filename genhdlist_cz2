@@ -38,11 +38,18 @@ my (%keys, @keys);
 
 opendir DIR, $dir or die "unable to opendir $dir: $!\n";
 while ($_ = readdir DIR) {
-    my ($key) = /(.*)\..*\.rpm$/ or next;
-    system("rpm2header $dir/$_ > $key") unless -e $key;
-    $? == 0 or unlink($key), die "bad rpm $dir/$_\n";
-    -s $key or unlink($key), die "bad rpm $dir/$_\n";
-    $keys{$key} = 1;
+    my ($key, $arch) = /(.*)\.(.*)\.rpm$/ or next;
+    system("rpm2header $dir/$_ > $_") unless -e $_;
+    $? == 0 or unlink($_), die "bad rpm $dir/$_\n";
+    -s $_ or unlink($_), die "bad rpm $dir/$_\n";
+    if ($keys{$key}) {
+	my ($name, $tail) = $key =~ /(.*)(-[^-]*-[^-]*)/;
+	$keys{"$name($keys{$key})$tail"} = $keys{$key}; unlink "$name($keys{$key})$tail"; link $_, "$name($keys{$key})$tail";
+	$keys{"$name($arch)$tail"} = $arch; unlink "$name($arch)$tail"; link $_, "$name($arch)$tail";
+	delete $keys{$key};
+    } else {
+	$keys{$key} = $arch; unlink $key; link $_, $key;
+    }
 }
 if (-e $depslist) {
     open F, $depslist;
