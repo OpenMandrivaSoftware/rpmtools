@@ -2,6 +2,7 @@
 #include "perl.h"
 #include "XSUB.h"
 
+#include <sys/utsname.h>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <fcntl.h>
@@ -289,6 +290,14 @@ void callback_empty(void) {}
 
 MODULE = rpmtools			PACKAGE = rpmtools
 
+
+char *
+arch()
+  CODE:
+  struct utsname u;
+  if (uname(&u) == 0) RETVAL = u.machine; else RETVAL = NULL;
+  OUTPUT:
+  RETVAL
 
 void*
 db_open(prefix)

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 21mdk
+%define release 22mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue May 22 2001 François Pons <fpons@mandrakesoft.com> 2.3-22mdk
+- added arch support.
+
 * Mon Apr 16 2001 François Pons <fpons@mandrakesoft.com> 2.3-21mdk
 - added back anti-lock patch.
 

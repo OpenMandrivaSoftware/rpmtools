@@ -1,7 +1,7 @@
 package rpmtools;
 
 use strict;
-use vars qw($VERSION @ISA);
+use vars qw($VERSION @ISA %compat_arch);
 
 require DynaLoader;
 
@@ -75,6 +75,23 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 =cut
+
+%compat_arch = ( #- compatibilty arch mapping.
+		 'noarch'  => undef,
+		 'i386'    => 'noarch',
+		 'i486'    => 'i386',
+		 'i586'    => 'i486',
+		 'i686'    => 'i586',
+		 'i786'    => 'i686',
+		 'k6'      => 'i586',
+		 'k7'      => 'k6',
+		 'k8'      => 'k7',
+		 'ppc'     => 'noarch',
+		 'alpha'   => 'noarch',
+		 'sparc'   => 'noarch',
+		 'sparc32' => 'sparc',
+		 'sparc64' => 'sparc32',
+	       );
 
 #- build an empty params struct that can be used to compute dependancies.
 sub new {
@@ -530,6 +547,14 @@ sub write_compss {
     }
     1;
 }
+
+#- compare architecture.
+sub better_arch {
+    my ($new, $old) = @_;
+    while ($new && $new ne $old) { $new = $compat_arch{$new} }
+    $new;
+}
+sub compat_arch { better_arch(arch(), $_[0]) }
 
 #- compare a version string, make sure no deadlock can occur.
 #- try to return always a numerical value.
