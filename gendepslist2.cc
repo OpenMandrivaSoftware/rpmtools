@@ -164,7 +164,6 @@ void getRequires(FD_t fd, int current_hdlist) {
     hdlist2names[current_hdlist].insert(name);
     sizes[name] = get_int(header, RPMTAG_SIZE);
 
-    if (in(s_name, provided_by)) provided_by[s_name].push_back(name);
     for (ITv p = l.begin(); p != l.end(); p++) {      
       ((*p)[0] == '/' ?     frequires :     requires)[name].push_back(*p);
       ((*p)[0] == '/' ? all_frequires : all_requires).insert(*p);
@@ -182,6 +181,7 @@ void getProvides(FD_t fd, int current_hdlist) {
     string s_name = get_name(header, RPMTAG_NAME);
     string name = s_name + "-" + get_name(header, RPMTAG_VERSION) + "-" + get_name(header, RPMTAG_RELEASE);
 
+    if (in(s_name, provided_by)) provided_by[s_name].push_back(name);
 
     vector<string> provides = get_info(header, RPMTAG_PROVIDES);
     for (ITv p = provides.begin(); p != provides.end(); p++)
