@@ -1,3 +1,16 @@
+2004-12-14 11:25  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: Don't require Compress::Zlib (only suggest :)
+
+2004-12-14 11:24  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* packdrake.pm: extract_archive() should do nothing in no files are
+	  specified.  Add an extract_all_archive function.
+
+2004-12-14 02:44  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm: - fix mkpath
+
 2004-12-14 01:22  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* Makefile.PL, Packdrakeng.pm, rpmtools.spec: - 5.0.3 - fix mkpath
