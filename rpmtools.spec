@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 27mdk
+%define release 28mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Thu Jul 27 2000 Pixel <pixel@mandrakesoft.com> 1.1-28mdk
+- fix handling of choices in basesystem (hdlist -1)
+
 * Wed Jul 12 2000 Pixel <pixel@mandrakesoft.com> 1.1-27mdk
 - add version require for last bzip2 and last rpm
 
