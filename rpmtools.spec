@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Feb 18 2002 François Pons <fpons@mandrakesoft.com> 4.2-4mdk
+- added --silent (undocumented) to parsehdlist.
+
 * Thu Feb 14 2002 François Pons <fpons@mandrakesoft.com> 4.2-3mdk
 - fixed rpmtools::_parse_ for memory leak.
 

@@ -29,6 +29,7 @@ static int count_headers = 0;
 
 static int raw_hdlist = 0;
 static int interactive_mode = 0;
+static int silent = 0;
 static int print_quiet = 0;
 static int print_name = 0;
 static int print_info = 0;
@@ -278,6 +279,7 @@ int main(int argc, char **argv)
 	exit(0);
       } else if (strcmp(argv[i], "--raw") == 0)       raw_hdlist = 1;
       else if (strcmp(argv[i], "--interactive") == 0) interactive_mode = 1;
+      else if (strcmp(argv[i], "--silent") == 0)      silent = 1;
       else if (strcmp(argv[i], "--quiet") == 0)       print_quiet = 1;
       else if (strcmp(argv[i], "--compact") == 0)     print_sep = '@';
       else if (strcmp(argv[i], "--name") == 0)        print_name = 1;
@@ -295,12 +297,12 @@ int main(int argc, char **argv)
       else if (strcmp(argv[i], "--prereqs") == 0)     print_prereqs = 1;
       else if (strcmp(argv[i], "--output") == 0) {
 	if (i+1 >= argc || !argv[i+1] || !argv[i+1][0]) {
-	  fprintf(stderr, "option --output need a valid filename after it\n");
+	  if (!silent) { fprintf(stderr, "option --output need a valid filename after it\n"); }
 	  exit(1);
 	}
 	if (!freopen(argv[i+1], "w", stdout)) {
 	  unlink(argv[i+1]);
-	  fprintf(stderr, "unable to redirect output to [%s]\n", argv[i+1]);
+	  if (!silent) { fprintf(stderr, "unable to redirect output to [%s]\n", argv[i+1]); }
 	  exit(1);
 	} else ++i; /* avoid parsing filename as an argument */
       } else if (strcmp(argv[i], "--all") == 0) {
@@ -321,7 +323,7 @@ int main(int argc, char **argv)
 	print_conflicts = 1;
 	print_obsoletes = 1;
       } else {
-	fprintf(stderr, "parsehdlist: unknown option %s\n", argv[i]);
+	if (!silent) { fprintf(stderr, "parsehdlist: unknown option %s\n", argv[i]); }
       }
     } else {
       FD_t fd;
@@ -371,7 +373,7 @@ int main(int argc, char **argv)
 	    if (read(fda, &buf, sizeof(buf)) != sizeof(buf) ||
 		strncmp(buf.header, "cz[0", 4) ||
 		strncmp(buf.trailer, "0]cz", 4)) {
-	      fprintf(stderr, "parsehdlist: invalid archive %s\n", argv[i]);
+	      if (!silent) { fprintf(stderr, "parsehdlist: invalid archive %s\n", argv[i]); }
 	      exit(1);
 	    }
 	    buf.trailer[0] = 0; /* make sure end-of-string is right */
@@ -392,17 +394,16 @@ int main(int argc, char **argv)
 	    exit(2);
 	  }
 	} else {
-	  fprintf(stderr, "packdrake: unable to create pipe for packdrake\n");
+	  if (!silent) { fprintf(stderr, "packdrake: unable to create pipe for packdrake\n"); }
 	}
       }
       if (fdFileno(fd) < 0) {
-	fprintf(stderr, "parsehdlist: cannot open file %s\n", argv[i]);
+	if (!silent) { fprintf(stderr, "parsehdlist: cannot open file %s\n", argv[i]); }
 	exit(1);
       } else  {
 	Header header;
 	long count = 0;
 
-	/* fprintf(stderr, "parsehdlist: reading %s\n", argv[i]); */
 	while (count < 20 && (header=headerRead(fd, HEADER_MAGIC_YES)) == 0) {
 	  struct timeval timeout;
 
@@ -472,7 +473,7 @@ int main(int argc, char **argv)
 
     if (!fgets(in_name, sizeof(in_name), stdin) || *in_name == '\n' || !*in_name) break;
     if ((in_tag = strchr(in_name, ':')) == NULL) {
-      fprintf(stderr, "invalid command, should be name:tag\n");
+      if (!silent) { fprintf(stderr, "invalid command, should be name:tag\n"); }
       break;
     }
     *in_tag++ = 0;
@@ -523,9 +524,6 @@ int main(int argc, char **argv)
 	}
       }
     }
-    /* if (!count) {
-       fprintf(stderr, "no package found matching the description: %s!\n", in_name);
-       } */
     printf("\n");
     fflush(stdout);
   }
