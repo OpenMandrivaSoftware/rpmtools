@@ -13,6 +13,9 @@
 #define VERSION_STRING "0.0"
 #endif
 
+/* see rpm2header.c */
+#define FILENAME_TAG 1000000
+
 /* static data for very simple list */
 static struct {
   char *name;
@@ -362,14 +365,25 @@ int main(int argc, char **argv)
 				      name, get_name(header, RPMTAG_SUMMARY));
 	    if (print_description) printf(printable_header(print_quiet, "description", print_sep, "\n"),
 					  name, get_name(header, RPMTAG_DESCRIPTION));
-	    if (print_name || (print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs |
-			       print_group | print_size | print_serial | print_summary | print_description) == 0) {
-	      if (print_name) printf(printable_header(print_quiet, "name", print_sep, 0), name);
-	      printf("%s-%s-%s.%s.rpm\n", 
-		     name,
-		     get_name(header, RPMTAG_VERSION),
-		     get_name(header, RPMTAG_RELEASE),
-		     get_name(header, RPMTAG_ARCH));
+	    if (print_name) {
+	      char *version = get_name(header, RPMTAG_VERSION);
+	      char *release = get_name(header, RPMTAG_RELEASE);
+	      char *arch = get_name(header, RPMTAG_ARCH);
+	      char *buff = alloca(strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 4);
+
+	      printf(printable_header(print_quiet, "name", print_sep, 0), name, "");
+
+	      sprintf(buff, "%s-%s-%s.%s.rpm", name, version, release, arch);
+	      if (!strcmp(buff, get_name(header, FILENAME_TAG))) {
+		printf("%s-%s-%s.%s\n", name, version, release, arch);
+	      } else {
+		printf("%s-%s-%s.%s%c%s\n", name, version, release, arch,
+		       print_sep ? print_sep : ':', get_name(header, FILENAME_TAG));
+	      }
+	    }
+	    if ((print_name | print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs |
+		 print_group | print_size | print_serial | print_summary | print_description) == 0) {
+	      printf("%s\n", get_name(header, FILENAME_TAG));
 	    }
 	    headerFree(header);
 	  }
