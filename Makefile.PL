@@ -2,8 +2,10 @@
 
 # use 5.008;
 use ExtUtils::MakeMaker;
+use MDK::Common qw(cat_);
 
-my $rpmtools_version = '5.0.3';
+(my $rpmtools_version) = cat_('rpmtools.spec') =~ /define\s+version\s+(\d+\.\d+\.\d+)/
+    or die "no version found\n";
 
 sub MY::postamble {
     <<MAKEMAKEFILE;
