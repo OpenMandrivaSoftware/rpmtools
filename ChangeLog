@@ -1,3 +1,30 @@
+2005-02-22 21:24  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* MANIFEST, Makefile.PL, rpmtools.spec: - 5.0.15
+
+2005-02-22 21:15  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - --skipmissingdir - preform a simple on the distrib
+	  - die ealier on missing media dir - generate VERSION it self
+
+2005-02-22 21:12  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm, Distribconf/Build.pm: - split Distribconf with
+	  Build - add write_VERSION
+
+2005-02-22 13:52  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm: - don't add a 'm' to size in hdlists
+
+2005-02-21 22:40  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm: - add getfullpath - s![ /]*!_! in default path -
+	  add check()
+
+2005-02-21 22:36  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - add a "\n" to beautify output
+
 2005-02-21 16:45  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* rpmtools.spec: - 5.0.14
