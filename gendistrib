@@ -25,7 +25,7 @@ use Cwd;
 use URPM;
 use URPM::Build;
 use Getopt::Long;
-use Distribconf;
+use Distribconf::Build;
 
 my $urpm = new URPM;
 my $headers_dir = (-d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp") . "/.build_hdlist";
@@ -42,6 +42,7 @@ Options:
   --hdlists file      path of hdlists file (default media/media_info/hdlists)
   --headersdir dir    put temporary files in this dir (default \$TMPDIR)
   --nobadrpm          don't stop on bad rpms
+  --skipmissingdir    if a media dir is missing, ignore instead stoping
   --nochkdep          don't search for missing dependencies
   --noclean           keep cache files
   --provides file     path of provides file (default media/media_info/provides)
@@ -63,6 +64,7 @@ GetOptions(
     'mediacfg=s' => \$urpmfiles{mediacfg},
     'headersdir=s' => \$headers_dir,
     'nobadrpm' => \my $dontdie,
+    'skipmissingdir' => \my $skipmissingdir,
     'nochkdep' => \my $nochkdep,
     'noclean' => \my $noclean,
     'provides=s' => \$urpmfiles{provides},
@@ -74,7 +76,7 @@ my @root = grep { $_ } ($rootdistrib, @ARGV);
 
 @root > 0 or do { usage(); exit 1 };
 
-my $distrib = Distribconf->new($root[0]);
+my $distrib = Distribconf::Build->new($root[0]);
 
 $distrib->loadtree or die "$root[0] does not seems to be a distrib tree";
 
@@ -87,30 +89,41 @@ if (defined($urpmfiles{mediacfg})) {
 }
 
 my %default_urpmfiles = (
-    depslist => $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/depslist.ordered",
-    provides => $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/provides",
-    compss =>   $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/compss",
-    version =>  $distrib->getpath(undef, "root") . "/VERSION",
-    md5sum =>   $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/MD5SUM",
+    depslist => $distrib->getfullpath(undef, "infodir") . "/depslist.ordered",
+    provides => $distrib->getfullpath(undef, "infodir") . "/provides",
+    compss =>   $distrib->getfullpath(undef, "infodir") . "/compss",
+    version =>  $distrib->getfullpath(undef, "VERSION"),
+    md5sum =>   $distrib->getfullpath(undef, "infodir") . "/MD5SUM",
 );
 
 while (my ($k, $v) = each(%default_urpmfiles)) {
     $urpmfiles{$k} ||= $v;
 }
 
+$distrib->check(\*STDERR) unless($nooutput);
+
 my @hdlists;
 foreach ($distrib->listmedia) {
     $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
+    if (! -d $distrib->getfullpath($_, 'path')) {
+        if ($skipmissingdir) {
+            printf(STDERR "Skiping missing media %s\n", $distrib->getpath($_, 'path')) unless($nooutput);
+            next;
+        } else {
+            die sprintf("Missing dir '%s'  for media '%s'", $distrib->getpath($_, 'path'), $distrib->getvalue($_, 'name'));
+        }
+    }
+     
     push @hdlists, {
-        synthesis => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'synthesis'),
-        hdlist => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'hdlist'),
+        synthesis => $distrib->getfullpath($_, 'synthesis'),
+        hdlist => $distrib->getfullpath($_, 'hdlist'),
         dir => $distrib->getpath($_, 'path'),
         descr => $distrib->getvalue($_, 'name'),
-        mediainfo => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir'),
-        thismediainfo => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info",
-        synthesis2 => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info/synthesis.hdlist.cz",
-        hdlist2 => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info/hdlist.cz",
-        md5sum => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'path') . "/media_info/MD5SUM",
+        mediainfo => $distrib->getfullpath(undef, 'infodir'),
+        thismediainfo => $distrib->getfullpath($_, 'path') . "/media_info",
+        synthesis2 => $distrib->getfullpath($_, 'path') . "/media_info/synthesis.hdlist.cz",
+        hdlist2 => $distrib->getfullpath($_, 'path') . "/media_info/hdlist.cz",
+        md5sum => $distrib->getfullpath($_, 'path') . "/media_info/MD5SUM",
     };
 }
 
@@ -261,6 +274,9 @@ unless ($nomd5sum) {
 	print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
     }
 }
+
+print STDERR "Building Version file\n" unless($nooutput);
+$distrib->write_version($urpmfiles{version});
 
 #- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
 if ($nooutput || !$nochkdep) {
