@@ -31,7 +31,7 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %package -n packdrake
 Group: %{group}
-Summary: A simple Archive Extractor/Builder.
+Summary: A simple Archive Extractor/Builder
 
 %description -n packdrake
 Packdrake is a simple indexed archive builder and extractor using
