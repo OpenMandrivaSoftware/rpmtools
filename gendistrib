@@ -40,8 +40,8 @@ Options:
                       (default media/media_info/depslist.ordered)
   --hdlists file      path of hdlists file (default media/media_info/hdlists)
   --headersdir dir    put temporary files in this dir (default \$TMPDIR)
-  --nobadrpm          do not stop on bad rpm
-  --nochkdep          do not find missing dependancies
+  --nobadrpm          don't stop on bad rpms
+  --nochkdep          don't search for missing dependencies
   --noclean           keep cache files
   --provides file     path of provides file (default media/media_info/provides)
   --nomediainfo       don't create per-media media_info subdirectories
@@ -113,7 +113,11 @@ foreach (<$fh>) {
 close $fh;
 
 sub clean_cache {
-    system($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}, "rm", "-rf", $headers_dir) unless $noclean;
+    unless ($noclean) {
+	system($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}, "rm", "-rf", $headers_dir);
+	mkdir $headers_dir
+	    or print STDERR qq(Can't create directory "$headers_dir": $!\n);
+    }
 }
 
 clean_cache();
