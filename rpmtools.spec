@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -52,6 +52,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Nov 23 2000 François Pons <fpons@mandrakesoft.com> 2.1-4mdk
+- fixed deadlock with version_compare().
+- fixed memory leaks in parsehdlist.
+
 * Mon Nov 20 2000 François Pons <fpons@mandrakesoft.com> 2.1-3mdk
 - removed ugly log in stdout in parsehdlist.
 
