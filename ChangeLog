@@ -1,3 +1,18 @@
+2005-01-17 14:01  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* genhdlist: Add a "follow" option to the File::Find call, to
+	  follow symlinks, as suggested by Steven Shiau. Plus some tidying
+	  up and perl_checker fixes.
+
+2005-01-07 13:38  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: More filehandle cleanup
+
+2005-01-03 22:52  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng/zlib.pm: Fix warning messages (english grammar, plus
+	  final \n)
+
 2005-01-03 17:54  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* Packdrakeng.pm, rpmtools.spec: - Fix options parsing - 5.0.8
