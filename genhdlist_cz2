@@ -41,6 +41,7 @@ while ($_ = readdir DIR) {
     my ($key) = /(.*)\..*\.rpm$/ or next;
     system("rpm2header $dir/$_ > $key") unless -e $key;
     $? == 0 or unlink($key), die "bad rpm $dir/$_\n";
+    -z $key or unlink($key), die "bad rpm $dir/$_\n";
     $keys{$key} = 1;
 }
 if (-e $depslist) {
