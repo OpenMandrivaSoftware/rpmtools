@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.1
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Sep 20 2001 François Pons <fpons@mandrakesoft.com> 3.1-4mdk
+- build release.
+
 * Thu Aug  9 2001 Pixel <pixel@mandrakesoft.com> 3.1-3mdk
 - rebuild for new rpm
 
