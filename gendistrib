@@ -100,6 +100,7 @@ while (my ($k, $v) = each(%default_urpmfiles)) {
 
 my @hdlists;
 foreach ($distrib->listmedia) {
+    $distrib->getpath($_, 'askmedia') || $distrib->getpath($_, 'suppl') and next;
     push @hdlists, {
         synthesis => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'synthesis'),
         hdlist => $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($_, 'hdlist'),
