@@ -369,6 +369,7 @@ db_traverse_tag(db, tag, names, flags, callback)
 	  SAVETMPS;
 	  PUSHMARK(SP);
 	  XPUSHs(sv_2mortal(newRV_noinc((SV*)info)));
+	  XPUSHs(sv_2mortal(newSVpv(name, str_len)));
 	  PUTBACK;
 	  call_sv(callback, G_DISCARD | G_SCALAR);
 	  FREETMPS;

@@ -165,6 +165,26 @@ void print_help(void) {
 	  "\n");
 }
 
+void
+print_header_flag_interactive(char *in_tag, Header header)
+{
+  if (!strncmp(in_tag, "provides", 8)) print_list(header, RPMTAG_PROVIDENAME, "%2$s\n", "");
+  else if (!strncmp(in_tag, "requires", 8)) print_list_flags(header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS,
+							     RPMTAG_REQUIREVERSION,"%2$s", "");
+  else if (!strncmp(in_tag, "conflicts", 9)) print_list_flags(header, RPMTAG_CONFLICTNAME, RPMTAG_CONFLICTFLAGS,
+							      RPMTAG_CONFLICTVERSION, "%2$s", "");
+  else if (!strncmp(in_tag, "obsoletes", 9)) print_list_flags(header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS,
+							      RPMTAG_OBSOLETEVERSION,"%2$s", "");
+  else if (!strncmp(in_tag, "files", 5)) print_list_files(header, "%2$s\n", "");
+  else if (!strncmp(in_tag, "prereqs", 7)) print_list_prereqs(header, "%2$s\n", "");
+  else if (!strncmp(in_tag, "group", 5)) printf("%s\n", get_name(header, RPMTAG_GROUP));
+  else if (!strncmp(in_tag, "name", 4)) printf("%s-%s-%s.%s.rpm\n", 
+					       get_name(header, RPMTAG_NAME),
+					       get_name(header, RPMTAG_VERSION),
+					       get_name(header, RPMTAG_RELEASE),
+					       get_name(header, RPMTAG_ARCH));
+}
+
 int main(int argc, char **argv) 
 {
   int i;
@@ -278,6 +298,7 @@ int main(int argc, char **argv)
       else  {
 	Header header;
 
+	/* fprintf(stderr, "parsehdlist: reading %s\n", argv[i]); */
 	while ((header=headerRead(fd, HEADER_MAGIC_YES))) {
 	  char *name = get_name(header, RPMTAG_NAME);
 
@@ -320,39 +341,61 @@ int main(int argc, char **argv)
   }
 
   /* interactive mode */
-  if (interactive_mode) {
-    do {
-      char in_name[4096];
-      char *in_tag;
-      int i;
-      unsigned long hash_in_name;
+  while (interactive_mode) {
+    char in_name[4096];
+    char *in_tag, *in_version, *in_release;
+    unsigned long hash_in_name;
+    int i, count = 0;
 
-      if (!fgets(in_name, sizeof(in_name), stdin)) break;
-      if ((in_tag = strchr(in_name, ':')) == NULL) break;
-      *in_tag++ = 0;
+    if (!fgets(in_name, sizeof(in_name), stdin) || *in_name == '\n' || !*in_name) break;
+    if ((in_tag = strchr(in_name, ':')) == NULL) {
+      fprintf(stderr, "invalid command, should be name:tag\n");
+      break;
+    }
+    *in_tag++ = 0;
+    if ((in_release = strrchr(in_name, '-')) != NULL) {
+      *in_release++ = 0;
+      if ((in_version = strrchr(in_name, '-')) != NULL) {
+	*in_version++ = 0;
+	hash_in_name = hash(in_name);
+	for (i = 0; i < count_headers; ++i) {
+	  if (headers[i].hash_name == hash_in_name && !strcmp(headers[i].name, in_name)) {
+	    if (strcmp(get_name(headers[i].header, RPMTAG_VERSION), in_version)) continue;
+	    if (strcmp(get_name(headers[i].header, RPMTAG_RELEASE), in_release)) continue;
+	    print_header_flag_interactive(in_tag, headers[i].header);
+	    ++count;
+	    break; /* special case to avoid multiple output for multiply defined same package */
+	  }
+	}
+	if (!count) in_version[-1] = '-';
+      }
+      if (!count) {
+	in_version = in_release;
+	hash_in_name = hash(in_name);
+	for (i = 0; i < count_headers; ++i) {
+	  if (headers[i].hash_name == hash_in_name && !strcmp(headers[i].name, in_name)) {
+	    if (strcmp(get_name(headers[i].header, RPMTAG_VERSION), in_version)) continue;
+	    print_header_flag_interactive(in_tag, headers[i].header);
+	    ++count;
+	  }
+	}
+	if (!count) in_version[-1] = '-';
+      }
+    }
+    if (!count) {
       hash_in_name = hash(in_name);
       for (i = 0; i < count_headers; ++i) {
 	if (headers[i].hash_name == hash_in_name && !strcmp(headers[i].name, in_name)) {
-	  if (!strncmp(in_tag, "provides", 8)) print_list(headers[i].header, RPMTAG_PROVIDENAME, "%2$s\n", "");
-	  else if (!strncmp(in_tag, "requires", 8)) print_list_flags(headers[i].header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS,
-								     RPMTAG_REQUIREVERSION,"%2$s", "");
-	  else if (!strncmp(in_tag, "conflicts", 9)) print_list_flags(headers[i].header, RPMTAG_CONFLICTNAME, RPMTAG_CONFLICTFLAGS,
-								      RPMTAG_CONFLICTVERSION, "%2$s", "");
-	  else if (!strncmp(in_tag, "obsoletes", 9)) print_list_flags(headers[i].header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS,
-								      RPMTAG_OBSOLETEVERSION,"%2$s", "");
-	  else if (!strncmp(in_tag, "files", 5)) print_list_files(headers[i].header, "%2$s\n", "");
-	  else if (!strncmp(in_tag, "prereqs", 7)) print_list_prereqs(headers[i].header, "%2$s\n", "");
-	  else if (!strncmp(in_tag, "group", 5)) printf("%s\n", get_name(headers[i].header, RPMTAG_GROUP));
-	  else if (!strncmp(in_tag, "name", 4)) printf("%s-%s-%s.%s.rpm\n", 
-						       get_name(headers[i].header, RPMTAG_NAME),
-						       get_name(headers[i].header, RPMTAG_VERSION),
-						       get_name(headers[i].header, RPMTAG_RELEASE),
-						       get_name(headers[i].header, RPMTAG_ARCH));
+	  print_header_flag_interactive(in_tag, headers[i].header);
+	  ++count;
 	}
       }
-      printf("\n");
-      fflush(stdout);
-    } while (1);
+    }
+    /* if (!count) {
+       fprintf(stderr, "no package found matching the description: %s!\n", in_name);
+       } */
+    printf("\n");
+    fflush(stdout);
   }
 
   return 0;

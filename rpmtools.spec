@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Feb 16 2001 François Pons <fpons@mandrakesoft.com> 2.3-2mdk
+- fixed invocation of parsehdlist with full package name
+  including version and release. make sure to write only one
+  description if using the full description.
+
 * Wed Feb 14 2001 François Pons <fpons@mandrakesoft.com> 2.3-1mdk
 - changed db_traverse_name to more generic db_traverse_tag
   with support of name, whatprovides, whatrequires, triggeredby,
