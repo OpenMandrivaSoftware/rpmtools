@@ -86,9 +86,6 @@ if (defined($urpmfiles{mediacfg})) {
     $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the dsitrib config";
 }
 
-$distrib->write_hdlists();
-die;
-
 my %default_urpmfiles = (
     depslist => $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/depslist.ordered",
     provides => $distrib->getpath(undef, "root") . '/' . $distrib->getpath(undef, "infodir") . "/provides",
