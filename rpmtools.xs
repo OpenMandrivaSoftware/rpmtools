@@ -19,6 +19,9 @@
 #define HDFLAGS_ARCH          0x00000008
 #define HDFLAGS_GROUP         0x00000010
 #define HDFLAGS_SIZE          0x00000020
+#define HDFLAGS_SERIAL        0x00000040
+#define HDFLAGS_SUMMARY       0x00000080
+#define HDFLAGS_DESCRIPTION   0x00000100
 #define HDFLAGS_SENSE         0x00080000
 #define HDFLAGS_REQUIRES      0x00100000
 #define HDFLAGS_PROVIDES      0x00200000
@@ -41,7 +44,7 @@ int get_int(Header header, int_32 tag) {
   int *i;
 
   headerGetEntry(header, tag, &type, (void **) &i, &count);
-  return *i;
+  return i ? *i : 0;
 }
 
 int get_bflag(AV* flag) {
@@ -68,9 +71,13 @@ int get_bflag(AV* flag) {
       else if (!strncmp(str, "sense", 5)) bflag |= HDFLAGS_SENSE;
       else if (!strncmp(str, "files", 5)) bflag |= HDFLAGS_FILES;
       break;
+    case 6:
+      if (!strncmp(str, "serial", 6))      bflag |= HDFLAGS_SERIAL;
+      break;
     case 7:
       if (!strncmp(str, "version", 7))      bflag |= HDFLAGS_VERSION;
       else if (!strncmp(str, "release", 7)) bflag |= HDFLAGS_RELEASE;
+      else if (!strncmp(str, "summary", 7)) bflag |= HDFLAGS_SUMMARY;
       break;
     case 8:
       if (!strncmp(str, "requires", 8))      bflag |= HDFLAGS_REQUIRES;
@@ -81,6 +88,8 @@ int get_bflag(AV* flag) {
       else if (!strncmp(str, "conflicts", 9)) bflag |= HDFLAGS_CONFLICTS;
       else if (!strncmp(str, "conffiles", 9)) bflag |= HDFLAGS_CONFFILES;
       break;
+    case 11:
+      if (!strncmp(str, "description", 11))      bflag |= HDFLAGS_DESCRIPTION;
     }
   }
   bflag |= HDFLAGS_NAME; /* this one should always be used */
@@ -175,6 +184,12 @@ HV* get_info(Header header, int bflag, HV* provides) {
     hv_store(header_info, "group", 5, newSVpv(get_name(header, RPMTAG_GROUP), 0), 0);
   if (bflag & HDFLAGS_SIZE)
     hv_store(header_info, "size", 4, newSViv(get_int(header, RPMTAG_SIZE)), 0);
+  if (bflag & HDFLAGS_SERIAL)
+    hv_store(header_info, "serial", 6, newSViv(get_int(header, RPMTAG_SERIAL)), 0);
+  if (bflag & HDFLAGS_SUMMARY)
+    hv_store(header_info, "summary", 7, newSVpv(get_name(header, RPMTAG_SUMMARY), 0), 0);
+  if (bflag & HDFLAGS_DESCRIPTION)
+    hv_store(header_info, "description", 11, newSVpv(get_name(header, RPMTAG_DESCRIPTION), 0), 0);
   if (bflag & HDFLAGS_REQUIRES)
     hv_store(header_info, "requires", 8, get_table_sense(header,                 RPMTAG_REQUIRENAME,
 							 bflag & HDFLAGS_SENSE ? RPMTAG_REQUIREFLAGS : 0,
@@ -484,8 +499,9 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
       char *name = get_name(header, RPMTAG_NAME);
       char *version = get_name(header, RPMTAG_VERSION);
       char *release = get_name(header, RPMTAG_RELEASE);
-      char *fullname = (char*)alloca(strlen(name)+strlen(version)+strlen(release)+3);
-      STRLEN fullname_len = sprintf(fullname, "%s-%s-%s", name, version, release);
+      char *arch = get_name(header, RPMTAG_ARCH);
+      char *fullname = (char*)alloca(strlen(name)+strlen(version)+strlen(release)+strlen(arch)+4);
+      STRLEN fullname_len = sprintf(fullname, "%s-%s-%s.%s", name, version, release, arch);
       HV* header_info = get_info(header, bflag, iprovides);
 
       /* once the hash header_info is built, store a reference to it

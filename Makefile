@@ -1,4 +1,4 @@
-VERSION = 2.3
+VERSION = 3.0
 NAME = rpmtools
 FROMC = parsehdlist rpm2header #rpm-find-leaves
 FROMCC = #gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups
@@ -7,7 +7,7 @@ FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)
 ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
 CFLAGS = -Wall -g
-LIBRPM = -lrpm -lrpmio -lrpmdb -lz -lbz2 -I/usr/include/rpm -lpopt
+LIBRPM = -lrpm -lrpmio `perl -e 'use rpmtools; rpmtools::version_compare(qx(rpm -q --qf %{VERSION} rpm), "4.0.3") >= 0 and print "-lrpmdb"'` -lz -lbz2 -I/usr/include/rpm -lpopt
 LIBRPM_STATIC = 
 
 all: $(ALL)

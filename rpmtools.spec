@@ -1,10 +1,11 @@
 %define name rpmtools
-%define release 25mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 2.3
+%define version 3.0
 
 %{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
+%{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}' rpm)}
 
 Summary: Contains various rpm command-line tools
 Name: %{name}
@@ -17,8 +18,8 @@ License: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= 4.0.3 bzip2 popt-devel zlib-devel libbzip2-devel perl-devel
-Requires: perl-base = %{perlbase_version} rpm >= 4.0.3 bzip2 >= 1.0
+BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel libbzip2-devel perl-devel
+Requires: perl-base = %{perlbase_version} rpm >= %{rpm_version} bzip2 >= 1.0
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -53,6 +54,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Jun 21 2001 François Pons <fpons@mandrakesoft.com> 3.0-1mdk
+- changed depslist format to fix support multi-arch.
+- changed depslist format to add serial support.
+- changed hdlist format to add non standard rpm filename.
+- added support to build rpmtools with various rpm.
+- added serial, size, summary and description tags.
+
 * Wed Jun 13 2001 François Pons <fpons@mandrakesoft.com> 2.3-25mdk
 - really fix with newer rpm (rpmtools.so was missing).
 - update distribution tag.

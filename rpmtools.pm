@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA %compat_arch);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '2.3';
+$VERSION = '3.0';
 
 bootstrap rpmtools $VERSION;
 
@@ -86,6 +86,8 @@ Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 		 'k6'      => 'i586',
 		 'k7'      => 'k6',
 		 'k8'      => 'k7',
+		 'ia32'    => 'i386',
+		 'ia64'    => 'noarch',
 		 'ppc'     => 'noarch',
 		 'alpha'   => 'noarch',
 		 'sparc'   => 'noarch',
@@ -98,7 +100,7 @@ sub new {
     my ($class, @tags) = @_;
     my %tags; @tags{@_} = ();
     bless {
-	   flags         => [ qw(name version release size arch group requires provides),
+	   flags         => [ qw(name version release size arch serial group requires provides),
 			      grep { exists $tags{$_} } qw(sense files obsoletes conflicts conffiles) ],
 	   info          => {},
 	   depslist      => [],
@@ -142,11 +144,22 @@ sub build_hdlist {
     -d $dir or mkdir $dir, 0755 or die "cannot create directory $dir\n";
 
     foreach (@rpms) {
-	my ($key, $name) = /(([^\/]*)-[^-]*-[^-]*\.[^\/\.]*)\.rpm$/ or next;
+	my ($key) = /([^\/]*)\.rpm$/ or next; #- get rpm filename.
+
 	system("rpm2header '$_' > '$dir/$key'") unless -e "$dir/$key";
 	$? == 0 or unlink("$dir/$key"), die "bad rpm $_\n";
 	-s "$dir/$key" or unlink("$dir/$key"), die "bad rpm $_\n";
-	push @{$names{$name} ||= []}, $key;
+
+	my ($name, $version, $release, $arch) = $key =~ /(.*)-([^-]*)-([^-]*)\.([^\.])*$/;
+	my ($realname, $realversion, $realrelease, $realarch) =
+	  `parsehdlist --raw '$dir/$key'` =~ /(.*)-([^-]*)-([^-]*)\.([^\.])*\.rpm$/;
+	unless ($name && $version && $release && $arch &&
+		$name eq $realname && $version eq $realversion && $release eq $realrelease && $arch eq $realarch) {
+	    my $newkey = "$realname-$realversion-$realrelease.$realarch:$key";
+	    symlink "$dir/$key", "$dir/$newkey" unless -e "$newkey";
+	    $key = $newkey;
+	}
+	push @{$names{$realname} ||= []}, $key;
     }
 
     #- compression ratio are not very high, sample for cooker
@@ -361,13 +374,16 @@ sub read_depslist {
     local $_;
     while (<$FILE>) {
 	chomp; /^\s*#/ and next;
-	my ($name, $version, $release, $size, $deps) = /^(\S*)-([^-\s]+)-([^-\s]+)\s+(\d+)\s*(.*)/;
+	my ($name, $version, $release, $arch, $serial, $size, $deps) =
+	  /^([^:\s]*)-([^:\-\s]+)-([^:\-\s]+)\.([^:\.\-\s]*)(?::(\d+)\S*)?\s+(\d+)\s*(.*)/;
 
 	#- store values here according to it.
 	push @{$params->{depslist}}, $params->{info}{$name} = {
 							       name        => $name,
 							       version     => $version,
 							       release     => $release,
+							       arch        => $arch,
+							       serial      => $serial,
 							       size        => $size,
 							       deps        => $deps,
 							       id          => $global_id++,
@@ -431,7 +447,9 @@ sub write_depslist {
 
     for ($min..$max) {
 	my $pkg = $params->{depslist}[$_];
-	printf $FILE "%s-%s-%s %s %s\n", $pkg->{name}, $pkg->{version}, $pkg->{release}, $pkg->{size}, $pkg->{deps};
+	printf $FILE ("%s-%s-%s.%s%s %s %s\n",
+		      $pkg->{name}, $pkg->{version}, $pkg->{release}, $pkg->{arch},
+		      ($pkg->{serial} ? ":$pkg->{serial}" : ''), $pkg->{size}, $pkg->{deps});
     }
     1;
 }

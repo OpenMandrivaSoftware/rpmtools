@@ -26,6 +26,10 @@ static int interactive_mode = 0;
 static int print_quiet = 0;
 static int print_name = 0;
 static int print_group = 0;
+static int print_size = 0;
+static int print_serial = 0;
+static int print_summary = 0;
+static int print_description = 0;
 static int print_provides = 0;
 static int print_requires = 0;
 static int print_conflicts = 0;
@@ -52,26 +56,14 @@ char *get_name(Header header, int_32 tag) {
   return name;
 }
 
-/*
 static
-void print_list(Header header, int_32 tag_name, char *format, char sep, char *name) {
+int get_int(Header header, int_32 tag) {
   int_32 type, count;
-  char **list;
-  int i;
+  int_32 *i;
 
-  headerGetEntry(header, tag_name, &type, (void **) &list, &count);
-
-  if (list) {
-    for(i = 0; i < count; i++) {
-      if (sep && i > 0) printf("%c%s", sep, list[i]);
-      else printf(format, name, list[i]);
-      if (!sep) printf("\n");
-    }
-    if (sep) printf("\n");
-  }
-  free(list);
+  headerGetEntry(header, tag, &type, (void **) &i, &count);
+  return i ? *i : 0; /* assume for default, necessary for RPMTAG_SERIAL */
 }
-*/
 
 static
 void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag_version, char *format, char sep, char *name) {
@@ -169,6 +161,10 @@ void print_help(void) {
 	  "  --name          - print tag name: rpm filename (assumed if no tag given on\n"
 	  "                    command line but without package name).\n"
 	  "  --group         - print tag group: group.\n"
+	  "  --size          - print tag size: size.\n"
+	  "  --serial        - print tag serial: serial.\n"
+	  "  --summary       - print tag summary: summary.\n"
+	  "  --description   - print tag description: description.\n"
 	  "  --provides      - print tag provides: all provides (mutliple lines).\n"
 	  "  --requires      - print tag requires: all requires (multiple lines).\n"
 	  "  --files         - print tag files: all files (multiple lines).\n"
@@ -192,6 +188,10 @@ print_header_flag_interactive(char *in_tag, Header header)
   else if (!strncmp(in_tag, "files", 5)) print_list_files(header, "%2$s\n", "");
   else if (!strncmp(in_tag, "prereqs", 7)) print_list_prereqs(header, "%2$s\n", "");
   else if (!strncmp(in_tag, "group", 5)) printf("%s\n", get_name(header, RPMTAG_GROUP));
+  else if (!strncmp(in_tag, "summary", 7)) printf("%s\n", get_name(header, RPMTAG_SUMMARY));
+  else if (!strncmp(in_tag, "description", 11)) printf("%s\n", get_name(header, RPMTAG_DESCRIPTION));
+  else if (!strncmp(in_tag, "size", 4)) printf("%d\n", get_int(header, RPMTAG_SIZE));
+  else if (!strncmp(in_tag, "serial", 6)) printf("%d\n", get_int(header, RPMTAG_SERIAL));
   else if (!strncmp(in_tag, "name", 4)) printf("%s-%s-%s.%s.rpm\n", 
 					       get_name(header, RPMTAG_NAME),
 					       get_name(header, RPMTAG_VERSION),
@@ -205,7 +205,7 @@ printable_header(int quiet, char *name, char sep, char* final)
   static char buff[128];
   int n = sprintf(buff, "%%s%c", sep ? sep : ':');
   if (!quiet) n += sprintf(buff + n, "%s%c", name, sep ? sep : ':');
-  n += sprintf(buff + n, "%%s");
+  n += sprintf(buff + n, !strcmp(name, "size") || !strcmp(name, "serial") ? "%%d" : "%%s");
   if (final) n += sprintf(buff + n, "%s", final);
   return buff; /* static string, this means to use result before calling again */
 }
@@ -229,6 +229,10 @@ int main(int argc, char **argv)
       else if (strcmp(argv[i], "--compact") == 0)     print_sep = '@';
       else if (strcmp(argv[i], "--name") == 0)        print_name = 1;
       else if (strcmp(argv[i], "--group") == 0)       print_group = 1;
+      else if (strcmp(argv[i], "--size") == 0)        print_size = 1;
+      else if (strcmp(argv[i], "--serial") == 0)      print_serial = 1;
+      else if (strcmp(argv[i], "--summary") == 0)     print_summary = 1;
+      else if (strcmp(argv[i], "--description") == 0) print_description = 1;
       else if (strcmp(argv[i], "--provides") == 0)    print_provides = 1;
       else if (strcmp(argv[i], "--requires") == 0)    print_requires = 1;
       else if (strcmp(argv[i], "--files") == 0)       print_files = 1;
@@ -248,6 +252,7 @@ int main(int argc, char **argv)
       } else if (strcmp(argv[i], "--all") == 0) {
 	print_name = 1;
 	print_group = 1;
+	print_summary = 1;
 	print_provides = 1;
 	print_requires = 1;
 	print_files = 1;
@@ -350,8 +355,15 @@ int main(int argc, char **argv)
 	    if (print_files) print_list_files(header, printable_header(print_quiet, "files", print_sep, "\n"), name);
 	    if (print_prereqs) print_list_prereqs(header, printable_header(print_quiet, "prereqs", print_sep, "\n"), name);
 	    if (print_group) printf(printable_header(print_quiet, "group", print_sep, "\n"), name, get_name(header, RPMTAG_GROUP));
+	    if (print_size) printf(printable_header(print_quiet, "size", print_sep, "\n"), name, get_int(header, RPMTAG_SIZE));
+	    if (print_serial) printf(printable_header(print_quiet, "serial", print_sep, "\n"),
+				     name, get_int(header, RPMTAG_SERIAL));
+	    if (print_summary) printf(printable_header(print_quiet, "summary", print_sep, "\n"),
+				      name, get_name(header, RPMTAG_SUMMARY));
+	    if (print_description) printf(printable_header(print_quiet, "description", print_sep, "\n"),
+					  name, get_name(header, RPMTAG_DESCRIPTION));
 	    if (print_name || (print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs |
-			       print_group) == 0) {
+			       print_group | print_size | print_serial | print_summary | print_description) == 0) {
 	      if (print_name) printf(printable_header(print_quiet, "name", print_sep, 0), name);
 	      printf("%s-%s-%s.%s.rpm\n", 
 		     name,
