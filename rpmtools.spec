@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 19mdk
+%define release 20mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -26,7 +26,7 @@ URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94
+Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94 perl-base >= 5.8.4
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 Provides: perl(packdrake)
 
@@ -65,6 +65,10 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Fri Apr 23 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-20mdk
+- add a --quiet option to packdrake
+- rebuild for perl 5.8.4, and add a dependency on perl-base
+
 * Wed Feb 25 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 4.5-19mdk
 - rebuild for perl 5.8.3
 
