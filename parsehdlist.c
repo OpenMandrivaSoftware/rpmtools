@@ -401,7 +401,7 @@ int main(int argc, char **argv)
 	    exit(2);
 	  }
 	} else {
-	  if (!silent) { fprintf(stderr, "packdrake: unable to create pipe for packdrake\n"); }
+	  if (!silent) { fprintf(stderr, "parsehdlist: unable to create pipe for parsehdlist\n"); }
 	}
       }
       if (fdFileno(fd) < 0) {
