@@ -2,7 +2,7 @@ use ExtUtils::MakeMaker;
 # See lib/ExtUtils/MakeMaker.pm for details of how to influence
 # the contents of the Makefile that is written.
 
-my $libs = ' -lrpm -lrpmio -lpopt -lz -lbz2';
+my $libs = ' -lrpm -lrpmio -lrpmdb -lpopt -lz -lbz2';
 
 WriteMakefile(
     'NAME'      => 'rpmtools',

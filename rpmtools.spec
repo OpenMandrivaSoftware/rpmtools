@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 23mdk
+%define release 25mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -17,8 +17,8 @@ License: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel libbzip2-devel db1-devel db2-devel db3-devel perl-devel
-Requires: perl-base = %{perlbase_version} rpm >= 4.0 bzip2 >= 1.0
+BuildRequires: rpm-devel >= 4.0.3 bzip2 popt-devel zlib-devel libbzip2-devel perl-devel
+Requires: perl-base = %{perlbase_version} rpm >= 4.0.3 bzip2 >= 1.0
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -53,6 +53,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Jun 13 2001 François Pons <fpons@mandrakesoft.com> 2.3-25mdk
+- really fix with newer rpm (rpmtools.so was missing).
+- update distribution tag.
+
+* Wed Jun 13 2001 François Pons <fpons@mandrakesoft.com> 2.3-24mdk
+- fix with newer rpm (added -lrpmdb).
+
 * Wed Jun  6 2001 François Pons <fpons@mandrakesoft.com> 2.3-23mdk
 - added require on perl-base version used for build.
 - fix ordering package to choose libXXX before XXX.
