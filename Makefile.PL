@@ -9,16 +9,17 @@ sub MY::postamble {
     <<MAKEMAKEFILE;
 .PHONY: ChangeLog
 
-\$(FROMCC): %: %.cc 
+\$(FROMCC): %: %.cc
 	\$(CXX) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
 
 \$(FROMC): %: %.c
 	\$(CC) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
 
 buildc: \$(FROMC) \$(FROMCC)
-    
+
 cleanc:
 	rm -f \$(FROMC) \$(FROMCC)
+	rm -rf *.cz test
 
 ChangeLog:
 	cvs2cl -W 400 -I ChangeLog --accum -U ../common/username
@@ -31,20 +32,20 @@ MAKEMAKEFILE
 
 WriteMakefile(
     NAME	    => 'rpmtools',
-    VERSION    => $rpmtools_version,
+    VERSION	    => $rpmtools_version,
     macro => {
         RPMTOOLSVERSION => $rpmtools_version,
         FROMC => 'parsehdlist rpm2header #rpm-find-leaves',
         FROMCC => '#gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups',
         LIBRPM => '-lrpm -lrpmio -lrpmdb -lrpmbuild -lz -lbz2 -lpopt',
         INCRPM => '-I/usr/include/rpm',
-        DEFRPM => '-DRPM_42', 
+        DEFRPM => '-DRPM_42',
     },
     depend => {
         clean_subdirs => 'cleanc',
         pm_to_blib => 'buildc',
     },
-    PM	    => {
+    PM => {
         'Packdrakeng.pm' => '$(INST_LIBDIR)/Packdrakeng.pm',
         'packdrake.pm' => '$(INST_LIBDIR)/packdrake.pm',
     },
@@ -53,10 +54,10 @@ WriteMakefile(
     'OBJECT'        => '',
     CCFLAGS	    => '-Wall',
     OPTIMIZE	    => '-O3 -fomit-frame-pointer -fno-exceptions -pipe -s -ffast-math -fexpensive-optimizations',
-    INC => '',
+    INC		    => '',
     LIBS	    => [ '' ],
     INSTALLDIRS	    => 'vendor',
-    dist    => { 
+    dist    => {
         COMPRESS => 'bzip2 --best',
         SUFFIX => '.bz2',
     },
