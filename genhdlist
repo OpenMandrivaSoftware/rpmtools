@@ -62,7 +62,7 @@ my @dir = @ARGV ? @ARGV : (".");
 
 grep { m!^/! } @dir and die "Directory path to parse should be relative";
 
-$dest and chdir $dest or die "can't chdir in directory $dest";
+$dest and do { chdir $dest or die "can't chdir in directory $dest"; };
 rmtree($tmpdir) unless $noclean;
 mkpath($tmpdir);
 
