@@ -16,32 +16,23 @@
 #- along with this program; if not, write to the Free Software
 #- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-use strict qw(subs vars refs);
-use rpmtools;
+use strict;
+use URPM;
+use URPM::Build;
 
-my $params = new rpmtools;
+my $urpm = new URPM;
 my ($noclean, $nohdlists, $nobasefiles, @root, @hdlists) = 0;
 
 ($noclean,     @ARGV) = @ARGV if $ARGV[0] eq "--noclean";
-($nohdlists,   @ARGV) = @ARGV if $ARGV[0] eq "--nohdlists";
-($nobasefiles, @ARGV) = @ARGV if $ARGV[0] eq "--nobasefiles";
 (undef, @root, @ARGV) = @ARGV if $ARGV[0] eq "--distrib";
 
-@root > 0 && @ARGV == 0 or die "usage: gendistrib [--noclean] [--nohdlists] [--nobasefiles] --distrib <root distrib> <root_distrib2> ...\n";
+@root > 0 && @ARGV == 0 or die "usage: gendistrib [--noclean] --distrib <root distrib> <root_distrib2> ...\n";
 
 my $root = $root[0];
 my ($depslist, $provides, $compss, $hdlists) = ("$root/Mandrake/base/depslist.ordered",
 						"$root/Mandrake/base/provides",
 						"$root/Mandrake/base/compss",
 						"$root/Mandrake/base/hdlists");
-
-#- try to read this one before! could be useful to sort hdlist building if the file exist and is up-to-date.
-if (-r $depslist) {
-    print STDERR "using existing $depslist file\n";
-    open F, $depslist;
-    $params->read_depslist(\*F);
-    close F;
-}
 
 open F, $hdlists or die "unable to open $hdlists";
 foreach (<F>) {
@@ -50,145 +41,62 @@ foreach (<F>) {
     /^\s*$/ and next;
     m/^\s*(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 
-    push @hdlists, [ "$root/Mandrake/base/$1", $2, $3 ];
+    push @hdlists, { synthesis => "$root/Mandrake/base/synthesis.$1", hdlist => "$root/Mandrake/base/$1", dir => $2, descr => $3 };
 }
 close F;
 
-unless ($nohdlists) {
-    for (0..$#hdlists) {
-	my ($hdlist, $dir, $descr) = @{$hdlists[$_]};
-
-	#- try to find the right repository where can be found the directory
-	#- listed in the hdlist file.
-	#- if the number of root is equal the number of medium, assume a medium
-	#- foreach root, else try to find a valid root containing the medium.
-	if (scalar(@hdlists ) == scalar(@root)) {
-	    $root = $root[$_];
-	} else {
-	    foreach (@root) {
-		-d "$_/$dir" and $root = $_, last;
-	    }
-	}
-	-d "$root/$dir" or die "unable to find a valid root directory which contains $dir\n";
-
-	print STDERR "building hdlist $hdlist as \"$descr\"\n  with rpms directory $root/$dir\n";
-	$params->build_hdlist($noclean, 9, ($ENV{TMPDIR} || "/tmp") . "/.build_hdlist", $hdlist, glob("$root/$dir/*.rpm"));
-    }
+my $headers_dir = ($ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
+sub clean_cache {
+    system(($ENV{LD_LOADER} ? ($ENV{LD_LOADER}) : ()), "rm", "-rf", $headers_dir) unless $noclean;
 }
 
-unless ($nobasefiles) {
-    #- take a clean aproach.
-    $params->clean();
+clean_cache();
 
-    #- this version try to use an existing profiles file to reduce
-    #- number of pass of parsing hdlist.
-    if (-r $provides) {
-	print STDERR "using existing $provides file\n";
-	open F, $provides;
-	$params->read_provides_files(\*F);
-	close F;
-    }
+for (0..$#hdlists) {
+    my $e = $hdlists[$_];
 
-    #- now, try to build dependancy, but incrementally only.
-    foreach (@hdlists) {
-	print STDERR "reading $_->[0]\n";
-	$params->read_hdlists($_->[0]);
-	$params->compute_depslist();
-    }
-
-    my @unresolved = $params->get_unresolved_provides_files();
-    if (@unresolved > 0) {
-	foreach (@unresolved) {
-	    print STDERR "found requires on file not yet found [$_], forcing two other linked pass\n";
-	}
-
-	#- cleaning.
-	$params->clean();
-
-	#- compute (avoiding depslist computation on first one.
-	foreach (@hdlists) {
-	    print STDERR "reading (second pass) $_->[0]\n";
-	    $params->read_hdlists($_->[0]);
-	}
-	$params->keep_only_cleaned_provides_files();
-	foreach (@hdlists) {
-	    print STDERR "reading (third pass) $_->[0]\n";
-	    $params->read_hdlists($_->[0]);
-	    $params->compute_depslist();
+    #- try to find the right repository where can be found the directory
+    #- listed in the hdlist file.
+    #- if the number of root is equal the number of medium, assume a medium
+    #- foreach root, else try to find a valid root containing the medium.
+    if (scalar(@hdlists ) == scalar(@root)) {
+	$root = $root[$_];
+    } else {
+	foreach (@root) {
+	    -d "$_/$e->{dir}" and $root = $_, last;
 	}
     }
+    -d "$root/$e->{dir}" or die "unable to find a valid root directory which contains $e->{dir}\n";
 
-    #- work finished, so write results:
-    #-   $output_dir/depslist.ordered
-    #-   $output_dir/provides
-    #-   $output_dir/compss
-    print STDERR "writing $depslist\n";
-    open F, ">$depslist" or die "unable to write depslist file $depslist\n";
-    $params->write_depslist(\*F);
-    close F;
-    print STDERR "writing $provides\n";
-    open F, ">$provides" or die "unable to write provides file $provides\n";
-    $params->write_provides(\*F);
-    close F;
-    print STDERR "writing $compss\n";
-    open F, ">$compss" or die "unable to write compss file $compss";
-    $params->write_compss(\*F);
-    close F;
-
-    #- generate all synthesis file.
-    foreach (@hdlists) {
-	if ($_->[0] =~ /(.*)\/hdlist(.*)/) {
-	    my $synthesis = "$1/synthesis.hdlist$2";
-	    my $params_sense = new rpmtools(qw(sense));
-
-	    print STDERR "reading $_->[0]\n";
-	    $params_sense->read_hdlists($_->[0]);
-
-	    #- use existing provides just generated to
-	    #- add missing entries in each package provides list,
-	    #- this is really $params and not $params_sense.
-	    foreach my $file (keys %{$params->{provides}}) {
-		$file =~ /^\// or next;
-		foreach (keys %{$params->{provides}{$file} || {}}) {
-		    my $pkg = $params_sense->{info}{$_} or next;
-		    push @{$pkg->{provides}}, $file;
-		}
-	    }
-
-	    open F, "| gzip -9 >$synthesis";
-	    print STDERR "writing $synthesis\n";
-	    $params_sense->write_synthesis_hdlist(\*F);
-	    close F or print STDERR "unable to build $synthesis\n";
-	}
-    }
-} else {
-    if (-r $provides) {
-	print STDERR "using existing $provides file\n";
-	open F, $provides;
-	$params->read_provides(\*F);
-	close F;
-    }
+    print STDERR "parsing rpm files in directory $root/$e->{dir}\n";
+    my @headers = $urpm->parse_rpms_build_headers($headers_dir, glob("$root/$e->{dir}/*.rpm"));
+    $e->{headers} = \@headers;
 }
 
-#- check if there are NOTFOUND in dependancy, check if they are in other medium, warn the user.
-foreach my $pkg (@{$params->{depslist}}) {
-    foreach (split " ", $pkg->{deps}) {
-	/NOTFOUND_(.*)/ or next;
-	print STDERR "$pkg->{name}-$pkg->{version}-$pkg->{release} require [$1] which\n";
-	if ($params->{provides}{$1}) {
-	    print STDERR "  is available on packages not listed in this medium or previous medium:\n";
-	    foreach (keys %{$params->{provides}{$1}}) {
-		print STDERR "    $params->{info}{$_}{name}-$params->{info}{$_}{version}-$params->{info}{$_}{release}\n";
-	    }
-	} else {
-	    print STDERR "  is not available in any medium listed\n";
-	    if (/NOTFOUND_(\D*)(\d+[\.\-\d]*)?(.*)?\.so\./) {
-		my $re = (quotemeta $1) . '(\d+[\.\-\d]*)' . (!$2 && "?") . '\.so\.';
-		foreach (keys %{$params->{provides}}) {
-		    /$re/ or next;
-		    print STDERR "  but a similar provides is available as [$_], need rebuild ?\n";
-		}
-	    }
-	}
-    }
+#- clean everything to start second pass.
+print STDERR "clean data for second pass\n";
+$urpm->unresolved_provides_clean;
+
+for (0..$#hdlists) {
+    my $e = $hdlists[$_];
+
+    print STDERR "parsing headers for $e->{descr}\n";
+    my ($start, $end) = $urpm->parse_headers($headers_dir, @{$e->{headers}});
+
+    print STDERR "computing deps\n";
+    $urpm->compute_deps;
+
+    print STDERR "building hdlist for medium \"$e->{descr}\"\n";
+    $urpm->build_hdlist($start, $end, $headers_dir, $e->{hdlist}, 9);
+
+    print STDERR "building synthesis for medium \"$e->{descr}\n";
+    $urpm->build_synthesis($start, $end, $e->{synthesis});
 }
+
+clean_cache();
+
+print STDERR "building base files\n";
+$urpm->build_base_files("$root/Mandrake/base/depslist.ordered",
+			"$root/Mandrake/base/provides",
+			"$root/Mandrake/base/compss");
+

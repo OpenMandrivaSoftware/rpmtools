@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 13mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 4.2
+%define version 4.3
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
@@ -18,7 +18,7 @@ Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0
+Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.01
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -53,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri May 31 2002 François Pons <fpons@mandrakesoft.com> 4.3-1mdk
+- gendistrib use now perl-URPM.
+- keep compatibility with older rpmtools.
+
 * Wed May 29 2002 François Pons <fpons@mandrakesoft.com> 4.2-13mdk
 - incorporated fix from URPM module.
 - problably latest stable rpmtools release.
