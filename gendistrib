@@ -21,6 +21,7 @@
 #- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 use strict;
+use Cwd;
 use URPM;
 use URPM::Build;
 use Getopt::Long;
@@ -101,10 +102,11 @@ foreach (<$fh>) {
     push @hdlists, {
 	synthesis => "$root/media/media_info/synthesis.$name",
 	hdlist => "$root/media/media_info/$name",
-	synthesis2 => "$root/$dir/media_info/synthesis.hdlist.cz",
-	hdlist2 => "$root/$dir/media_info/hdlist.cz",
 	dir => $dir,
 	descr => $descr,
+	mediainfo => "$root/$dir/media_info",
+	synthesis2 => "$root/$dir/media_info/synthesis.hdlist.cz",
+	hdlist2 => "$root/$dir/media_info/hdlist.cz",
 	md5sum => "$root/$dir/media_info/MD5SUM",
     };
 }
@@ -185,12 +187,31 @@ foreach (0..$#hdlists) {
 			   end       => $end,
 			   synthesis => $e->{synthesis});
 
+    unless ($nomediainfo && $nomd5sum) {
+	mkdir $e->{mediainfo}, 0755
+	    or print STDERR qq(Can't create directory "$e->{mediainfo}": $!\n);
+    }
+
     unless ($nomediainfo) {
 	print STDERR qq(link alternate locations of synthesis and hdlists\n) unless $nooutput;
 	link $e->{hdlist}, $e->{hdlist2}
 	    or print STDERR qq(link failed for "$e->{hdlist2}": $!\n);
 	link $e->{synthesis}, $e->{synthesis2}
 	    or print STDERR qq(link failed for "$e->{synthesis2}": $!\n);
+    }
+
+    unless ($nomd5sum) {
+	print STDERR qq(generate MD5SUM for media\n);
+	my $here = getcwd();
+	chdir $e->{mediainfo};
+	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
+	chdir $here;
+	if (open my $md5sumfh, '>', $e->{md5sum}) {
+	    print $md5sumfh $md5sum;
+	    close $md5sumfh;
+	} else {
+	    print STDERR qq(Can't create "$e->{md5sum}": $!\n);
+	}
     }
 }
 
@@ -203,6 +224,18 @@ $urpm->build_base_files(depslist => $urpmfiles{depslist},
 
 #- safety cleaning
 unlink $urpmfiles{md5sum};
+unless ($nomd5sum) {
+    my $here = getcwd();
+    chdir "$root/media/media_info";
+    my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
+    chdir $here;
+    if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {
+	print $md5sumfh $md5sum;
+	close $md5sumfh;
+    } else {
+	print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
+    }
+}
 
 #- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
 if ($nooutput || !$nochkdep) {
