@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.9
+%define version 5.0.10
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -75,6 +75,13 @@ is fully compatible with old packdrake.
 %{_mandir}/*/*
 
 %changelog
+* Thu Feb 17 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.10-1mdk
+- gendistrib:
+  - Generate hdlists and synthesis as hard links in <name>/media_info
+    subdirectories
+  - Handle new hdlists format
+  - Generate MD5SUM files
+
 * Mon Jan 17 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.9-1mdk
 - genhdlist now follows symlinks
 - minor fixes in Packdrakeng
