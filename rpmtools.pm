@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.02';
+$VERSION = '0.03';
 
 bootstrap rpmtools $VERSION;
 
@@ -74,6 +74,8 @@ sub new {
 	   info          => {},
 	   depslist      => [],
 	   provides      => {},
+	   tmpdir        => $ENV{TMPDIR} || "/tmp",
+	   noclean       => 0,
 	  }, $class;
 }
 
@@ -100,6 +102,35 @@ sub read_hdlists {
 	exit 0;
     }
     1;
+}
+
+#- build an hdlist from a list of files.
+sub build_hdlist {
+    my ($params, $hdlist, @rpms) = @_;
+    my ($work_dir, %names) = "$params->{tmpdir}/.build_hdlist";
+
+    #- build a working directory which will hold rpm headers.
+    -d $work_dir or mkdir $work_dir, 0755 or die "cannot create working directory $work_dir\n";
+    chdir $work_dir;
+
+    foreach (@rpms) {
+	my ($key, $name) = /(([^\/]*)-[^-]*-[^-]*\.[^\/\.]*)\.rpm$/ or next;
+	system("rpm2header '$_' > $key") unless -e $key;
+	$? == 0 or unlink($key), die "bad rpm $_\n";
+	-s $key or unlink($key), die "bad rpm $_\n";
+	push @{$names{$name} ||= []}, $key;
+    }
+
+    open B, "| packdrake -b9s '$hdlist' 400000";
+    foreach (@{$params->{depslist}}) {
+	if (my $keys = delete $names{$_->{name}}) {
+	    print B "$_\n" foreach @$keys;
+	}
+    }
+    foreach (values %names) {
+	print B "$_\n" foreach @$_;
+    }
+    close B or die "packdrake failed\n";
 }
 
 #- read one or more rpm files.
@@ -221,8 +252,7 @@ sub compute_depslist {
 	}
     }
     #- setup, filesystem and basesystem should be at the beginning.
-    @ordered{qw(ld.so readline termcap libtermcap bash sash glibc
-		setup filesystem basesystem)} =
+    @ordered{qw(ldconfig readline termcap libtermcap bash sash glibc setup filesystem basesystem)} =
 	(100000, 90000, 80000, 70000, 60000, 50000, 40000, 30000, 20000, 10000);
 
     #- compute base flag, consists of packages which are required without
@@ -397,6 +427,16 @@ sub keep_only_cleaned_provides_files {
     $params->{use_base_flag} = 0;
     $params->{info} = {};
     $params->{depslist} = [];
+}
+
+#- reset params to allow other entries.
+sub clean {
+    my ($params) = @_;
+
+    $params->{use_base_flag} = 0;
+    $params->{info} = {};
+    $params->{depslist} = [];
+    $params->{provides} = {};
 }
 
 #- read provides, first is key, after values.
