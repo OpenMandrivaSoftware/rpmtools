@@ -1,3 +1,16 @@
+2005-03-29 17:37  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* gendistrib: Remove redundant code
+
+2005-03-29 17:24  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* gendistrib: Create the directory "thismediainfo" if it doesn't
+	  exist
+
+2005-03-14 14:01  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.18-1mdk
+
 2005-03-14 13:47  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
 
 	* gendistrib: Build hdlists in temporary locations

@@ -2,7 +2,7 @@
 %define release %mkrel 1
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.18
+%define version 5.0.19
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -79,6 +79,9 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Tue Mar 29 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.19-1mdk
+- gendistrib: fix a bug in creation of media_info directories
+
 * Mon Mar 14 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.18-1mdk
 - gendistrib: build hdlists in a temporary file first, to reduce the window
   where the hdlists are corrupted
