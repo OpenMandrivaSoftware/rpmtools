@@ -1,4 +1,24 @@
-2005-02-22 21:24  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-03-01 12:33  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* parsehdlist.c: Output help to stdout
+
+2005-03-01 12:31  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* parsehdlist.c: Patch by Leon Brooks to add an --sql option to
+	  dump output as SQL INSERT statements, and an --url option to get
+	  the rpm's URL tag.
+
+2005-02-28 12:37  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* Packdrakeng.pm: POD fixes.
+
+2005-02-28 12:32  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+
+	* Packdrakeng.pm: toc_f_count wasn't stored in the Packdrakeng
+	  object, and it's used by rpmdrake's search progress bar. (bug
+	  14008)
+
+2005-02-22 21:24  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* MANIFEST, Makefile.PL, rpmtools.spec: - 5.0.15
 

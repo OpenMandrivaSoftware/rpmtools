@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.15
+%define version 5.0.16
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -79,6 +79,10 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Tue Mar 01 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.16-1mdk
+- packdrake: report size of toc (for rpmdrake's search progress bar)
+- parsehdlist: add support to output SQL statements (Leon Brooks)
+
 * Tue Feb 22 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.15-1mdk
 - generate VERSION
 - split Distribconf with Build
