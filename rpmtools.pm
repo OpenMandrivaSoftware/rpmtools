@@ -405,58 +405,6 @@ sub read_depslist {
     1;
 }
 
-#- relocate depslist array id to use only the most recent packages,
-#- reorder info hashes to give only access to best packages.
-sub relocate_depslist {
-    my ($params) = @_;
-    my $relocated_entries = 0;
-
-    foreach (@{$params->{depslist} || []}) {
-	if ($params->{info}{$_->{name}} != $_) {
-	    #- at this point, it is sure there is a package that
-	    #- is multiply defined and this should be fixed.
-	    #- remove access to info if arch is incompatible and only
-	    #- take into account compatible arch to examine.
-	    #- correct info hash by prefering first better version,
-	    #- then better release, then better arch.
-	    my $p = $params->{info}{$_->{name}};
-	    if ($p && !compat_arch($p->{arch})) {
-		delete $params->{info}{$_->{name}};
-	    }
-	    if (compat_arch($_->{arch})) {
-		if ($p) {
-		    my $cmp_version = $_->{serial} == $p->{serial} && version_compare($_->{version}, $p->{version});
-		    my $cmp_release = $cmp_version == 0 && version_compare($_->{release}, $p->{release});
-		    if ($_->{serial} > $p->{serial} || $cmp_version > 0 || $cmp_release > 0 ||
-			($_->{serial} == $p->{serial} && $cmp_version == 0 && $cmp_release == 0 &&
-			 better_arch($_->{arch}, $p->{arch}))) {
-			$params->{info}{$_->{name}} = $_;
-			++$relocated_entries;
-		    }
-		} else {
-		    $params->{info}{$_->{name}} = $_;
-		    ++$relocated_entries;
-		}
-	    }
-	}
-    }
-
-    #- relocate id used in depslist array, delete id if the package
-    #- should NOT be used.
-    if ($relocated_entries) {
-	foreach (@{$params->{depslist}}) {
-	    $_->{source} and next; #- hack to avoid losing local package.
-	    if (defined $params->{info}{$_->{name}}) {
-		$_->{id} = $params->{info}{$_->{name}}{id};
-	    } else {
-		delete $_->{id};
-	    }
-	}
-    }
-
-    $relocated_entries;
-}
-
 #- write depslist.ordered file according to info in params.
 sub write_depslist {
     my ($params, $FILE, $min, $max) = @_;
@@ -621,19 +569,4 @@ sub package_name_compare {
     $a cmp $b; #- fall back.
 }
 
-#- compability function which should be removed soon, do not use anymore and replace code.
-sub get_packages_installed {
-    my ($prefix, $packages, $names, $flags) = @_; $flags ||= [ qw(name version release)];
-    my $db = db_open($prefix);
-    my $count = db_traverse_tag($db, "name", $names, $flags, sub { my ($p) = @_; push @$packages, $p; });
-    db_close($db);
-    $count;
-}
-sub get_all_packages_installed {
-    my ($prefix, $packages, $flags) = @_; $flags ||= [ qw(name version release)];
-    my $db = db_open($prefix);
-    my $count = db_traverse($db, $flags, sub { my ($p) = @_; push @$packages, $p; });
-    db_close($db);
-    $count;
-}
 1;

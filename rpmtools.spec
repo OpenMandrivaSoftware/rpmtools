@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.0
@@ -54,6 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Jun 28 2001 François Pons <fpons@mandrakesoft.com> 3.0-6mdk
+- removed some specific urpm code to urpm package.
+- removed obsoleted methods.
+
 * Wed Jun 27 2001 François Pons <fpons@mandrakesoft.com> 3.0-5mdk
 - fix problem interpreting serial.
 
