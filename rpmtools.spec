@@ -51,7 +51,8 @@ rm -rf $RPM_BUILD_ROOT
 #%{perl_vendorarch}/auto/rpmtools
 %{perl_vendorarch}/packdrake.pm
 #%{perl_vendorarch}/rpmtools.pm
-%{_mandir}/*/*
+#%{_mandir}/*/*
+%{_mandir}/*/packdrake*
 
 %changelog
 * Tue Jul 23 2002 François Pons <fpons@mandrakesoft.com> 4.4-1mdk
