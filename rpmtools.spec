@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -72,26 +72,35 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-/usr/bin/packdrake
-/usr/bin/parsehdlist
-/usr/bin/rpm2header
-/usr/bin/genhdlist_cz2
+%{_bindir}/packdrake
+%{_bindir}/parsehdlist
+%{_bindir}/rpm2header
+%{_bindir}/genhdlist_cz2
+%dir %{perl_sitearch}/auto/rpmtools
+%{perl_sitearch}/auto/rpmtools/rpmtools.so
+%{perl_sitearch}/rpmtools.pm
 
 %files devel
 %defattr(-,root,root)
-/usr/bin/genhdlists
-/usr/bin/genfilelist
+%{_bindir}/genhdlists
+%{_bindir}/genbasefiles
+%{_bindir}/genfilelist
 
 %files compat
 %defattr(-,root,root)
-/usr/bin/gendepslist2
-/usr/bin/hdlist2prereq
-/usr/bin/hdlist2groups
-/usr/bin/hdlist2files
-/usr/bin/hdlist2names
+%{_bindir}/gendepslist2
+%{_bindir}/hdlist2prereq
+%{_bindir}/hdlist2groups
+%{_bindir}/hdlist2files
+%{_bindir}/hdlist2names
 
 
 %changelog
+* Fri Aug 25 2000 François Pons <fpons@mandrakesoft.com> 1.2-2mdk
+- added rpmtools perl module.
+- added genbasefiles to build compss, depslist.ordered and provides files
+  in one (or two) pass.
+
 * Wed Aug 23 2000 François Pons <fpons@mandrakesoft.com> 1.2-1mdk
 - 1.2 of rpmtools.
 - new tools packdrake and parsehdlist.

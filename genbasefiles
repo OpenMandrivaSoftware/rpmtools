@@ -1,0 +1,78 @@
+#!/usr/bin/perl
+
+#- Copyright (C) 1999 MandrakeSoft (fpons@mandrakesoft.com)
+#-
+#- This program is free software; you can redistribute it and/or modify
+#- it under the terms of the GNU General Public License as published by
+#- the Free Software Foundation; either version 2, or (at your option)
+#- any later version.
+#-
+#- This program is distributed in the hope that it will be useful,
+#- but WITHOUT ANY WARRANTY; without even the implied warranty of
+#- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#- GNU General Public License for more details.
+#-
+#- You should have received a copy of the GNU General Public License
+#- along with this program; if not, write to the Free Software
+#- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+use strict qw(subs vars refs);
+use rpmtools;
+
+sub main {
+    my ($output_dir, @files) = @_;
+    my $params = new rpmtools;
+
+    -d $output_dir or die "usage: gendepslist <output_dir> <hdlist files|rpm files>\n";
+
+    #- this version try to use an existing profiles file to reduce
+    #- number of pass of parsing hdlist.
+    if (-r "$output_dir/provides") {
+	print STDERR "using existing $output_dir/provides file\n";
+	open F, "$output_dir/provides";
+	$params->read_provides_files(\*F);
+	close F;
+    }
+
+    #- now, try to build dependancy, but incrementally only.
+    foreach (@files) {
+	print STDERR "reading $_\n";
+	/\.rpm$/ ? $params->read_rpms($_) : $params->read_hdlists($_);
+	$params->compute_depslist();
+    }
+
+    my @unresolved = $params->get_unresolved_provides_files();
+    if (@unresolved > 0) {
+	foreach (@unresolved) {
+	    print STDERR "found requires on file not yet found [$_], forcing a second pass\n";
+	}
+
+	#- cleaning.
+	$params->keep_only_cleaned_provides_files();
+
+	foreach (@files) {
+	    print STDERR "reading (second pass) $_\n";
+	    /\.rpm$/ ? $params->read_rpms($_) : $params->read_hdlists($_);
+	    $params->compute_depslist();
+	}
+    }
+
+    #- work finished, so write results:
+    #-   $output_dir/depslist.ordered
+    #-   $output_dir/provides
+    #-   $output_dir/compss
+    print STDERR "writing $output_dir/depslist.ordered\n";
+    open F, ">$output_dir/depslist.ordered" or die "unable to write depslist file $output_dir/depslist.ordered\n";
+    $params->write_depslist(\*F);
+    close F;
+    print STDERR "writing $output_dir/provides\n";
+    open F, ">$output_dir/provides" or die "unable to write provides file $output_dir/provides\n";
+    $params->write_provides(\*F);
+    close F;
+    print STDERR "writing $output_dir/compss\n";
+    open F, ">$output_dir/compss" or die "unable to write compss file $output_dir/compss";
+    $params->write_compss(\*F);
+    close F;
+}
+
+main(@ARGV);

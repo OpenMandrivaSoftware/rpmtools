@@ -10,11 +10,14 @@ CFLAGS = -Wall -g
 LIBRPM = -lrpm -ldb1 -lz -lbz2 -I/usr/include/rpm -lpopt
 
 all: $(ALL)
+	perl Makefile.PL
+	$(MAKE) -f Makefile_core $@
 
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
 	install -s $(ALL) $(PREFIX)/usr/bin
 	install genhdlist_cz2 genhdlists genfilelist packdrake $(PREFIX)/usr/bin
+	$(MAKE) -f Makefile_core $@
 
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) $< $(LIBRPM) -o $@
