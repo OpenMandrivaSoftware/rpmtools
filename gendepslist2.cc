@@ -283,7 +283,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 
   vector<string> put_first_ = split(' ', put_first);
   vector<string> packages;
-  int nb2hdlist[packages.size()];
+  int nb2hdlist[names.size()];
   for (int i = 0; i < nb_hdlists; i++) {
     set<string> list = hdlist2names[i];
     while (list.begin() != list.end()) {
