@@ -260,7 +260,7 @@ map<string, set<string> > closure(const map<string, set<string> > &names) {
 //};
 
 inline int verif(int npack, int ndep, const string &package, const string &dep) {
-  if (ndep > npack) cerr << package << " requires " << dep << " which is not in the same hdlist " << ndep << " > " << npack << "\n";
+  if (ndep > npack && !(ndep == 0 && npack == -1)) cerr << package << " requires " << dep << " which is not in the same hdlist " << ndep << " > " << npack << "\n";
   return ndep;
 }
 
@@ -298,19 +298,14 @@ void printDepslist(ofstream *out1, ofstream *out2) {
       list.insert(name2fullname["setup"]);      nb_deps_done[name2fullname["setup"]]      = 10;
       add(list, names[name2fullname["basesystem"]]);
       list.insert(name2fullname["basesystem"]);
+
       for (ITs p = list.begin(); p != list.end(); p++) {
 	if (p->find('|') != string::npos) {
 	  list.erase(*p);
-	  vector<string> l = split('|', *p);
-	  for (ITv k = l.begin(); k != l.end(); k++) {
-	    list.insert(*k);
-	    add(list, names[*k]);
-	  }
 	}
       }
       for (ITs p = list.begin(); p != list.end(); p++) {
 	hdlist2names[0].erase(*p);
-	if (p->find('|') != string::npos) list.erase(*p);
       }
     } else {
       list = hdlist2names[i];
