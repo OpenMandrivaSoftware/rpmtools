@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 19mdk
+%define release 20mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Sat Apr 14 2001 François Pons <fpons@mandrakesoft.com> 2.3-20mdk
+- fixed wrong version comparison.
+
 * Sat Apr 14 2001 François Pons <fpons@mandrakesoft.com> 2.3-19mdk
 - fixed parsehdlist to print what is needed in synthesis file
   of hdlists.
