@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 6mdk
+%define release 7mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Mar  1 2001 François Pons <fpons@mandrakesoft.com> 2.3-7mdk
+- added compression ratio to build_hdlist.
+
 * Tue Feb 27 2001 François Pons <fpons@mandrakesoft.com> 2.3-6mdk
 - fixed gendistrib with multi source of same number as
   media listed in hdlists file.

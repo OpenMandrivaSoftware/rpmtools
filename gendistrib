@@ -72,7 +72,7 @@ unless ($nohdlists) {
 	-d "$root/$dir" or die "unable to find a valid root directory which contains $dir\n";
 
 	print STDERR "building hdlist $hdlist as \"$descr\"\n  with rpms directory $root/$dir\n";
-	$params->build_hdlist($noclean, ($ENV{TMPDIR} || "/tmp") . "/.build_hdlist", $hdlist, glob("$root/$dir/*.rpm"));
+	$params->build_hdlist($noclean, 9, ($ENV{TMPDIR} || "/tmp") . "/.build_hdlist", $hdlist, glob("$root/$dir/*.rpm"));
     }
 }
 

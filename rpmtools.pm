@@ -116,7 +116,7 @@ sub read_hdlists {
 
 #- build an hdlist from a list of files.
 sub build_hdlist {
-    my ($params, $noclean, $dir, $hdlist, @rpms) = @_;
+    my ($params, $noclean, $ratio, $dir, $hdlist, @rpms) = @_;
     my %names;
 
     #- build a working directory which will hold rpm headers.
@@ -131,7 +131,15 @@ sub build_hdlist {
 	push @{$names{$name} ||= []}, $key;
     }
 
-    open B, "| packdrake -b9ds '$hdlist' '$dir' 400000";
+    #- compression ratio are not very high, sample for cooker
+    #- gives the following (main only and cache fed up):
+    #- ratio compression_time  size
+    #-   9       21.5 sec     8.10Mb   -> good for installation CD
+    #-   6       10.7 sec     8.15Mb
+    #-   5        9.5 sec     8.20Mb
+    #-   4        8.6 sec     8.30Mb   -> good for urpmi
+    #-   3        7.6 sec     8.60Mb
+    open B, "| packdrake -b${ratio}ds '$hdlist' '$dir' 400000";
     foreach (@{$params->{depslist}}) {
 	if (my $keys = delete $names{$_->{name}}) {
 	    print B "$_\n" foreach @$keys;
