@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Tue Nov 26 2002 Pixel <pixel@mandrakesoft.com> 4.5-4mdk
+- packdrake.pm is now perl_checker compliant
+
 * Wed Oct 16 2002 François Pons <fpons@mandrakesoft.com> 4.5-3mdk
 - fixed bad error message for packdrake.
 - fixed gendistrib with multiple directory given.

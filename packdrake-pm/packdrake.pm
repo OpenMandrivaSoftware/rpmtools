@@ -171,7 +171,7 @@ sub read_toc {
 
     #- read data for file.
     read ARCHIVE, $toc, 16*$packer->{toc_f_count} or die "packdrake: cannot read toc of archive file $file\n";
-    @toc_data = unpack "N". 4*$packer->{toc_f_count}, $toc;
+    @toc_data = unpack "N" . 4*$packer->{toc_f_count}, $toc;
 
     close ARCHIVE;
 
@@ -200,11 +200,11 @@ sub catsksz {
     my ($input, $seek, $siz, $output) = @_;
     my ($buf, $sz);
 
-    while (($sz = sysread($input, $buf, $seek > 65536 ? 65536 : $seek))) {
+    while ($sz = sysread($input, $buf, $seek > 65536 ? 65536 : $seek)) {
 	$seek -= $sz;
 	last unless $seek > 0;
     }
-    while (($sz = sysread($input, $buf, $siz > 65536 ? 65536 : $siz))) {
+    while ($sz = sysread($input, $buf, $siz > 65536 ? 65536 : $siz)) {
 	$siz -= $sz;
 	syswrite($output, $buf);
 	last unless $siz > 0;
@@ -222,7 +222,7 @@ sub cat_compress {
 	local *FILE;
 	open FILE, $srcfile or die "packdrake: cannot open $srcfile: $!\n";
 	$siz = -s $srcfile;
-	while (($sz = sysread(FILE, $buf, $siz > 65536 ? 65536 : $siz))) {
+	while ($sz = sysread(FILE, $buf, $siz > 65536 ? 65536 : $siz)) {
 	    $siz -= $sz;
 	    syswrite(F, $buf);
 	    last unless $siz > 0;
@@ -280,7 +280,7 @@ sub compute_closure {
 		};
 	    }
 	}
-    } while (@file > 0);
+    } while @file > 0;
 
     keys %file;
 }
@@ -330,7 +330,7 @@ sub cat_archive {
 	    open STDIN, "<$_" or die "packdrake: unable to open archive $_\n";
 	    open STDERR, ">/dev/null" or die "packdrake: unable to open /dev/null\n";
 
-	    exec (($ENV{LD_LOADER} ? ($ENV{LD_LOADER}) : ()), split " ", $packer->{uncompress});
+	    exec (($ENV{LD_LOADER} ? $ENV{LD_LOADER} : ()), split " ", $packer->{uncompress});
 
 	    die "packdrake: unable to cat the archive with $packer->{uncompress}\n";
 	}
@@ -346,9 +346,9 @@ sub list_archive {
 	print "$count files in archive, uncompression method is \"$packer->{uncompress}\"\n";
 	foreach my $file (@{$packer->{files}}) {
 	    for ($packer->{data}{$file}[0]) {
-		/l/ && do { printf "l %13c %s -> %s\n", ' ', $file, $packer->{data}{$file}[1]; last; };
-		/d/ && do { printf "d %13c %s\n", ' ', $file; last; };
-		/f/ && do { printf "f %12d %s\n", $packer->{data}{$file}[4], $file; last; };
+		/l/ && do { printf "l %13c %s -> %s\n", ' ', $file, $packer->{data}{$file}[1]; last };
+		/d/ && do { printf "d %13c %s\n", ' ', $file; last };
+		/f/ && do { printf "f %12d %s\n", $packer->{data}{$file}[4], $file; last };
 	    }
 	}
     }
@@ -372,8 +372,8 @@ sub extract_archive {
 
 	$packer->{log}->("extracting $file");
 	for ($packer->{data}{$file}[0]) {
-	    /l/ && do { symlink_ $packer->{data}{$file}[1], $newfile; last; };
-	    /d/ && do { $dir and mkdir_ $newfile; last; };
+	    /l/ && do { symlink_ $packer->{data}{$file}[1], $newfile; last };
+	    /d/ && do { $dir and mkdir_ $newfile; last };
 	    /f/ && do {	$dir and mkdir_ dirname $newfile;
 			my $data = $packer->{data}{$file};
 			$extract_table{$data->[1]} ||= [ $data->[2], [] ];
@@ -490,9 +490,9 @@ sub build_archive {
 	#- specific according to type.
 	#- with this version, only f has specific data other than strings.
 	for ($packer->{data}{$file}[0]) {
-	    /d/ && do { push @data_d, $file; last; };
-	    /l/ && do { push @data_l, $file; last; };
-	    /f/ && do { push @data_f, $file; $toc_data .= pack("NNNN", @{$packer->{data}{$file}}[1..4]); last; };
+	    /d/ && do { push @data_d, $file; last };
+	    /l/ && do { push @data_l, $file; last };
+	    /f/ && do { push @data_f, $file; $toc_data .= pack("NNNN", @{$packer->{data}{$file}}[1..4]); last };
 	    die "packdrake: unknown extension $_\n";
 	}
     }
