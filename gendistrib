@@ -21,7 +21,7 @@ use URPM;
 use URPM::Build;
 
 my $urpm = new URPM;
-my ($noclean, $nohdlists, $nobasefiles, @root, @hdlists) = 0;
+my ($noclean, $nohdlists, $nobasefiles, @root, @hdlists) = (0, 0, 0);
 
 ($noclean,     @ARGV) = @ARGV if $ARGV[0] eq "--noclean";
 (undef, @root, @ARGV) = @ARGV if $ARGV[0] eq "--distrib";
@@ -69,7 +69,8 @@ for (0..$#hdlists) {
     -d "$root/$e->{dir}" or die "unable to find a valid root directory which contains $e->{dir}\n";
 
     print STDERR "parsing rpm files in directory $root/$e->{dir}\n";
-    my @headers = $urpm->parse_rpms_build_headers($headers_dir, glob("$root/$e->{dir}/*.rpm"));
+    my @headers = $urpm->parse_rpms_build_headers(dir  => $headers_dir,
+						  rpms => [ glob("$root/$e->{dir}/*.rpm") ]);
     $e->{headers} = \@headers;
 }
 
@@ -81,22 +82,29 @@ for (0..$#hdlists) {
     my $e = $hdlists[$_];
 
     print STDERR "parsing headers for $e->{descr}\n";
-    my ($start, $end) = $urpm->parse_headers($headers_dir, @{$e->{headers}});
+    my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
+					     headers => $e->{headers});
 
     print STDERR "computing deps\n";
     $urpm->compute_deps;
 
     print STDERR "building hdlist for medium \"$e->{descr}\"\n";
-    $urpm->build_hdlist($start, $end, $headers_dir, $e->{hdlist}, 9);
+    $urpm->build_hdlist(start  => $start,
+			end    => $end,
+			dir    => $headers_dir,
+			hdlist => $e->{hdlist},
+			ratio  => 9);
 
     print STDERR "building synthesis for medium \"$e->{descr}\n";
-    $urpm->build_synthesis($start, $end, $e->{synthesis});
+    $urpm->build_synthesis(start     => $start,
+			   end       => $end,
+			   synthesis => $e->{synthesis});
 }
 
 clean_cache();
 
 print STDERR "building base files\n";
-$urpm->build_base_files("$root/Mandrake/base/depslist.ordered",
-			"$root/Mandrake/base/provides",
-			"$root/Mandrake/base/compss");
+$urpm->build_base_files(depslist => "$root/Mandrake/base/depslist.ordered",
+			provides => "$root/Mandrake/base/provides",
+			compss   => "$root/Mandrake/base/compss");
 
