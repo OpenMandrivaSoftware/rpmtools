@@ -771,6 +771,33 @@ Options are same than the C<new()> function.
 
 =back
 
+=item B<Packdrakeng->add_virtual($type, $filename, $data)>
+
+Add a file into archive according passed information.
+
+$type gives the type of the file:
+
+- 'd', the file will be a directory, store as '$filename'. $data is not use;
+- 'l', the file will be a symlink named $filename, pointing to the file whose path
+  is given by the string $data;
+- 'f', the file is a normal file, $filename will be its name, $data is an handle to
+  open file, data will be read from current position to the end of file.
+
+=item B<Packdrakeng->add($prefix, @files)>
+
+Add @files into archive located into $prefix. Only directory, files and symlink
+will be added. For each file, the path should be relative to $prefix and is
+stored as is.
+
+=item B<Packdrakeng->extract_virtual(*HANDLE, $filename)>
+
+Extract $filename data from archive into the *HANDLE. $filename should be a
+normal file.
+
+=item B<Packdrakeng->extract($destdir, @files)>
+
+Extract @files from the archive into $destdir prefix.
+
 =head1 AUTHOR
 
 Olivier Thauvin <nanardon@mandrake.org>
