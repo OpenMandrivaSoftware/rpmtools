@@ -214,9 +214,50 @@ int main(int argc, char **argv)
 	    close(fdno[0]);
 	    close(fdno[1]);
 	  } else {
+#if 1
+	    int fda, fdn;
+	    struct {
+	      char header[4];
+	      char toc_d_count[4];
+	      char toc_l_count[4];
+	      char toc_f_count[4];
+	      char toc_str_size[4];
+	      char uncompress[40];
+	      char trailer[4];
+	    } buf;
+	    char *unpacker[21]; /* enough for 40 bytes above to never overbuf */
+	    char *p = buf.uncompress;
+	    int ip = 0;
+
 	    dup2(fdno[1], STDOUT_FILENO);
-	    execl("/usr/bin/packdrake", "/usr/bin/packdrake", "-c", argv[i], NULL);
-	    perror("packdrake: unable to run packdrake");
+	    fda = open(argv[i], O_RDONLY);
+	    if (fda < 0) { perror("parsehdlist"); exit(1); }
+	    lseek(fda, -sizeof(buf), SEEK_END);
+	    if (read(fda, &buf, sizeof(buf)) != sizeof(buf) ||
+		strncmp(buf.header, "cz[0", 4) ||
+		strncmp(buf.trailer, "0]cz", 4)) {
+	      fprintf(stderr, "parsehdlist: invalid archive %s\n", argv[i]);
+	      exit(1);
+	    }
+	    buf.trailer[0] = 0; /* make sure end-of-string is right */
+	    while (*p) {
+	      if (*p == ' ' || *p == '\t') *p++ = 0;
+	      else {
+		unpacker[ip++] = p;
+		while (*p && *p != ' ' && *p != '\t') ++p;
+	      }
+	    }
+	    unpacker[ip] = NULL; /* needed for execlp */
+
+	    lseek(fda, 0, SEEK_SET);
+	    dup2(fda, STDIN_FILENO);
+	    fdn = open("/dev/null", O_WRONLY);
+	    dup2(fdn, STDERR_FILENO);
+	    execvp(unpacker[0], unpacker);
+#else
+	    dup2(fdno[1], STDOUT_FILENO);
+	    execlp("packdrake", "packdrake", "-c", argv[i], NULL);
+#endif
 	    exit(2);
 	  }
 	} else {
