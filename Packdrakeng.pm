@@ -166,7 +166,7 @@ sub build_toc {
     $pack->{need_build_toc} or return 1;
     $pack->end_block();
     $pack->end_seek() or do {
-		warn "Can't seek into archive";
+		$pack->{log}("Can't seek into archive");
 		return 0;
 	};
     my ($toc_length, $cf, $cd, $cl) = (0, 0, 0, 0);
@@ -174,7 +174,7 @@ sub build_toc {
     foreach my $entry (keys %{$pack->{'dir'}}) {
         $cd++;
 		my $w = syswrite($pack->{handle}, $entry . "\n") or do {
-			warn "Can't write toc into archive";
+			$pack->{log}("Can't write toc into archive");
 			return 0;
 		};
         $toc_length += $w; 
@@ -182,7 +182,7 @@ sub build_toc {
     foreach my $entry (keys %{$pack->{'symlink'}}) {
         $cl++;
 		my $w = syswrite($pack->{handle}, sprintf("%s\n%s\n", $entry, $pack->{'symlink'}{$entry})) or do {
-			warn "Can't write toc into archive";
+			$pack->{log}("Can't write toc into archive");
 			return 0;
 		};
         $toc_length += $w
@@ -190,7 +190,7 @@ sub build_toc {
     foreach my $entry (sort keys %{$pack->{files}}) {
         $cf++;
 		my $w = syswrite($pack->{handle}, $entry ."\n") or do {
-			warn "Can't write toc into archive";
+			$pack->{log}("Can't write toc into archive");
 			return 0;
 		};
         $toc_length += $w;
@@ -198,7 +198,7 @@ sub build_toc {
     foreach my $file (sort keys %{$pack->{files}}) {
         my $entry = $pack->{files}{$file};
         syswrite($pack->{handle}, pack('NNNN', $entry->{coff}, $entry->{csize}, $entry->{off}, $entry->{size})) or do {
-			warn "Can't write toc into archive";
+			$pack->{log}("Can't write toc into archive");
 			return 0;
 		};
     }
@@ -208,10 +208,10 @@ sub build_toc {
         $toc_length,
         $pack->{uncompress_method},
         $toc_footer)) or do {
-		warn "Can't write toc into archive";
+		$pack->{log}("Can't write toc into archive");
 		return 0;
 	};
-   1
+   1;
 }
 
 sub read_toc {
@@ -221,7 +221,7 @@ sub read_toc {
     my ($header, $toc_d_count, $toc_l_count, $toc_f_count, $toc_str_size, $uncompress, $trailer) =
         unpack("a4NNNNZ40a4", $buf);
     $header eq $toc_header && $trailer eq $toc_footer or do {
-        warn "Error reading toc: wrong header/trailer";
+        $pack->{log}("Error reading toc: wrong header/trailer");
         return 0;
     };
 
@@ -252,7 +252,7 @@ sub read_toc {
         $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize} > $pack->{coff} and
             $pack->{coff} = $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize};
         }
-    1
+    1;
 }
 
 # Goto to the end of written compressed data
@@ -301,7 +301,7 @@ sub extern_compress {
             close($hin); # ensure the flush
             $pack->{cstream_data}{pid} = CORE::open($hout, 
                 "|$pack->{compress_method} > $pack->{cstream_data}{file_block}") or do {
-                warn "Unable to start $pack->{compress_method}";
+                $pack->{log}("Unable to start $pack->{compress_method}");
                 return 0, 0;
             };
             $pack->{cstream_data}{hout} = $hout;
@@ -311,7 +311,7 @@ sub extern_compress {
         while (my $length = sysread($sourcefh, my $data, $pack->{bufsize})) {
             # pushing data to compressor
             (my $l = syswrite($hout, $data)) == $length or do {
-                warn "can't push all data to compressor";
+                $pack->{log}("can't push all data to compressor");
             };
             $insize += $l;
             $outsize = (stat($pack->{cstream_data}{file_block}))[7];
@@ -321,14 +321,14 @@ sub extern_compress {
         close($hout);
         waitpid $pack->{cstream_data}{pid}, 0;
         sysopen(my $hin, $pack->{cstream_data}{file_block}, O_RDONLY) or do {
-            warn "Can't open temp block file";
+            $pack->{log}("Can't open temp block file");
             return 0, 0;
         };
         $outsize = (stat($pack->{cstream_data}{file_block}))[7];
         unlink($pack->{cstream_data}{file_block});
         while (my $lenght = sysread($hin, my $data, $pack->{bufsize})) {
             (my $l = syswrite($pack->{handle}, $data)) == $lenght or do {
-                warn "Can't write all data in archive";
+                $pack->{log}("Can't write all data in archive");
             };
         }
         close($hin);
@@ -349,14 +349,14 @@ sub extern_uncompress {
             $cread + $pack->{bufsize} > $fileinfo->{csize} ?
                 $fileinfo->{csize} - $cread : 
                 $pack->{bufsize}) or do {
-                warn("Enexpected end of file");
+                $pack->{log}("Unexpected end of file");
                 close($tempfh);
                 unlink($tempname);
                 return -1;
         };
         $cread += $cl;
         syswrite($tempfh, $data) == length($data) or do {
-            warn "Can't write all data into temp file";
+            $pack->{log}("Can't write all data into temp file");
             close($tempfh);
             unlink($tempname);
             return -1;
@@ -365,7 +365,7 @@ sub extern_uncompress {
     close($tempfh);
 
     CORE::open(my $hc, "cat '$tempname' | $pack->{uncompress_method} |") or do {
-        warn "Can't start $pack->{uncompress_method} to uncompress data";
+        $pack->{log}("Can't start $pack->{uncompress_method} to uncompress data");
         unlink($tempname);
         return -1;
     };
@@ -376,7 +376,7 @@ sub extern_uncompress {
 
     while ($byteswritten < $fileinfo->{size}) {
         my $length = sysread($hc, my $data, $pack->{bufsize}) or do {
-            warn "unexpected end of stream $tempname";
+            $pack->{log}("unexpected end of stream $tempname");
             #unlink($tempname);
             close($hc);
             return -1;
@@ -391,7 +391,7 @@ sub extern_uncompress {
         
         my $bw = $byteswritten + length($data) > $fileinfo->{size} ? $fileinfo->{size} - $byteswritten : length($data);
         syswrite($destfh, $data, $bw) == $bw or do {
-            warn "Can't write data into dest";
+            $pack->{log}("Can't write data into dest");
             return -1;
         };
         $byteswritten += $bw;
@@ -412,19 +412,19 @@ sub extract_block {
     my ($pack, $dest, $file) = @_;
 
     sysopen(my $handle, $dest, O_WRONLY | O_TRUNC | O_CREAT) or do {
-        warn "Can't open $dest";
+        $pack->{log}("Can't open $dest");
         return -1;
     };
     
     sysseek($pack->{handle}, $pack->{files}{$file}->{coff}, 0) == $pack->{files}{$file}->{coff} or do {
-        warn("Can't seek to offset $pack->{files}{$file}->{coff}");
+        $pack->{log}("Can't seek to offset $pack->{files}{$file}->{coff}");
         close($handle);
         return -1;
     };
 
     {
     my $l;
-    $l = sysread($pack->{handle}, my $buf, $pack->{files}{$file}->{csize}) == $pack->{files}{$file}->{csize} or warn "Read only $l / $pack->{files}{$file}->{csize} bytes";
+    $l = sysread($pack->{handle}, my $buf, $pack->{files}{$file}->{csize}) == $pack->{files}{$file}->{csize} or $pack->{log}("Read only $l / $pack->{files}{$file}->{csize} bytes");
     syswrite($handle, $buf);
     }
 
@@ -460,7 +460,7 @@ sub add_virtual {
     $type eq 'f' and do {
         # Be sure we are at the end, allow extract + add in only one instance
         $pack->end_seek() or do {
-            warn("Can't seek to offset $pack->{coff}");
+            $pack->{log}("Can't seek to offset $pack->{coff}");
             next;
         };
         
@@ -503,23 +503,23 @@ sub add {
         };
         -f $srcfile and do {
             sysopen(my $htocompress, $srcfile, O_RDONLY) or do {
-                warn "Can't add $srcfile: $!";
+                $pack->{log}("Can't add $srcfile: $!");
                 next;
             };
             $pack->add_virtual('f', $file, $htocompress);
             close($htocompress);
             next;
         };
-        warn "Can't pack $srcfile"; 
+        $pack->{log}("Can't pack $srcfile"); 
     }
-    1
+    1;
 }
 
 sub extract_virtual {
     my ($pack, $destfh, $filename) = @_;
     defined($pack->{files}{$filename}) or return -1;
     sysseek($pack->{handle}, $pack->{files}{$filename}->{coff}, 0) == $pack->{files}{$filename}->{coff} or do {
-        warn("Can't seek to offset $pack->{files}{$filename}->{coff}");
+        $pack->{log}("Can't seek to offset $pack->{files}{$filename}->{coff}");
         return -1;
     };
     my $m = $pack->{subuncompress};
@@ -533,39 +533,39 @@ sub extract {
         my ($dir) = $dest =~ m!(.*)/.*!;
 		if (exists($pack->{dir}{$f})) {
             -d $dest || mkpath($dest)
-                or warn "Unable to create dir $dest: $!";
+                or $pack->{log}("Unable to create dir $dest: $!");
             next;
         } elsif (exists($pack->{'symlink'}{$f})) {
 			-d $dir || mkpath($dir) or
-				warn "Unable to create dir $dest: $!";
+				$pack->{log}("Unable to create dir $dest: $!");
             -l $dest and unlink $dest;
             symlink($pack->{'symlink'}{$f}, $dest)
-                or warn "Unable to extract symlink $f: $!";
+                or $pack->{log}("Unable to extract symlink $f: $!");
             next;
         } elsif (exists($pack->{files}{$f})) {
 			-d $dir || mkpath($dir) or do {
-				warn "Unable to create dir $dir";
+				$pack->{log}("Unable to create dir $dir");
 			};
             if (-l $dest) {
                 unlink($dest) or do {
-                    warn "Can't remove link $dest: $!";
+                    $pack->{log}("Can't remove link $dest: $!");
                     next; # Don't overwrite a file because where the symlink point to
                 };
             }
             sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY)
                 or do {
-				warn "Unable to extract $dest";
+				$pack->{log}("Unable to extract $dest");
 				next;
 			};
             my $written = $pack->extract_virtual($destfh, $f);
-            $written == -1 and warn "Unable to extract file $f";
+            $written == -1 and $pack->{log}("Unable to extract file $f");
             close($destfh);
             next;
         } else {
-            warn "Can't find $f in archive";
+            $pack->{log}("Can't find $f in archive");
         }
     }
-    1
+    1;
 }
 
 # Return \@dir, \@files, \@symlink list
@@ -609,7 +609,7 @@ sub dumptoc {
     }
 }
 
-1
+1;
 
 __END__
 
