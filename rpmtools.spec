@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 8mdk
+%define release 10mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -56,6 +56,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genhdlists
 
 %changelog
+* Fri Mar 24 2000 Pixel <pixel@mandrakesoft.com> 1.1-10mdk
+- gendepslist2 bug fix again
+
+* Thu Mar 23 2000 Pixel <pixel@mandrakesoft.com> 1.1-9mdk
+- gendepslist2 now put filesystem and setup first
+
 * Thu Mar 23 2000 Pixel <pixel@mandrakesoft.com> 1.1-8mdk
 - gendepslist2 now handles virtual basesystem requires
 

@@ -287,10 +287,12 @@ void printDepslist(ofstream *out1, ofstream *out2) {
     set<string> list;
 
     if (i == -1) {
-      list = names[name2fullname["basesystem"]];
+      list.insert(name2fullname["filesystem"]); nb_deps_done[name2fullname["filesystem"]] = 10;
+      list.insert(name2fullname["setup"]);      nb_deps_done[name2fullname["setup"]]      = 10;
+      add(list, names[name2fullname["basesystem"]]);
       list.insert(name2fullname["basesystem"]);
       for (ITs p = list.begin(); p != list.end(); p++) {
-	if (p->find('|') != string::npos) { 
+	if (p->find('|') != string::npos) {
 	  list.erase(*p);
 	  vector<string> l = split('|', *p);
 	  for (ITv k = l.begin(); k != l.end(); k++) {
@@ -307,6 +309,10 @@ void printDepslist(ofstream *out1, ofstream *out2) {
       int l_best = 9999;
 
       for (ITs p = list.begin(); p != list.end(); p++) {
+	if (p->compare("NOTFOUND_") > 1) {
+	  list.erase(*p);
+	  continue;
+	}
 	int lo = names[*p].size() - nb_deps_done[*p];
 	if (lo < l_best) {
 	  l_best = lo;
