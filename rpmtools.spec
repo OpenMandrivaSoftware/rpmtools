@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 7mdk
+%define release 8mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -16,7 +16,7 @@ Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel
-Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0
+Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0 db2 db3
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Mar  5 2001 François Pons <fpons@mandrakesoft.com> 2.3-8mdk
+- added requires on db2 and db3.
+
 * Thu Mar  1 2001 François Pons <fpons@mandrakesoft.com> 2.3-7mdk
 - added compression ratio to build_hdlist.
 
