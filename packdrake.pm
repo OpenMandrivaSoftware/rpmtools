@@ -20,11 +20,9 @@ package packdrake;
 
 use strict;
 use warnings;
-use vars qw($VERSION);
 use Packdrakeng;
 our @ISA = qw(Packdrakeng);
-
-$VERSION = $Packdrakeng::VERSION;
+our $VERSION = $Packdrakeng::VERSION;
 
 sub new {
     my ($class, $file, %options) = @_;
@@ -67,7 +65,7 @@ sub build_archive {
         chomp($line);
         $pack->add($dir, $line) or return;
     }
-    1
+    1;
 }
 
 sub cat_archive {
@@ -88,7 +86,7 @@ __END__
 
 packdrake - Simple Archive Extractor/Builder
 
-This module is provide for compatibility with old packdrake.
+This module is a compatibility wrapper around the new Packdrakeng module.
 
 =head1 SYNOPSIS
 
@@ -112,10 +110,6 @@ This module is provide for compatibility with old packdrake.
 
 C<packdrake> is a very simple archive extractor and builder used by Mandrakesoft.
 
-=head1 SEE ALSO
-
-Packdrakeng
-
 =head1 FUNCTIONS
 
 =over
@@ -125,7 +119,7 @@ Packdrakeng
 Open the packdrake archive $file and return a packdrake object.
 Return undef on failure.
 
-=item B<packdrake->extract_archive($dir, @files)>
+=item B<< packdrake->extract_archive($dir, @files) >>
 
 Extract files list into the specified directory.
 
@@ -133,7 +127,7 @@ Extract files list into the specified directory.
 
 List files packed into achives given.
 
-=item B<packdrake::build_archive($input, $dir, $archive, $blocksize, $compress, $uncompress)>
+=item B<packdrake::build_archive($input,$dir,$archive,$blocksize,$compress,$uncompress)>
 
 Build a new archive:
 - $input is a file handle to find file list to pack
@@ -149,6 +143,10 @@ Dump data to STDOUT of files given as parameters, or all files if no files are
 specified
 
 =back
+
+=head1 SEE ALSO
+
+L<Packdrakeng>.
 
 =head1 COPYRIGHT
 
@@ -169,4 +167,3 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 =cut
-
