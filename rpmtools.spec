@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.11
+%define version 5.0.12
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -78,6 +78,9 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Mon Feb 21 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.12-1mdk
+- gendistrib skip media if suppl or askmedia is set
+
 * Sun Feb 20 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.11-1mdk
 - add Distribconf.pm and dumpdistribconf to manage distrib config
 - gendistrib use Distribconf.pm
