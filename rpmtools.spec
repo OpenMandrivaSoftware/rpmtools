@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 7mdk
+%define release 8mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -99,6 +99,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 01 2000 François Pons <fpons@mandrakesoft.com> 1.2-8mdk
+- fixed read_provides with unresolved dependancies.
+
 * Tue Aug 29 2000 François Pons <fpons@mandrakesoft.com> 1.2-7mdk
 - fixed rpmtools.pm depslist.ordered reading code on gendepslist2 produced
   file.

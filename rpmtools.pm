@@ -292,7 +292,7 @@ sub read_provides {
     foreach (<$FILE>) {
 	chomp;
 	my ($k, @v) = split ':';
-	$params->{provides}{$k} = \@v;
+	$params->{provides}{$k} = @v > 0 ? \@v : undef;
     }
 }
 
