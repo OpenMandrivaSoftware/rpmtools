@@ -148,7 +148,7 @@ $urpm->unresolved_provides_clean;
 foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
 
-    print STDERR "parsing headers for $e->{descr}\n" unless $nooutput;
+    print STDERR "parsing headers for \"$e->{descr}\"\n" unless $nooutput;
     my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
 					     headers => $e->{headers},
 				             dontdie => $dontdie,
@@ -164,7 +164,7 @@ foreach (0..$#hdlists) {
 			hdlist => $e->{hdlist},
 			ratio  => 9);
 
-    print STDERR "building synthesis for medium \"$e->{descr}\n" unless $nooutput;
+    print STDERR "building synthesis for medium \"$e->{descr}\"\n" unless $nooutput;
     $urpm->build_synthesis(start     => $start,
 			   end       => $end,
 			   synthesis => $e->{synthesis});
