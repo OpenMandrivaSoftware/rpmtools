@@ -306,7 +306,7 @@ sub write_hdlists {
             $distrib->getvalue($media, 'hdlist'),
             $distrib->getpath($media, 'path'),
             $distrib->getvalue($media, 'name'),
-            $distrib->getvalue($media, 'size') ? '('.$distrib->getvalue($media, 'size'). 'm)' : "",
+            $distrib->getvalue($media, 'size') ? '('.$distrib->getvalue($media, 'size'). ')' : "",
         ) or return 0;
     }
     
@@ -507,6 +507,9 @@ Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.7  2005/02/22 12:52:51  othauvin
+    - don't add a 'm' to size in hdlists
+
     Revision 1.6  2005/02/21 21:40:10  othauvin
     - add getfullpath
     - s![ /]*!_! in default path
