@@ -388,7 +388,7 @@ int main(int argc, char **argv)
   /* interactive mode */
   while (interactive_mode) {
     char in_name[4096];
-    char *in_tag, *in_version, *in_release;
+    char *in_tag, *in_version, *in_release, *in_arch;
     unsigned long hash_in_name;
     int i, count = 0;
 
@@ -398,6 +398,7 @@ int main(int argc, char **argv)
       break;
     }
     *in_tag++ = 0;
+    if ((in_arch = strrchr(in_name, '.')) != NULL && !strchr(in_arch, '-')) *in_arch++ = 0; else in_arch = 0;
     if ((in_release = strrchr(in_name, '-')) != NULL) {
       *in_release++ = 0;
       if ((in_version = strrchr(in_name, '-')) != NULL) {
@@ -406,15 +407,22 @@ int main(int argc, char **argv)
 	for (i = 0; i < count_headers; ++i) {
 	  if (headers[i].hash_name == hash_in_name && !strcmp(headers[i].name, in_name)) {
 	    if (strcmp(get_name(headers[i].header, RPMTAG_VERSION), in_version)) continue;
-	    if (strcmp(get_name(headers[i].header, RPMTAG_RELEASE), in_release)) continue;
+	    if (strcmp(get_name(headers[i].header, RPMTAG_RELEASE), in_release)) {
+	      if (in_arch) in_arch[-1] = '.';
+	      if (strcmp(get_name(headers[i].header, RPMTAG_RELEASE), in_release)) {
+		if (in_arch) in_arch[-1] = 0;
+		continue;
+	      }
+	    } else if (in_arch && strcmp(get_name(headers[i].header, RPMTAG_ARCH), in_arch)) continue;
 	    print_header_flag_interactive(in_tag, headers[i].header);
 	    ++count;
 	    break; /* special case to avoid multiple output for multiply defined same package */
 	  }
 	}
-	if (!count) in_version[-1] = '-';
+	in_version[-1] = '-';
       }
       if (!count) {
+	if (in_arch) in_arch[-1] = '.';
 	in_version = in_release;
 	hash_in_name = hash(in_name);
 	for (i = 0; i < count_headers; ++i) {
@@ -424,15 +432,16 @@ int main(int argc, char **argv)
 	    ++count;
 	  }
 	}
-	if (!count) in_version[-1] = '-';
+	in_version[-1] = '-';
       }
     }
     if (!count) {
+      if (in_arch) in_arch[-1] = '.';
       hash_in_name = hash(in_name);
       for (i = 0; i < count_headers; ++i) {
 	if (headers[i].hash_name == hash_in_name && !strcmp(headers[i].name, in_name)) {
 	  print_header_flag_interactive(in_tag, headers[i].header);
-	  ++count;
+	++count;
 	}
       }
     }
