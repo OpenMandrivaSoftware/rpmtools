@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.1
+%define version 5.0.2
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -68,9 +68,13 @@ is fully compatible with old packdrake.
 %{_bindir}/packdrake
 %{perl_vendorlib}/packdrake.pm
 %{perl_vendorlib}/Packdrakeng.pm
+%{perl_vendorlib}/Packdrakeng/zlib.pm
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 13 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.2-1mdk
+- add missing Packdrake/zlib.pm
+
 * Mon Dec 13 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.1-1mdk
 - split package
 

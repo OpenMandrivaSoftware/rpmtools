@@ -3,7 +3,7 @@
 # use 5.008;
 use ExtUtils::MakeMaker;
 
-my $rpmtools_version = '5.0.1';
+my $rpmtools_version = '5.0.2';
 
 sub MY::postamble {
     <<MAKEMAKEFILE;
@@ -47,6 +47,7 @@ WriteMakefile(
     },
     PM => {
         'Packdrakeng.pm' => '$(INST_LIBDIR)/Packdrakeng.pm',
+        'Packdrakeng/zlib.pm' => '$(INST_LIBDIR)/Packdrakeng/zlib.pm',
         'packdrake.pm' => '$(INST_LIBDIR)/packdrake.pm',
     },
     'EXE_FILES' => [ qw(gendistrib genhdlist packdrake rpm2header parsehdlist rpm2cpio.pl) ],
