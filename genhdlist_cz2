@@ -44,7 +44,7 @@ while ($_ = readdir DIR) {
     -s $_ or unlink($_), die "bad rpm $dir/$_\n";
     if ($keys{$key}) {
 	my ($name, $tail) = $key =~ /(.*)(-[^-]*-[^-]*)/;
-	$keys{"$name($keys{$key})$tail"} = $keys{$key}; unlink "$name($keys{$key})$tail"; link $_, "$name($keys{$key})$tail";
+	$keys{"$name($keys{$key})$tail"} = $keys{$key}; unlink "$name($keys{$key})$tail"; link "$key.$keys{$key}.rpm", "$name($keys{$key})$tail";
 	$keys{"$name($arch)$tail"} = $arch; unlink "$name($arch)$tail"; link $_, "$name($arch)$tail";
 	delete $keys{$key};
     } else {
