@@ -1,6 +1,8 @@
 gendistrib
 genhdlist
 rpm2cpio.pl
+dumpdistribconf
+Distribconf.pm
 packdrake
 Packdrakeng.pm
 Packdrakeng/zlib.pm
