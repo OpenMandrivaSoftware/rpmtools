@@ -464,7 +464,7 @@ sub gzip_uncompress {
         $read += $l;
         if ($read <= $fileinfo->{off}) { next }
         
-        my $bw = $byteswritten + $l > $fileinfo->{size} ? $fileinfo->{size} - $byteswritten : $l;
+        my $bw = $byteswritten + length($out) > $fileinfo->{size} ? $fileinfo->{size} - $byteswritten : length($out);
         syswrite($destfh, $out, $bw) == $bw or do {
             warn "Can't write data into dest";
             return -1;
@@ -476,7 +476,7 @@ sub gzip_uncompress {
 }
 
 ###################
-# Dubug functions #
+# Debug functions #
 ###################
 
 # This function extract in $dest the whole bloc containing $file, can be usefull for debugging

@@ -2,6 +2,7 @@
 
 # $Id$
 
+use strict;
 use Test::More tests => 16;
 use Digest::MD5;
 
@@ -16,7 +17,7 @@ sub clean_test_files {
 sub create_test_files {
     my ($number) = @_;
     my %created;
-    -d test or mkdir test;
+    -d "test" or mkdir "test";
     foreach my $n (1 .. $number||10) {
         my $size = int(rand(1024));
         # push(@created, "test/$size");
@@ -29,7 +30,8 @@ sub create_test_files {
 }
 
 sub create_know_file {
-    foreach my $letter (a..z) {
+    my %created;
+    foreach my $letter ('a' .. 'z') {
     open(my $h, "> test/$letter");
     foreach (1 .. 3456) {
         printf $h "%s\n", $letter x 33;
@@ -72,8 +74,8 @@ sub test_packing {
     clean_test_files();
     
     ok($pack = packdrakeng->open(%$pack_param), "Re-opening the archive");
-    ok($pack->extract(undef, keys(%createdfiles)), "extracting files");
-    ok(check_files(%createdfiles), "Checking md5sum for extracted files");
+    ok($pack->extract(undef, keys(%$listfiles)), "extracting files");
+    ok(check_files(%$listfiles), "Checking md5sum for extracted files");
 
     $pack = undef;
 }
