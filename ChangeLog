@@ -1,3 +1,7 @@
+2000-08-03  Pixel  <pixel@mandrakesoft.com>
+
+	* gendepslist2.cc: skip "rpmlib(..." dependencies
+
 2000-07-27  Pixel  <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: cleanup handling of choices in basesystem.

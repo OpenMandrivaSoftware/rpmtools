@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 28mdk
+%define release 29mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Thu Aug  3 2000 Pixel <pixel@mandrakesoft.com> 1.1-29mdk
+- skip "rpmlib(..." dependencies
+
 * Thu Jul 27 2000 Pixel <pixel@mandrakesoft.com> 1.1-28mdk
 - fix handling of choices in basesystem (hdlist -1)
 

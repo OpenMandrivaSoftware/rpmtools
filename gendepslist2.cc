@@ -73,6 +73,9 @@ typedef vector<string>::iterator ITv;
 typedef set<string>::iterator ITs;
 typedef map<string, set<string> >::iterator ITms;
 
+bool start_with(const string &s, const char *prefix) {
+  return strncmp(s.c_str(), prefix, strlen(prefix)) == 0;
+}
 
 
 
@@ -164,18 +167,16 @@ void getRequires(FD_t fd, int current_hdlist) {
     hdlist2names[current_hdlist].insert(name);
     sizes[name] = get_int(header, RPMTAG_SIZE);
 
-    for (ITv p = l.begin(); p != l.end(); p++) {      
-      ((*p)[0] == '/' ?     frequires :     requires)[name].push_back(*p);
-      ((*p)[0] == '/' ? all_frequires : all_requires).insert(*p);
+    for (ITv p = l.begin(); p != l.end(); p++) {
+      if (!start_with(*p, "rpmlib(")) {
+	((*p)[0] == '/' ?     frequires :     requires)[name].push_back(*p);
+	((*p)[0] == '/' ? all_frequires : all_requires).insert(*p);
+      }
     }
     headerFree(header);
   }
   for (ITs p = all_requires.begin();  p != all_requires.end();  p++)  provided_by[*p] = *(new vector<string>);
   for (ITs p = all_frequires.begin(); p != all_frequires.end(); p++) fprovided_by[*p] = *(new vector<string>);
-}
-
-bool notfound(const string &s) {
-  return strncmp(s.c_str(), "NOTFOUND_", sizeof("NOTFOUND_") - 1) == 0;
 }
 
 void getProvides(FD_t fd, int current_hdlist) {
@@ -314,7 +315,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
       int l_best = 9999;
 
       for (ITs p = list.begin(); p != list.end(); p++) {
-	if (notfound(*p)) {
+	if (start_with(*p, "NOTFOUND_")) {
 	  list.erase(*p);
 	  continue;
 	}
@@ -359,7 +360,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 	  verif(nb2hdlist[i], nb2hdlist[where[*k]], *p, *k);
 	  *out2 << where[*k];
 	}
-      } else if (notfound(*q)) {
+      } else if (start_with(*q, "NOTFOUND_")) {
 	*out2 << " " << *q;
       } else {
 	verif(nb2hdlist[i], nb2hdlist[where[*q]], *p, *q);
