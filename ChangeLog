@@ -1,3 +1,12 @@
+2005-01-03 17:54  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm, rpmtools.spec: - Fix options parsing - 5.0.8
+
+2005-01-03 17:38  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm, Packdrakeng/zlib.pm: - fix data read detection
+	  when using cache
+
 2004-12-30 17:00  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* rpmtools.spec: - 5.0.7
