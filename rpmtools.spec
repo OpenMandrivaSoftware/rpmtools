@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 11mdk
+%define release 12mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Apr 22 2002 François Pons <fpons@mandrakesoft.com> 4.2-12mdk
+- removed "rpmlib(" from synthesis file.
+
 * Mon Apr 15 2002 François Pons <fpons@mandrakesoft.com> 4.2-11mdk
 - fixed lock using packdrake --extract when current working
   directory is on NIS and inaccessible (for root).

@@ -160,7 +160,8 @@ SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag
     }
 
     for(i = 0; i < count; i++) {
-      len = strlen(list[i]); if (len >= sizeof(buff)) continue;
+      len = strlen(list[i]);
+      if (len >= sizeof(buff) || !strncmp(list[i], "rpmlib(", 7)) continue;
       memcpy(p = buff, list[i], len + 1); p+= len;
 
       if (flags) {

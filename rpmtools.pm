@@ -275,7 +275,7 @@ sub compute_depslist {
 	    $req =~ /^basesystem/ and next; #- never need to requires basesystem directly as always required! what a speed up!
 	    ref $req or $req = ($params->{info}{$req} && [ $req ] ||
 				$params->{provides}{$req} && [ keys %{$params->{provides}{$req}} ] ||
-				($req =~ /rpmlib\(/ ? [] : [ ($req !~ /NOTFOUND_/ && "NOTFOUND_") . $req ]));
+				[ ($req !~ /NOTFOUND_/ && "NOTFOUND_") . $req ]);
 	    if (@$req > 1) {
 		#- this is a choice, no closure need to be done here.
 		exists $requires{$req} or push @required_packages, $req;
