@@ -40,18 +40,33 @@ sub _new {
 
     my $pack = {
         filename => $options{archive},
-        handle => undef,
-        files => {}, # filename => { off, size, coff, csize }
-        dir => {}, # dir => no matter what value
-        'symlink' => {}, # file => link
+        
         method => $options{method} || "gzip",
         level => $options{comp_level} || 9,
 
-        # Internal data
-        off => 0,
-        coff => 0,
-        bufsize => $options{bufsize} || 65536,
+        bloc_size => $options{bloc_size} || 1024*1024, # A compressed bloc will contain 1 Mega of compressed data
+
+        #################
+        # Internal data #
+        #################
         
+        handle => undef, # Archive handle
+        
+        # Toc information
+        files => {}, # filename => { off, size, coff, csize }
+        dir => {}, # dir => no matter what value
+        'symlink' => {}, # file => link
+        
+        coff => 0,
+        bufsize => $options{bufsize} || 65536, # Arbitrary buffer size to read files
+
+        # Data we need keep in memory to achieve the storage
+        current_bloc_files => [], # Files in pending compressed bloc
+        current_bloc_csize => 0,  # Actual size in pending compressed bloc
+        current_bloc_coff => 0,   # The bloc bloc location (offset)
+        current_bloc_off => 0,    # Actual uncompressed file offset within the pending bloc
+        
+        stream_data => undef,     # Wrapper data we need to keep in memory
     };
     
     bless($pack, $class)
@@ -83,6 +98,7 @@ sub DESTROY {
 sub build_toc {
     my ($pack) = @_;
     $pack->{need_build_toc} or return 1;
+    $pack->end_bloc();
     my ($toc_length, $cf, $cd, $cl) = (0, 0, 0, 0);
 
     my $handle = $pack->{handle};
@@ -102,7 +118,7 @@ sub build_toc {
     foreach my $file (keys %{$pack->{files}}) {
         my $entry = $pack->{files}{$file};
         syswrite $handle, pack('NNNN', $entry->{coff}, $entry->{csize}, $entry->{off}, $entry->{size});
-        printf(STDERR "%s %d %d %d %d\n", $file, $entry->{coff}, $entry->{csize}, $entry->{off}, $entry->{size});
+        #printf(STDERR "%s %d %d %d %d\n", $file, $entry->{coff}, $entry->{csize}, $entry->{off}, $entry->{size});
     }
     syswrite $handle, pack("a4NNNNa40a4",
         $toc_header,
@@ -126,7 +142,7 @@ sub read_toc {
         return 0;
     };
 
-    printf STDERR "Toc size: %d + 16 * %d\n", $toc_str_size, $toc_f_count;
+    #printf STDERR "Toc size: %d + 16 * %d\n", $toc_str_size, $toc_f_count;
     sysseek($pack->{handle}, -64 - ($toc_str_size + 16 * $toc_f_count) ,2); 
     sysread($pack->{handle}, my $fileslist, $toc_str_size);
     my @filenames = split("\n", $fileslist);
@@ -147,8 +163,28 @@ sub read_toc {
         $pack->{files}{$f}{csize} = shift(@size_offset);
         $pack->{files}{$f}{off} = shift(@size_offset);
         $pack->{files}{$f}{size} = shift(@size_offset);
-    }
+        # looking for offset for this archive
+        $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize} > $pack->{coff} and
+            $pack->{coff} = $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize};
+        }
     1
+}
+
+#- To terminate a compressed bloc, flush the pending compressed data,
+#- fill toc data still unknown
+sub end_bloc {
+    my ($pack) = @_;
+    my (undef, $csize) = $pack->gzip_compress(undef);
+    $pack->{current_bloc_csize} += $csize;
+    $pack->{coff} += $csize;
+    foreach (@{$pack->{current_bloc_files}}) {
+        $pack->{files}{$_}{csize} = $pack->{current_bloc_csize};
+    }
+    $pack->{current_bloc_coff} += $pack->{current_bloc_csize};
+    $pack->{current_bloc_csize} = 0;
+    $pack->{current_bloc_files} = [];
+    $pack->{current_bloc_off} = 0;
+    
 }
 
 #######################
@@ -157,55 +193,51 @@ sub read_toc {
 
 sub gzip_compress {
     my ($pack, $sourcefh) = @_;
-    my ($insize, $outsize) = (0, 0);
-    my $crc = undef;
+    my ($insize, $outsize) = (0, 0); # aka uncompressed / compressed data length
 
-    binmode $sourcefh;
-    # Writing gzip header file
-    $outsize += syswrite($pack->{handle}, $gzip_header);
+    # If $sourcefh is not set, this mean we want a flush(), for end_bloc()
+    # EOF, flush compress stream, adding crc
+    if (!defined($sourcefh)) {
+        if (defined($pack->{stream_data}{object})) {
+            my ($cbuf, $status) = $pack->{stream_data}{object}->flush();
+            $outsize += syswrite($pack->{handle}, $cbuf);
+            $outsize += syswrite($pack->{handle}, pack("V V", $pack->{stream_data}{crc}, $pack->{stream_data}{object}->total_in()));
+        }
+        $pack->{stream_data} = undef;
+        return(undef, $outsize);
+    }
     
-    my $x = deflateInit(
+    if (!defined $pack->{stream_data}{object}) {
+        # Writing gzip header file
+        $outsize += syswrite($pack->{handle}, $gzip_header);
+        $pack->{stream_data}{object} = deflateInit(
                       -Level         => $pack->{level},
                       # Zlib do not create gzip header, except with this flag
                       -WindowBits     =>  - MAX_WBITS(),
                   );
-
+    }
+    
+    binmode $sourcefh;
+    
     while (my $lenght = sysread($sourcefh, my $buf, $pack->{bufsize})) {
-        $crc = crc32($buf, $crc);
-        my ($cbuf, $status) = $x->deflate($buf);
+        $pack->{stream_data}{crc} = crc32($buf, $pack->{stream_data}{crc});
+        my ($cbuf, $status) = $pack->{stream_data}{object}->deflate($buf);
         $outsize += syswrite($pack->{handle}, $cbuf);
         $insize += $lenght;
     }
-    # EOF, flush compress stream, adding crc
-    {
-        my ($cbuf, $status) = $x->flush();
-        $outsize += syswrite($pack->{handle}, $cbuf);
-        $outsize += syswrite($pack->{handle}, pack("V V", $crc, $x->total_in()));
-    }
 
-    ($insize, $outsize)    
-}
-
-sub gzip_flush {
-    
+    ($insize, $outsize)
 }
 
 sub gzip_uncompress {
     my ($pack, $destfh, $fileinfo) = @_;
-    printf(STDERR "uncompress file %d %d %d %d\n", $fileinfo->{size},
-        $fileinfo->{off}, $fileinfo->{csize}, $fileinfo->{coff});
-    print STDERR "Moving to offset $fileinfo->{coff}\n";
-    sysseek($pack->{handle}, $fileinfo->{coff}, 0) == $fileinfo->{coff} or do {
-        warn("Can't seek to offset $fileinfo->{coff}");
-        return -1;
-    };
     my $x = inflateInit(
         -WindowBits     =>  - MAX_WBITS(),
     );
     my $cread = 0; # Compressed data read
     {
         my $buf;
-    # get magic
+        # get magic
         if (sysread($pack->{handle}, $buf, 2) == 2) {
             my @magic = unpack("C*", $buf);
             $magic[0] == Compress::Zlib::MAGIC1 && $magic[1] == Compress::Zlib::MAGIC2 or do {
@@ -245,7 +277,7 @@ sub gzip_uncompress {
         }
     }
     my $byteswritten = 0;
-    my $read = 0;
+    my $read = 0; # uncompressed data read
     while ($byteswritten < $fileinfo->{size}) {
         my $cl=sysread($pack->{handle}, my $buf, $pack->{bufsize}) or do {
             warn("Enexpected end of file");
@@ -262,7 +294,7 @@ sub gzip_uncompress {
             $out = substr($out, $fileinfo->{off} - $read);    
         }
         $read += $l;
-        print STDERR "cr $cread / $fileinfo->{csize} ur $read / $fileinfo->{off}\n";
+        # print STDERR "cr $cread / $fileinfo->{csize} ur $read / $fileinfo->{off}\n";
         if ($read < $fileinfo->{off}) { next }
         if ($byteswritten + $l > $fileinfo->{size}) {
             $byteswritten += syswrite($destfh, $out, $fileinfo->{size} - $byteswritten);
@@ -277,9 +309,10 @@ sub gzip_uncompress {
 # Dubug functions #
 ###################
 
+# This function extract in $dest the whole bloc containing $file, can be usefull for debugging
 sub extract_bloc {
     my ($pack, $dest, $file) = @_;
-    print STDERR "Extracting block containing file $file\n";
+    #print STDERR "Extracting block containing file $file\n";
 
     sysopen(my $handle, $dest, O_WRONLY | O_TRUNC | O_CREAT) or do {
         warn "Can't open $dest";
@@ -304,17 +337,16 @@ sub extract_bloc {
             $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff} 
         } keys %{$pack->{files}}) {
         $pack->{files}{$_}{coff} == $pack->{files}{$file}->{coff} or next;
-        printf "f %d %d %d %d %s\n", $pack->{files}{$_}{size}, $pack->{files}{$_}{off}, $pack->{files}{$_}{csize}, $pack->{files}{$_}{coff}, $_;
-
     }
     
     close($handle);
     
 }
 
-############################
-# Really working functions #
-############################
+##################################
+# Really working functions       #
+# Aka function poeple should use #
+##################################
 
 sub add_virtual {
     my ($pack, $type, $filename, $data) = @_;
@@ -329,16 +361,28 @@ sub add_virtual {
         return 1;
     };
     $type eq 'f' and do {
-        my $finfo = {
-            off => $pack->{off}, coff => $pack->{coff},
-            size => 0, csize => 0,
+        # Be sur we are at the end, allow extract + add in only one instance
+        sysseek($pack->{handle}, $pack->{coff}, 0) == $pack->{coff} or do {
+            warn("Can't seek to offset $pack->{coff}");
+            next;
         };
-        ($finfo->{size}, $finfo->{csize}) = $pack->gzip_compress($data);
-        $pack->{coff} += $finfo->{csize};
-        $pack->{off} += $finfo->{size};
-        $finfo->{off} = 0; # Allways 0 with this method
-        $pack->{files}{$filename} = $finfo;
+        push @{$pack->{current_bloc_files}}, $filename;
+        my ($size, $csize) = $pack->gzip_compress($data);
+        $pack->{coff} += $csize;
+        $pack->{files}{$filename} = {
+            size => $size,
+            off => $pack->{current_bloc_off},
+            coff => $pack->{current_bloc_coff},
+            csize => -1, # Still unknown, will be fill by end_bloc
+        }; # Storing in toc structure availlable info
+            
+        # Updating internal info about current bloc
+        $pack->{current_bloc_off} += $size;
+        $pack->{current_bloc_csize} += $csize;
         $pack->{need_build_toc} = 1;
+        if ($pack->{current_bloc_csize} >= $pack->{bloc_size}) {
+            $pack->end_bloc();
+        }
         return 1;
     };
     0
@@ -347,13 +391,12 @@ sub add_virtual {
 sub add {
     my ($pack, $prefix, @files) = @_;
     $prefix ||= ""; $prefix =~ s://+:/:;
-    my $lprefix = length($prefix);
     foreach my $file (@files) {
         $file =~ s://+:/:;
-        $file = substr($file, $lprefix);
-        print STDERR "Adding $file\n";
+        my $srcfile = $prefix ? "$prefix/$file" : $file;
+        #print STDERR "Adding $file\n";
         -l $file and do {
-            $pack->add_virtual('l', $file, readlink($file));
+            $pack->add_virtual('l', $file, readlink($srcfile));
             next;
         };
         -d $file and do { # dir simple case
@@ -361,42 +404,49 @@ sub add {
             next;
         };
         -f $file and do {
-            sysopen(my $htocompress, $file, O_RDONLY) or next;
+            sysopen(my $htocompress, $srcfile, O_RDONLY) or next;
             $pack->add_virtual('f', $file, $htocompress);
             close($htocompress);
             next;
         };
     }
+    1
 }
 
 sub extract_virtual {
     my ($pack, $destfh, $filename) = @_;
     defined($pack->{files}{$filename}) or return -1;
+    sysseek($pack->{handle}, $pack->{files}{$filename}->{coff}, 0) == $pack->{files}{$filename}->{coff} or do {
+        warn("Can't seek to offset $pack->{files}{$filename}->{coff}");
+        return -1;
+    };
     $pack->gzip_uncompress($destfh, $pack->{files}{$filename});
 }
 
-sub extract_files {
+sub extract {
     my ($pack, $dir, @file) = @_;
     foreach my $f (@file) {
+        my $dest = $dir ? "$dir/$f" : "$f";
         if (exists($pack->{dir}{$f})) {
-            -d "$dir/$f" || mkpath("$dir/$f")
-                or warn "Unable to create dir $f";
+            -d "$dest" || mkpath("$dest")
+                or warn "Unable to create dir $dest";
             next;
         } elsif (exists($pack->{'symlink'}{$f})) {
-            symlink("$dir/$f", $pack->{'symlink'}{$f}) 
+            symlink("$dest", $pack->{'symlink'}{$f}) 
                 or warn "Unable to extract symlink $f";
             next;
         } elsif (exists($pack->{files}{$f})) {
-            sysopen(my $destfh, "$dir/$f", O_CREAT | O_TRUNC | O_WRONLY);
+            sysopen(my $destfh, "$dest", O_CREAT | O_TRUNC | O_WRONLY)
+                or next;
             my $written = $pack->extract_virtual($destfh, $f);
             $written == -1 and warn "Unable to extract file $f";
-            printf(STDERR "Writen size for %s: %d / %d\n", $f, $written, $pack->{files}{$f}{size}) if ($debug);
             close($destfh);
             next;
         } else {
             warn "Can't find $f in archive";
         }
     }
+    1
 }
 
 # Return \@dir, \@files, \@symlink list
@@ -413,11 +463,16 @@ sub list {
     foreach my $file (keys %{$pack->{'symlink'}}) {
         printf "l %13c %s -> %s\n", ' ', $file, $pack->{'symlink'}{$file};
     }
-    foreach my $file (keys %{$pack->{files}}) {
+    foreach my $file (sort {
+            $pack->{files}{$a}{coff} == $pack->{files}{$b}{coff} ?
+            $pack->{files}{$a}{off} <=> $pack->{files}{$b}{off} :
+            $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff} 
+        } keys %{$pack->{files}}) {
         printf "f %12d %s\n", $pack->{files}{$file}{size}, $file;
     }
 }
 
+# Print toc info
 sub dump {
     my ($pack) = @_;
         foreach my $file (keys %{$pack->{dir}}) {
