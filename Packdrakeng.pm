@@ -398,7 +398,10 @@ sub extern_uncompress {
         }
         close($tempfh);
         
-        CORE::open($pack->{ustream_data}{handle}, "cat '$pack->{ustream_data}{tempname}' | $pack->{uncompress_method} |") or do {
+	my $cmd = $pack->{uncompress_method} eq 'gzip -d' || $pack->{uncompress_method} eq 'bzip2 -d' ?
+	  "$pack->{uncompress_method} -c '$pack->{ustream_data}{tempname}'" :
+	  "$pack->{uncompress_method} <  '$pack->{ustream_data}{tempname}'";
+        CORE::open($pack->{ustream_data}{handle}, "$cmd |") or do {
             $pack->{log}("Can't start $pack->{uncompress_method} to uncompress data");
             unlink($pack->{ustream_data}{tempname});
             $pack->{ustream_data} = undef;
