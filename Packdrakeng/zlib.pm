@@ -147,4 +147,4 @@ sub gzip_uncompress {
     $byteswritten
 }
 
-
+1;

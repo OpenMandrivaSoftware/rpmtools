@@ -139,6 +139,7 @@ sub choose_compression_method {
         $pack->{compress_method} ||= "gzip";
         if (!$pack->{force_extern}) {
             eval {
+		require Compress::Zlib; #- need this to ensure that Packdrakeng::zlib will load properly
 		require Packdrakeng::zlib;
 		$pack->{subcompress} = \&Packdrakeng::zlib::gzip_compress;
 		$pack->{subuncompress} = \&Packdrakeng::zlib::gzip_uncompress;
