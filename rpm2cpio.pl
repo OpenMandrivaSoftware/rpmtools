@@ -29,15 +29,18 @@
 
 # sw 2002-Mar-6 Don't slurp the whole file
 
-# add a path if desired
-$gzip = "gzip";
+# 2004-Aug-18: minor changes for Mandrakelinux by Rafael Garcia-Suarez
+
+# adjust path if desired
+$gzip = "/bin/gzip";
+-x $gzip or die "No /bin/gzip found, aborting\n";
 
 sub printhelp {
   print <<HERE;
-rpm2cpio, perl version by orabidoo <odar\@pobox.com> +sw
+rpm2cpio.pl, perl version by orabidoo <odar\@pobox.com> +sw
 dumps the contents to stdout as a cpio archive
 
-use: rpm2cpio [file.rpm] > file.cpio
+use: rpm2cpio.pl [file.rpm] > file.cpio
 
 Here's how to use cpio:
      list of contents:   cpio -t -i < /file/name
@@ -59,20 +62,12 @@ if ($#ARGV == -1) {
 
 printhelp if -t STDOUT;
 
-# gobble the file up
-##undef $/;
-##$|=1;
-##$rpm = <$f>;
-##close ($f);
-
 read $f,$rpm,96;
 
 ($magic, $major, $minor, $crap) = unpack("NCC C90", $rpm);
 
 die "Not an RPM\n" if $magic != 0xedabeedb;
 die "Not a version 3 or 4 RPM\n" if $major != 3 && $major != 4;
-
-##$rpm = substr($rpm, 96);
 
 while (!eof($f)) {
   $pos = tell($f);
@@ -99,8 +94,7 @@ if (eof($f)) {
   die "bogus RPM\n";
 }
 
-open(ZCAT, "|gzip -cd") || die "can't pipe to gzip\n";
-print STDERR "CPIO archive found!\n";
+open(ZCAT, "|$gzip -cd") || die "can't pipe to gzip\n";
 
 print ZCAT $rpm;
 
