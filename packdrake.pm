@@ -288,7 +288,7 @@ sub compute_closure {
 
 #- getting an packer object.
 sub new {
-    my ($class, $file) = @_;
+    my ($class, $file, %options) = @_;
     my $packer = bless {
 			#- toc trailer data information.
 			header       => 'cz[0',
@@ -307,6 +307,8 @@ sub new {
 			archive      => undef,
 			files        => [],
 			data         => {},
+
+			log          => $options{quiet} ? sub {} : sub { printf STDERR "%s\n", $_[0] },
 		       }, $class;
     $file and $packer->read_toc($file);
     $packer;
@@ -340,7 +342,7 @@ sub list_archive {
 	my $packer = new packdrake($_);
 	my $count = scalar keys %{$packer->{data}};
 
-	print STDERR "processing archive \"$_\"\n";
+	$packer->{log}("processing archive \"$_\"");
 	print "$count files in archive, uncompression method is \"$packer->{uncompress}\"\n";
 	foreach my $file (@{$packer->{files}}) {
 	    for ($packer->{data}{$file}[0]) {
@@ -361,11 +363,14 @@ sub extract_archive {
 
     foreach my $file (@file) {
 	#- check for presence of file, but do not abort, continue with others.
-	$packer->{data}{$file} or do { print STDERR "packdrake: unable to find file $file in archive $packer->{archive}\n"; next };
+	unless ($packer->{data}{$file}) {
+	    $packer->{log}("packdrake: unable to find file $file in archive $packer->{archive}");
+	    next;
+	}
 
 	my $newfile = "$dir/$file";
 
-	print STDERR "extracting $file\n";
+	$packer->{log}("extracting $file");
 	for ($packer->{data}{$file}[0]) {
 	    /l/ && do { symlink_ $packer->{data}{$file}[1], $newfile; last; };
 	    /d/ && do { mkdir_ $newfile; last; };
@@ -418,7 +423,7 @@ sub build_archive {
     $compress && $uncompress and ($packer->{compress}, $packer->{uncompress}) = ($compress, $uncompress);
     $tmpz and $packer->{tmpz} = $tmpz;
 
-    print STDERR "choosing compression method with \"$packer->{compress}\" for archive $packer->{archive}\n";
+    $packer->{log}("choosing compression method with \"$packer->{compress}\" for archive $packer->{archive}");
 
     unlink $packer->{archive};
     unlink $packer->{tmpz};
@@ -467,7 +472,7 @@ sub build_archive {
 	system "$ENV{LD_LOADER} cat '$packer->{tmpz}' >>'$packer->{archive}'";
 	$off1 += $siz1;
     }
-    print STDERR "real archive size of $packer->{archive} is $off1\n";
+    $packer->{log}("real archive size of $packer->{archive} is $off1");
 
     #- produce a TOC directly at the end of the file, follow with
     #- a trailer with TOC summary and archive summary.

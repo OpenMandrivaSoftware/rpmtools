@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 17mdk
+%define release 18mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Apr 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-18mdk
+- added quiet support for packdrake module (for DrakX).
+
 * Tue Apr  3 2001 François Pons <fpons@mandrakesoft.com> 2.3-17mdk
 - fixed error code management for parsehdlist.
 - fixed read_hdlists return value.
