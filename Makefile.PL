@@ -7,6 +7,10 @@ use MDK::Common qw(cat_);
 (my $rpmtools_version) = cat_('rpmtools.spec') =~ /define\s+version\s+(\d+\.\d+\.\d+)/
     or die "no version found\n";
 
+
+my $tag_version = "v$rpmtools_version";
+$tag_version =~ s/\./_/g;
+
 sub MY::postamble {
     <<MAKEMAKEFILE;
 .PHONY: ChangeLog
@@ -29,7 +33,13 @@ ChangeLog:
 
 rpm: dist
 	rpm --define "_sourcedir `pwd`" -ba --clean --rmsource rpmtools.spec
+
+tag:
+	cvs tag $tag_version
+
+
 MAKEMAKEFILE
+
 }
 
 WriteMakefile(
