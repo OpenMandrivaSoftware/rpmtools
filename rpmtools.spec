@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 3mdk
+%define release 4mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.3
@@ -54,6 +54,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Jun 27 2002 François Pons <fpons@mandrakesoft.com> 4.3-4mdk
+- added distriblint (was mdkdischk) now using perl-URPM and
+  only ported two tests instead of the initial five (some are
+  obsoletes now).
+
 * Tue Jun 18 2002 François Pons <fpons@mandrakesoft.com> 4.3-3mdk
 - added genhdlist (from Guillaume Rousse).
 

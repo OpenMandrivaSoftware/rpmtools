@@ -1,0 +1,181 @@
+#!/usr/bin/perl
+
+#- Mandrake Distribution Checker.
+#- Copyright (C) 2002 MandrakeSoft (fpons@mandrakesoft.com)
+#-
+#- This program is free software; you can redistribute it and/or modify
+#- it under the terms of the GNU General Public License as published by
+#- the Free Software Foundation; either version 2, or (at your option)
+#- any later version.
+#-
+#- This program is distributed in the hope that it will be useful,
+#- but WITHOUT ANY WARRANTY; without even the implied warranty of
+#- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#- GNU General Public License for more details.
+#-
+#- You should have received a copy of the GNU General Public License
+#- along with this program; if not, write to the Free Software
+#- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+#- check a whole distribution RPMS, SRPMS, compss and contribs associated :
+#-   rpms dependancy check (including provides), script usage.
+#-   srpms checking with version.
+#-   contrib rpms dependancy check with rpms, script usage.
+#-   contrib srpms checkig with version.
+#-   compss checking, doublons, packages extension and size.
+
+#- options are :
+#-   --distrib         : distribution top directory.
+use strict qw(subs vars refs);
+
+#- passtest arrays (contains function for test).
+my @passtest = (
+		\&pass_get_hdlists,
+		\&pass_check_filenames,
+	       );
+
+#- pass function for getting all package and simple checking.
+sub pass_get_hdlists {
+    my ($o) = @_;
+
+    $o->{c}->("parsing hdlists from distrib $o->{root}.");
+    local *F;
+    open F, "$o->{root}/Mandrake/base/hdlists" or die "unable to open $o->{root}/Mandrake/base/hdlists";
+    foreach (<F>) {
+	chomp;
+	s/\s*#.*$//;
+	/^\s*$/ and next;
+	m/^\s*(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
+	
+	push @{$o->{hdlists}}, { synthesis => "$o->{root}/Mandrake/base/synthesis.$1",
+				 hdlist => "$o->{root}/Mandrake/base/$1",
+				 dir => $2,
+				 descr => $3 };
+    }
+    close F;
+
+    foreach (@{$o->{hdlists}}) {
+	$o->{c}->("parsing hdlist $_->{hdlist}.");
+	($_->{start}, $_->{end}) = $o->parse_hdlist($_->{hdlist});
+    }
+
+    $o->{c}->("found " . scalar(@{$o->{depslist}}) . " packages.");
+
+    #- now the real works, check no more than one package is listed.
+    #- use provides access to simplify.
+    foreach my $pkg (@{$o->{depslist}}) {
+	my ($self_found, $name_found) = (0, 0);
+	foreach (keys %{$o->{provides}{$pkg->name}}) {
+	    my $p = $o->{depslist}[$_];
+	    $p == $pkg and ++$self_found;
+	    $p->name eq $pkg->name and ++$name_found;
+	}
+	if ($self_found == 1 && $name_found == 1) {
+	    $o->{cok}->();
+	} else {
+	    $o->{cwarn}->("package ".$pkg->fullname." has same name as other packages.");
+	}
+    }
+}
+
+#- pass function for filenames checking, avoiding doublons of different files.
+sub pass_check_filenames {
+    my ($o) = @_;
+
+    $o->{c}->("check files of all packages, avoid multiple different definition of files without conflicts.");
+
+    foreach my $pkg (@{$o->{depslist}}) {
+	my %files;
+
+	my @files = $pkg->files;
+	my @md5sums = $pkg->files_md5sum;
+	my @modes = $pkg->files_mode;
+	my @sizes = $pkg->files_size;
+	my @owners = $pkg->files_owner;
+	my @groups = $pkg->files_group;
+
+	foreach (0 .. $#files) {
+	    my $file = $files[$_];
+	    my $key = join ' ', $md5sums[$_], $modes[$_], $sizes[$_], $owners[$_], $groups[$_];
+	    if (exists $o->{files}{$file} && $o->{files}{$file}[1] ne $key) {
+		#- check if package is marked as conflicting with this one.
+		#- if this is the case, everything is right, else complains...
+		my $p = $o->{files}{$file}[0];
+		my $ok = 0;
+
+		my $provide_p = $p->name." == ".$p->epoch.":".$p->version."-".$p->release;
+		foreach ($pkg->conflicts) {
+		    URPM::ranges_overlap($provide_p, $_) and $ok = 1, last;
+		}
+
+		my $provide_pkg = $pkg->name." == ".$pkg->epoch.":".$pkg->version."-".$pkg->release;
+		foreach ($p->conflicts) {
+		    URPM::ranges_overlap($provide_pkg, $_) and $ok = 1, last;
+		}
+
+		$ok or push @{$files{$o->{files}{$file}[0]->fullname}}, $file; #- conflicting package name is used.
+	    } else {
+		$o->{files}{$file} = [ $pkg, $key ] unless exists $o->{files}{$file};
+	    }
+	}
+	
+	#- print summary informations on conflicts.
+	if (%files) {
+	    my $s = "conflict between ".$pkg->fullname." ...";
+	    foreach (keys %files) {
+		my @filenames = @{$files{$_}};
+		$s .= "\n        ... and $_ on ". scalar @filenames ." file(s)";
+		if (scalar @filenames < 10) {
+		    $s .= ":";
+		    foreach (@filenames) {
+			$s .= "\n          $_";
+		    }
+		} else {
+		    $s .= ".";
+		}
+	    }
+	    $o->{cerr}->($s);
+	} else {
+	    $o->{cok}->();
+	}
+    }
+}
+
+#- main program.
+sub main {
+    require URPM;
+    my $o = new URPM;
+    
+    while (@_) {
+	local $_ = shift;
+	$_ eq '--distrib' and do { $o->{root} = shift; next };
+	die "usage: $0 --distrib <d>";
+    }
+    
+    #- perform all test, $i is used for pass numbering.
+    print "Starting tests...";
+    my $i = 1;
+    foreach (@passtest) {
+	my ($count_ok, $count_warn, $count_err) = (0, 0, 0);
+	
+	$o->{c} = sub { print "\nPASS$i: @_" if @_ };
+	$o->{cok} = sub { ++$count_ok; print "\nPASS$i: @_" if @_ };
+	$o->{cwarn} = sub { ++$count_warn; print "\nPASS$i: warning: @_" if @_ };
+	$o->{cerr} = sub { ++$count_err; print "\nPASS$i: error: @_" if @_ };
+	
+	eval { &$_($o) };
+	if ($@) {
+	    $o->{c}->("exiting due to fatal: $@");
+	    exit 1;
+	}
+	if ($count_ok < 0 || $count_warn < 0 || $count_err < 0) {
+	    $o->{c}->("fatal test result integrity, exiting.");
+	    exit 1;
+	}
+	$o->{c}->("completed [ok=$count_ok, warn=$count_warn, error=$count_err]\n");
+	++$i;
+    }
+}
+
+#- execute the tests.
+main(@ARGV);
