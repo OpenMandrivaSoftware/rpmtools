@@ -37,11 +37,11 @@ usage:
 sub main {
     my ($file, $mode, $dir, $size, $method, $compress, $uncompress, $ratio, $quiet);
     my @nextargv = (\$file);
-    my @list = ();
+    my @list;
 
     #- some quite useful error message.
     my $error_mode = "packdrake: choose only --build, --extract, --list or --cat\n";
-    for (@_) {
+    foreach (@_) {
 	/^--help$/       and do { usage; next };
 	/^--build$/      and do { $mode and die $error_mode; $mode = "build"; @nextargv = (\$file); next };
 	/^--extract$/    and do { $mode and die $error_mode; $mode = "extract"; @nextargv = (\$file, \$dir); next };
@@ -66,7 +66,8 @@ sub main {
 	$mode =~ /extract|list|cat/
 	    or @nextargv
 	    or die qq(packdrake: unknown option "$_", check usage with --help\n);
-	my $ref = shift @nextargv; $ref ? $$ref = $_ : push @list, $_;
+	my $ref = shift @nextargv;
+	$ref ? ($$ref = $_) : push @list, $_;
 	$mode ||= "list";
     }
 
