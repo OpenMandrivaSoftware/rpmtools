@@ -7,7 +7,7 @@ FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)
 ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
 CFLAGS = -Wall -g
-LIBRPM = -lrpm -lrpmio -ldb1 -lz -lbz2 -I/usr/include/rpm -lpopt
+LIBRPM = -lrpm -lrpmio -lz -lbz2 -I/usr/include/rpm -lpopt
 
 all: $(ALL)
 

@@ -2,6 +2,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <errno.h>
 #include <rpm/rpmlib.h>
 #include <rpm/header.h>
 #include <stdio.h>
@@ -208,9 +209,12 @@ int main(int argc, char **argv)
 	    close(fdno[1]);
 	  } else {
 	    dup2(fdno[1], STDOUT_FILENO);
-	    execl("/usr/bin/packdrake", "/usr/bin/packdrake", "-c", argv[i]);
+	    execl("/usr/bin/packdrake", "/usr/bin/packdrake", "-c", argv[i], NULL);
+	    perror("packdrake: unable to run packdrake");
 	    exit(2);
 	  }
+	} else {
+	  fprintf(stderr, "packdrake: unable to create pipe for packdrake\n");
 	}
       }
       if (fdFileno(fd) < 0) fprintf(stderr, "parsehdlist: cannot open file %s\n", argv[i]);
@@ -272,6 +276,7 @@ int main(int argc, char **argv)
       hash_in_name = hash(in_name);
       for (i = 0; i < count_headers; ++i) {
 	if (headers[i].hash_name == hash_in_name && !strcmp(headers[i].name, in_name)) {
+	  printf("found %s:%s\n", in_name, in_tag);
 	  if (!strncmp(in_tag, "provides", 8)) print_list(headers[i].header, RPMTAG_PROVIDENAME, "%2$s\n", "");
 	  else if (!strncmp(in_tag, "requires", 8)) print_list_flags(headers[i].header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS,
 								     RPMTAG_REQUIREVERSION,"%2$s", "");
