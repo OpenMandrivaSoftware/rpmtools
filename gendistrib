@@ -31,8 +31,8 @@ my $headers_dir = (-d "$ENV{TMPDIR}" ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$EN
 
 sub usage {
 	print <<EOF;
-Usage $0 [options] dir [dir...]
-First dir should be the top level of distro
+Usage: $0 [options] dir
+dir should be the top level of distro
 Options:
   --help              print this message and exit
   --headersdir dir    put temporary files in dir
@@ -40,7 +40,9 @@ Options:
   --nochkdep          do not find missing dependancies
   --nobadrpm          do not stop on bad rpm
   --noclean           keep cache files
-
+  --provides file     path of provides file (default media/media_info/provides)
+  --compss file       path of compss file (default media/media_info/compss)
+  --hdlists file      path of hdlists file (default media/media_info/hdlists)
 EOF
 }
 
