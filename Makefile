@@ -10,7 +10,7 @@ all: $(ALL)
 
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
-	install -s $(ALL) genhdlist_cz2 build_archive extract_archive $(PREFIX)/usr/bin
+	install -s $(ALL) genhdlist_cz2 genhdlists build_archive extract_archive $(PREFIX)/usr/bin
 
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) $< $(LIBRPM) -o $@

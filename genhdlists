@@ -1,0 +1,27 @@
+#!/usr/bin/perl
+
+($noclean,         @ARGV) = @ARGV if $ARGV[0] eq "--noclean";
+(undef, $root,     @ARGV) = @ARGV if $ARGV[0] eq "--distrib";
+
+$root && @ARGV == 0 or die 
+"usage: genhdlists [--noclean] --distrib <root distrib>
+";
+
+$depslist = "$root/Mandrake/base/depslist.ordered";
+$hdlist = "$root/Mandrake/base/hdlist";
+@dirs = glob("$root/Mandrake/RPMS*");
+
+open F, ">${hdlist}s" or die "unable to open ${hdlist}s";
+foreach my $dir (@dirs) {
+    my $ext = $dir =~ /RPMS(.*)$/ && "$1.cz2";
+
+    my $command = "genhdlist_cz2";
+    $noclean and $command .= " --noclean";
+    -e $depslist and $command .= " --ordered-depslist $depslist";
+    $command .= " -o $hdlist$ext $dir";
+
+    system($command);
+
+    print F `basename $hdlist$ext`;
+}
+close F;
