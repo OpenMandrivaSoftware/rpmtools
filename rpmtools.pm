@@ -304,7 +304,7 @@ sub compute_depslist {
     #- give an id to each packages, start from number of package already
     #- registered in depslist.
     my $global_id = scalar @{$params->{depslist}};
-    foreach (sort { $ordered{$b->{name}} <=> $ordered{$a->{name}} || $a->{name} cmp $b->{name} } @info) {
+    foreach (sort { $ordered{$b->{name}} <=> $ordered{$a->{name}} || package_name_compare($a->{name}, $b->{name}) } @info) {
 	$_->{id} = $global_id++;
     }
 
@@ -568,6 +568,19 @@ sub version_compare {
 	$sa eq '' && $sb eq '' and return $a cmp $b || 0;
     }
     0;
+}
+
+#- compare package name to increase chance of avoiding loop in prerequisite chain.
+sub package_name_compare {
+    my ($a, $b) = @_;
+    my ($sa,$sb);
+
+    ($sa) = ($a =~ /^lib(.*)/);
+    ($sb) = ($b =~ /^lib(.*)/);
+    $sa && $sb and return $sa cmp $sb;
+    $sa and return -1;
+    $sb and return +1;
+    $a cmp $b; #- fall back.
 }
 
 #- compability function which should be removed soon, do not use anymore and replace code.
