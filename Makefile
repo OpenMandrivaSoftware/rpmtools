@@ -1,4 +1,4 @@
-VERSION = 1.2
+VERSION = 2.0
 NAME = rpmtools
 FROMC = parsehdlist rpm2header #rpm-find-leaves
 FROMCC = gendepslist2 #hdlist2names hdlist2files hdlist2prereq hdlist2groups
@@ -7,7 +7,7 @@ FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)
 ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
 CFLAGS = -Wall -g
-LIBRPM = -lrpm -ldb1 -lz -lbz2 -I/usr/include/rpm -lpopt
+LIBRPM = -lrpm -lrpmio -ldb1 -ldb2 -lz -lbz2 -I/usr/include/rpm -lpopt
 
 all: $(ALL)
 
