@@ -824,9 +824,7 @@ found in the archive, the new preference will be applied.
 
 Options are same than the C<new()> function.
 
-=back
-
-=item B<Packdrakeng->add_virtual($type, $filename, $data)>
+=item B<< Packdrakeng->add_virtual($type, $filename, $data) >>
 
 Add a file into archive according passed information.
 
@@ -838,27 +836,27 @@ $type gives the type of the file:
 - 'f', the file is a normal file, $filename will be its name, $data is an handle to
   open file, data will be read from current position to the end of file.
 
-=item B<Packdrakeng->add($prefix, @files)>
+=item B<< Packdrakeng->add($prefix, @files) >>
 
 Add @files into archive located into $prefix. Only directory, files and symlink
 will be added. For each file, the path should be relative to $prefix and is
 stored as is.
 
-=item B<Packdrakeng->extract_virtual(*HANDLE, $filename)>
+=item B<< Packdrakeng->extract_virtual(*HANDLE, $filename) >>
 
 Extract $filename data from archive into the *HANDLE. $filename should be a
 normal file.
 
-=item B<Packdrakeng->extract($destdir, @files)>
+=item B<< Packdrakeng->extract($destdir, @files) >>
 
 Extract @files from the archive into $destdir prefix.
 
-=item B<Packdrakeng->getcontent()>
+=item B<< Packdrakeng->getcontent() >>
 
 Return 3 arrayref about found files into archive, respectively directory list,
 files list and symlink list.
 
-=item B<Packdrakeng->infofile($file)>
+=item B<< Packdrakeng->infofile($file) >>
 
 Return the type and information about a file into the archive.
 
@@ -867,13 +865,15 @@ Return the type and information about a file into the archive.
 - return 'd' and undef for a directory
 - return undef if the file can't be found into archive.
 
-=item B<Packdrakeng->infofile($handle)>
+=item B<< Packdrakeng->infofile($handle) >>
 
 Print to $handle (STDOUT if not specified) the content of the archive.
 
-=item B<Packdrakeng->dumptoc($handle)>
+=item B<< Packdrakeng->dumptoc($handle) >>
 
 Print to $handle (STDOUT if not specified) the table of content of the archive.
+
+=back
 
 =head1 AUTHOR
 
