@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 6mdk
+%define release 7mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -53,6 +53,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Jan 16 2001 François Pons <fpons@mandrakesoft.com> 2.1-7mdk
+- fixed white char in packdrake archive.
+- added output mode for parsehdlist.
+- added build_hdlist to rpmtools.
+- rpmtools.pm to 0.03.
+
 * Fri Jan 05 2001 François Pons <fpons@mandrakesoft.com> 2.1-6mdk
 - fixed dependancy in parsehdlist against packdrake.
 - fixed packdrake.pm against DrakX usage.
