@@ -554,7 +554,7 @@ sub write_provides {
 #- read compss, look at DrakX for more info.
 sub read_compss {
     my ($params, $FILE) = @_;
-    my $p;
+    my ($p, %compss);
 
     local $_;
     while (<$FILE>) {
@@ -565,9 +565,15 @@ sub read_compss {
 	    $p = $1;
 	} else {
 	    /(\S+)/;
-	    $params->{info}{$1} and $params->{info}{$1}{group} = $p;
+	    $compss{$1} = $p;
 	}
     }
+
+    #- mark all packages which matching name with group.
+    foreach (@{$params->{depslist}}) {
+	$compss{$_->{name}} and $_->{group} = $compss{$_->{name}};
+    }
+
     1;
 }
 

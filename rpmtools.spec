@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 7mdk
+%define release 8mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.1
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Nov 26 2001 François Pons <fpons@mandrakesoft.com> 3.1-8mdk
+- fixed compss file reading.
+
 * Fri Nov 16 2001 François Pons <fpons@mandrakesoft.com> 3.1-7mdk
 - fixed problem with depslist generation from synthesis source only.
 
