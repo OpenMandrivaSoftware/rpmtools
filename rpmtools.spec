@@ -1,10 +1,9 @@
 %define name rpmtools
-%define release 4mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
 
-%{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
 Summary: Contains various rpm command-line tools
@@ -18,8 +17,8 @@ License: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel libbzip2-devel perl-devel
-Requires: perl-base = %{perlbase_version} rpm >= %{rpm_version} bzip2 >= 1.0
+BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
+Requires: rpm >= %{rpm_version} bzip2 >= 1.0
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -54,6 +53,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Feb 27 2002 François Pons <fpons@mandrakesoft.com> 4.2-6mdk
+- removed explicit requires on perl-base (done by spec helper).
+- rpmtools.xs code cleaning.
+
+* Tue Feb 19 2002 Stefan van der Eijk <stefan@eijk.nu> 4.2-5mdk
+- BuildRequires
+
 * Mon Feb 18 2002 François Pons <fpons@mandrakesoft.com> 4.2-4mdk
 - added --silent (undocumented) to parsehdlist.
 

@@ -105,14 +105,12 @@ int get_bflag(AV* flag) {
   return bflag;
 }
 
-SV *get_fullname_sv(Header header) {
+STRLEN get_fullname(Header header, char *fullname) {
   char *name = get_name(header, RPMTAG_NAME);
   char *version = get_name(header, RPMTAG_VERSION);
   char *release = get_name(header, RPMTAG_RELEASE);
   char *arch = headerIsEntry(header, RPMTAG_SOURCEPACKAGE) ? "src" : get_name(header, RPMTAG_ARCH);
-  char *fullname = (char*)alloca(strlen(name)+strlen(version)+strlen(release)+strlen(arch)+4);
-  STRLEN fullname_len = sprintf(fullname, "%s-%s-%s.%s", name, version, release, arch);
-  return newSVpv(fullname, fullname_len);
+  return sprintf(fullname, "%s-%s-%s.%s", name, version, release, arch);
 }
 
 void update_provides(int force, HV* provides, char *name, STRLEN len, Header header) {
@@ -129,12 +127,9 @@ void update_provides(int force, HV* provides, char *name, STRLEN len, Header hea
 	if (!*isv) *isv = &PL_sv_undef;
       }
       if (isv && *isv != &PL_sv_undef) {
-	SV *fullname_sv = get_fullname_sv(header);
-	STRLEN key_len;
-	char *key;
-	key = SvPV(fullname_sv, key_len);
-	hv_fetch((HV*)SvRV(*isv), key, key_len, 1);
-	SvREFCNT_dec(fullname_sv); /* drop it, may we use another interface instead of non freeing it ? */
+	char fullname[1024];
+	STRLEN fullname_len = get_fullname(header, fullname);
+	hv_fetch((HV*)SvRV(*isv), fullname, fullname_len, 1);
       }
     }
   }
@@ -186,11 +181,11 @@ SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag
 	      *p++ = ' ';
 	      memcpy(p, list_evr[i], len); p+= len;
 	      *p++ = ']';
-	      *p = '\0';
 	    }
 	  }
 	}
       }
+      *p = '\0'; /* make sure to mark null char, Is it really necessary ?
 
       /* for getting provides about required files */
       if (iprovides && buff[0] == '/')
@@ -554,14 +549,15 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
 	header = 0;
     }
     while (header != 0) {
-      SV *fullname_sv = get_fullname_sv(header);
+      char fullname[1024];
+      STRLEN fullname_len = get_fullname(header, fullname);
       HV* header_info = get_info(header, bflag, iprovides);
 
-      hv_store_ent(iinfo, fullname_sv, newRV_noinc((SV*)header_info), 0);
+      hv_store(iinfo, fullname, fullname_len, newRV_noinc((SV*)header_info), 0);
 
       /* return fullname on stack */
       EXTEND(SP, 1);
-      PUSHs(sv_2mortal(fullname_sv));
+      PUSHs(sv_2mortal(newSVpv(fullname, fullname_len)));
 
       /* dispose of some memory */
       headerFree(header);
