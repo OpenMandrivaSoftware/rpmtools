@@ -153,8 +153,8 @@ sub gzip_uncompress {
                 warn("Unable to uncompress data");
                 return -1;
             };
-            $l = length($out) or next;
         }
+        $l = length($out) or next;
         if ($pack->{ustream_data}{read} < $fileinfo->{off} && $pack->{ustream_data}{read} + $l > $fileinfo->{off}) {
             $out = substr($out, $fileinfo->{off} - $pack->{ustream_data}{read});    
         }
@@ -165,6 +165,7 @@ sub gzip_uncompress {
         if ($byteswritten + length($out) > $fileinfo->{size}) {
             $bw = $fileinfo->{size} - $byteswritten;
             $pack->{ustream_data}{buf} = substr($out, $bw); # keeping track of unwritten uncompressed data
+            $pack->{ustream_data}{read} -= length($pack->{ustream_data}{buf});
         } else {
             $bw = length($out);
         }

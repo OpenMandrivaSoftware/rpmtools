@@ -410,7 +410,7 @@ sub extern_uncompress {
     while ($byteswritten < $fileinfo->{size}) {
         my $data = $pack->{ustream_data}{buf};
         $pack->{ustream_data}{buf} = undef;
-        my $length = 0;
+        my $length;
         if (!defined($data)) {
             $length = sysread($pack->{ustream_data}{handle}, $data, $pack->{bufsize}) or do {
                 $pack->{log}("Unexpected end of stream $pack->{ustream_data}{tempname}");
@@ -419,6 +419,8 @@ sub extern_uncompress {
                 $pack->{ustream_data} = undef;
                 return -1;
             };
+        } else {
+            $length = length($data);
         }
 
         if ($pack->{ustream_data}{read} < $fileinfo->{off} && $pack->{ustream_data}{read} + $length > $fileinfo->{off}) {
@@ -431,6 +433,7 @@ sub extern_uncompress {
         if ($byteswritten + length($data) > $fileinfo->{size}) {
             $bw = $fileinfo->{size} - $byteswritten;
             $pack->{ustream_data}{buf} = substr($data, $bw); # keeping track of unwritten uncompressed data
+            $pack->{ustream_data}{read} -= length($pack->{ustream_data}{buf});
         } else {
             $bw = length($data);
         }
