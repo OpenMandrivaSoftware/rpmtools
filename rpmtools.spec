@@ -58,11 +58,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
-* Tue Mar 28 2000 Pixel <pixel@mandrakesoft.com> 1.1-15mdk
-- fix silly bug
-
-* Fri Mar 31 2000 François PONS <fpons@mandrakesoft.com> 1.1-14mdk
+* Fri Mar 31 2000 François PONS <fpons@mandrakesoft.com> 1.1-15mdk
 - add genfilelist
+
+* Tue Mar 28 2000 Pixel <pixel@mandrakesoft.com> 1.1-14mdk
+- fix silly bug
 
 * Mon Mar 27 2000 Pixel <pixel@mandrakesoft.com> 1.1-13mdk
 - add hdlist2groups
