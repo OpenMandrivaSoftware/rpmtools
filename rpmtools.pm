@@ -453,7 +453,8 @@ sub keep_only_cleaned_provides_files {
     my ($params) = @_;
 
     foreach (keys %{$params->{provides}}) {
-	/^\// ? $params->{provides}{$_} = undef : delete $params->{provides}{$_};
+	delete $params->{provides}{$_};
+	/^\// and $params->{provides}{$_} = undef;
     }
 
     #- clean everything else at this point.
