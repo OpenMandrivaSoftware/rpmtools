@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 9mdk
+%define release 10mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -34,7 +34,7 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
   %{__perl} Makefile.PL INSTALLDIRS=vendor
   %{make} OPTIMIZE="$RPM_OPT_FLAGS"
 )
-%{make} CFLAGS="$RPM_OPT_FLAGS"
+%{make} CFLAGS="$RPM_OPT_FLAGS -DRPM_42"
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -56,6 +56,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Tue Apr 29 2003 Frederic Lepied <flepied@mandrakesoft.com> 4.5-10mdk
+- added support for rpm 4.2
+
 * Mon Mar 10 2003 François Pons <fpons@mandrakesoft.com> 4.5-9mdk
 - add support for noauto: flag in hdlists file.
 - made gendistrib perl_checker compliant.
