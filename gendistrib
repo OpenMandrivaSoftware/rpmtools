@@ -221,10 +221,6 @@ foreach (0..$#hdlists) {
     }
 
     unless ($nomediainfo) {
-	if (! -d $e->{thismediainfo}) {
-	    mkdir $e->{thismediainfo}, 0755
-		or print STDERR qq(Can't create directory "$e->{thismediainfo}": $!\n);
-	}
 	print STDERR qq(link alternate locations of synthesis and hdlists\n) unless $nooutput;
 	unlink $e->{hdlist2}, $e->{synthesis2};
 	link $e->{hdlist}, $e->{hdlist2}
