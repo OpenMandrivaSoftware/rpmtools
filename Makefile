@@ -10,6 +10,7 @@ ALL_STATIC = $(FROMC_STATIC) $(FROMCC_STATIC)
 CFLAGS = -Wall -g
 LIBRPM = -lrpm -lrpmio `perl -e 'local $$_ = qx(rpm -q --qf %{VERSION} rpm); /^4\.0\s*$$/ or print "-lrpmdb"'` -lz -lbz2 -I/usr/include/rpm -lpopt
 LIBRPM_STATIC = 
+RPM=$(HOME)/rpm
 
 all: $(ALL)
 	echo $(INSTALLVENDORLIB)

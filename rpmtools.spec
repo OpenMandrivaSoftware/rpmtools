@@ -1,25 +1,32 @@
 %define name rpmtools
-%define release 13mdk
+%define release 14mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
 
-%{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
+%define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
+%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
+%{expand:%%define rpm_define %%(perl -e 'printf "%%s\\n", ("%rpm_version" =~ /^(?:4\.[2-9]|[5-9]|\d{2})/ ? "-DRPM_42" : "")')}
+
+%{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
+%{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
+%{expand:%%define buildreq_perl_devel %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-devel" : "perl"')}
+%{expand:%%define real_release %%(perl -e 'printf "%%s\\n", ("%_vendor" !~ /mandrake/i && ("%release" =~ /(.*?)mdk/)[0] || "%release")')}
 
 Summary: Contains various rpm command-line tools
 Name: %{name}
 Version: %{version}
-Release: %{release}
+Release: %{real_release}
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
 Source0: %{name}-%{version}.tar.bz2
 License: GPL
-Group: System/Configuration/Packaging
+Group: %{group}
 URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
+BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
+Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -32,18 +39,18 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 (
   cd packdrake-pm ;
   %{__perl} Makefile.PL INSTALLDIRS=vendor
-  %{make} OPTIMIZE="$RPM_OPT_FLAGS"
+  %{__make} OPTIMIZE="$RPM_OPT_FLAGS"
 )
-%{make} CFLAGS="$RPM_OPT_FLAGS -DRPM_42"
+%{__make} CFLAGS="$RPM_OPT_FLAGS %{rpm_define}"
 
 %install
-rm -rf $RPM_BUILD_ROOT
-%{make} install PREFIX=$RPM_BUILD_ROOT
-%{makeinstall_std} -C packdrake-pm
-rm -f $RPM_BUILD_ROOT%{perl_archlib}/perllocal.pod
+%{__rm} -rf %{buildroot}
+%{__make} install PREFIX=%{buildroot}
+%{compat_makeinstall_std} -C packdrake-pm
+%{__rm} -f %{buildroot}%{perl_archlib}/perllocal.pod
 
 %clean
-rm -rf $RPM_BUILD_ROOT
+%{__rm} -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -53,10 +60,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gendistrib
 %{_bindir}/distriblint
 %{_bindir}/genhdlist
-%{perl_vendorlib}/packdrake.pm
+%{compat_perl_vendorlib}/packdrake.pm
 %{_mandir}/*/*
 
 %changelog
+* Tue Dec  9 2003 François Pons <fpons@mandrakesoft.com> 4.5-14mdk
+- added compability with RH 7.3.
+
 * Thu Aug 28 2003 François Pons <fpons@mandrakesoft.com> 4.5-13mdk
 - added support for %%{ARCH} in gendistrib.
 - removing remaining MD5SUM files when running gendistrib.
