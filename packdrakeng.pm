@@ -20,7 +20,7 @@ package packdrakeng;
 
 use strict;
 use warnings;
-use IO::File;
+use POSIX;
 use File::Path;
 use Compress::Zlib;
 use vars qw($VERSION);
@@ -39,13 +39,15 @@ sub _new {
     my ($class, %options) = @_;
 
     my $pack = {
-        filename => $options{dest},
+        filename => $options{archive},
         handle => undef,
         files => {}, # filename => { off, size, coff, csize }
         dir => {}, # dir => no matter what value
         'symlink' => {}, # file => link
         method => $options{method} || "gzip",
         level => $options{comp_level} || 9,
+
+        # Internal data
         off => 0,
         coff => 0,
         bufsize => $options{bufsize} || 65536,
@@ -59,7 +61,7 @@ sub new {
     my ($class, %options) = @_;
     my $pack = _new($class, %options);
     
-    sysopen($pack->{handle}, $pack->{filename}, O_WRONLY | O_TRUNC | O_CREAT);
+    sysopen($pack->{handle}, $pack->{filename}, O_WRONLY | O_TRUNC | O_CREAT) or return undef;
     $pack->{need_build_toc} = 1;
     $pack
 }
@@ -67,7 +69,7 @@ sub new {
 sub open {
     my ($class, %options) = @_;
     my $pack = _new($class, %options);
-    sysopen($pack->{handle}, $pack->{filename}, O_RDONLY);
+    sysopen($pack->{handle}, $pack->{filename}, O_RDONLY) or return undef;
     $pack->read_toc();
     $pack
 }
@@ -120,7 +122,7 @@ sub read_toc {
     my ($header, $toc_d_count, $toc_l_count, $toc_f_count, $toc_str_size, $uncompress, $trailer) =
         unpack("a4NNNNZ40a4", $buf);
     $header eq $toc_header && $trailer eq $toc_footer or do {
-        die "Error reading toc: wrong header/trailer";
+        warn "Error reading toc: wrong header/trailer";
         return 0;
     };
 
@@ -184,6 +186,10 @@ sub gzip_compress {
     ($insize, $outsize)    
 }
 
+sub gzip_flush {
+    
+}
+
 sub gzip_uncompress {
     my ($pack, $destfh, $fileinfo) = @_;
     printf(STDERR "uncompress file %d %d %d %d\n", $fileinfo->{size},
@@ -238,32 +244,72 @@ sub gzip_uncompress {
             }
         }
     }
-    
     my $byteswritten = 0;
     my $read = 0;
     while ($byteswritten < $fileinfo->{size}) {
-        my $l=sysread($pack->{handle}, my $buf, $pack->{bufsize}) or do {
+        my $cl=sysread($pack->{handle}, my $buf, $pack->{bufsize}) or do {
             warn("Enexpected end of file");
             return -1;
         };
-        $cread += $l;
+        $cread += $cl;
         my ($out, $status) = $x->inflate(\$buf);
         $status == Z_OK || $status == Z_STREAM_END or do {
             warn("Unable to uncompress data");
             return -1;
         };
+        my $l = length($out) or next;
         if ($read < $fileinfo->{off} && $read + $l > $fileinfo->{off}) {
             $out = substr($out, $fileinfo->{off} - $read);    
         }
         $read += $l;
+        print STDERR "cr $cread / $fileinfo->{csize} ur $read / $fileinfo->{off}\n";
         if ($read < $fileinfo->{off}) { next }
-        if ($byteswritten + length($out) > $fileinfo->{size}) {
+        if ($byteswritten + $l > $fileinfo->{size}) {
             $byteswritten += syswrite($destfh, $out, $fileinfo->{size} - $byteswritten);
         } else {
             $byteswritten += syswrite($destfh, $out);
         }
     }
     $byteswritten
+}
+
+###################
+# Dubug functions #
+###################
+
+sub extract_bloc {
+    my ($pack, $dest, $file) = @_;
+    print STDERR "Extracting block containing file $file\n";
+
+    sysopen(my $handle, $dest, O_WRONLY | O_TRUNC | O_CREAT) or do {
+        warn "Can't open $dest";
+        return -1;
+    };
+    
+    sysseek($pack->{handle}, $pack->{files}{$file}->{coff}, 0) == $pack->{files}{$file}->{coff} or do {
+        warn("Can't seek to offset $pack->{files}{$file}->{coff}");
+        close($handle);
+        return -1;
+    };
+
+    {
+    my $l;
+    $l = sysread($pack->{handle}, my $buf, $pack->{files}{$file}->{csize}) == $pack->{files}{$file}->{csize} or warn "Read only $l / $pack->{files}{$file}->{csize} bytes";
+    syswrite($handle, $buf);
+    }
+
+    foreach (sort {
+            $pack->{files}{$a}{coff} == $pack->{files}{$b}{coff} ?
+            $pack->{files}{$a}{off} <=> $pack->{files}{$b}{off} :
+            $pack->{files}{$a}{coff} <=> $pack->{files}{$b}{coff} 
+        } keys %{$pack->{files}}) {
+        $pack->{files}{$_}{coff} == $pack->{files}{$file}->{coff} or next;
+        printf "f %d %d %d %d %s\n", $pack->{files}{$_}{size}, $pack->{files}{$_}{off}, $pack->{files}{$_}{csize}, $pack->{files}{$_}{coff}, $_;
+
+    }
+    
+    close($handle);
+    
 }
 
 ############################
@@ -299,8 +345,12 @@ sub add_virtual {
 }
 
 sub add {
-    my ($pack, @files) = @_;
+    my ($pack, $prefix, @files) = @_;
+    $prefix ||= ""; $prefix =~ s://+:/:;
+    my $lprefix = length($prefix);
     foreach my $file (@files) {
+        $file =~ s://+:/:;
+        $file = substr($file, $lprefix);
         print STDERR "Adding $file\n";
         -l $file and do {
             $pack->add_virtual('l', $file, readlink($file));
@@ -347,6 +397,12 @@ sub extract_files {
             warn "Can't find $f in archive";
         }
     }
+}
+
+# Return \@dir, \@files, \@symlink list
+sub getcontent {
+    my ($pack) = @_;
+    return([ keys(%{$pack->{dir}})], [ keys(%{$pack->{files}}) ], [ keys(%{$pack->{'symlink'}}) ]);
 }
 
 sub list {
