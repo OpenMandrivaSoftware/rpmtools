@@ -62,6 +62,7 @@ WriteMakefile(
         'Packdrakeng/zlib.pm' => '$(INST_LIBDIR)/Packdrakeng/zlib.pm',
         'packdrake.pm' => '$(INST_LIBDIR)/packdrake.pm',
         'Distribconf.pm' => '$(INST_LIBDIR)/Distribconf.pm',
+        'Distribconf/Build.pm' => '$(INST_LIBDIR)/Distribconf/Build.pm',
     },
     'EXE_FILES' => [ qw(gendistrib genhdlist packdrake rpm2header parsehdlist rpm2cpio.pl dumpdistribconf) ],
     C => [],

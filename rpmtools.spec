@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.14
+%define version 5.0.15
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -66,9 +66,9 @@ is fully compatible with old packdrake.
 %{_bindir}/genhdlist
 %{_bindir}/rpm2cpio.pl
 %{_bindir}/dumpdistribconf
-%{perl_vendorlib}/Distribconf.pm
+%{perl_vendorlib}/Distribconf*
 %{_mandir}/man1/*
-%{_mandir}/man3/Distribconf.*
+%{_mandir}/man3/Distribconf*
 
 %files -n packdrake
 %defattr(-,root,root)
@@ -79,6 +79,12 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Tue Feb 22 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.15-1mdk
+- generate VERSION
+- split Distribconf with Build
+- gendistrib: --skipmissingdir
+- gendistrib: perform little check
+
 * Mon Feb 21 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.14-1mdk
 - fix undefined handle in write_hdlists
 
