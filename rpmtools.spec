@@ -54,6 +54,7 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Jan 23 2001 François Pons <fpons@ackbar.mandrakesoft.com> 2.1-9mdk
 - packdrake.pm to 0.03, added source directory for building an archive.
 - changed build_archive to use a specific directory.
+- removed bug of gendistrib with relative pathname of distrib.
 
 * Wed Jan 17 2001 François Pons <fpons@mandrakesoft.com> 2.1-8mdk
 - removed obsoleted genhdlists, genhdlist_cz2, genbasefiles by gendistrib.
