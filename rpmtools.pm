@@ -6,29 +6,99 @@ use vars qw($VERSION @ISA);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '0.01';
+$VERSION = '0.02';
 
 bootstrap rpmtools $VERSION;
 
+=head1 NAME
+
+rpmtools - Mandrake perl tools to handle rpm files and hdlist files
+
+=head1 SYNOPSYS
+
+    require rpmtools;
+
+    my $params = new rpmtools;
+
+    $params->read_hdlists("/export/Mandrake/base/hdlist.cz",
+                          "/export/Mandrake/base/hdlist2.cz");
+    $params->read_rpms("/RPMS/rpmtools-2.1-5mdk.i586.rpm");
+    $params->compute_depslist();
+
+    $params->get_packages_installed("", \@packages, \@names);
+    $params->get_all_packages_installed("", \@packages);
+
+    $params->read_depslist(\*STDIN);
+    $params->write_depslist(\*STDOUT);
+
+    rpmtools::version_compare("1.0.23", "1.0.4");
+
+=head1 DESCRIPTION
+
+C<rpmtools> extend perl to manipulate hdlist file used by
+Linux-Mandrake distribution to compute dependancy file.
+
+=head1 SEE ALSO
+
+parsehdlist command is a simple hdlist parser that allow interactive mode
+use by DrakX upgrade algorithms.
+
+=head1 COPYRIGHT
+
+Copyright (C) 2000 MandrakeSoft <fpons@mandrakesoft.com>
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+=cut
+
 #- build an empty params struct that can be used to compute dependancies.
 sub new {
+    my ($class, @tags) = @_;
+    my %tags; @tags{@_} = ();
     bless {
 	   use_base_flag => 0,
-	   flags         => [ qw(name version release size arch group requires provides) ],
+	   flags         => [ qw(name version release size arch group requires provides),
+			      grep { exists $tags{$_} } qw(sense files obsoletes conflicts) ],
 	   info          => {},
 	   depslist      => [],
 	   provides      => {},
-	  };
+	  }, $class;
 }
 
 #- read one or more hdlist files, use packdrake for decompression.
 sub read_hdlists {
     my ($params, @hdlists) = @_;
 
-    local *F;
-    open F, "packdrake -c ". join (' ', @hdlists) ." |";
-    rpmtools::_parse_(fileno *F, $params->{flags}, $params->{info}, $params->{provides});
-    close F;
+    local (*I, *O); pipe I, O;
+    if (my $pid = fork()) {
+	close O;
+
+	rpmtools::_parse_(fileno *I, $params->{flags}, $params->{info}, $params->{provides});
+
+	close I;
+	waitpid $pid, 0;
+    } else {
+	close I;
+	open STDOUT, ">&O" or die "unable to redirect output";
+
+	require packdrake;
+	packdrake::cat_archive(@hdlists);
+
+	close O;
+	exit 0;
+    }
     1;
 }
 
@@ -64,9 +134,6 @@ sub compute_depslist {
 	my %provides; @provides{@{$params->{provides}{$_}}} = ();
 	$params->{provides}{$_} = [ keys %provides ];
     }
-
-    #- search for entries in provides, if such entries are found,
-    #- another pass has to be done. TODO.
 
     #- take into account in which hdlist a package has been found.
     #- this can be done by an incremental take into account generation
@@ -393,14 +460,17 @@ sub write_compss {
     1;
 }
 
-#- compare a version string.
+#- compare a version string, make sure no deadlock can occur.
+#- bug: "0" and "" are equal (same for "" and "0"), should be
+#- trapped by release comparison (unless not correct).
 sub version_compare {
     my ($a, $b) = @_;
     local $_;
 
     while ($a || $b) {
-	my ($sb, $sa) =  map { $1 if ($a || 0) =~ /^\W*\d/ ? s/^\W*0*(\d+)// : s/^\W*(\D+)// } ($b, $a);
+	my ($sb, $sa) =  map { $1 if $a =~ /^\W*\d/ ? s/^\W*0*(\d+)// : s/^\W*(\D*)// } ($b, $a);
 	$_ = length($sa) cmp length($sb) || $sa cmp $sb and return $_;
+	$sa eq '' && $sb eq '' and return $a cmp $b;
     }
 }
 

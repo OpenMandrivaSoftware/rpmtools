@@ -84,6 +84,7 @@ void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 t
 	if (flags[i] & RPMSENSE_LESS) printf("<");
 	if (flags[i] & RPMSENSE_GREATER) printf(">");
 	if (flags[i] & RPMSENSE_EQUAL) printf("=");
+	if ((flags[i] & (RPMSENSE_LESS|RPMSENSE_EQUAL|RPMSENSE_GREATER)) == RPMSENSE_EQUAL) printf("=");
 	printf(" %s", list_evr[i]);
       }
       printf("\n");

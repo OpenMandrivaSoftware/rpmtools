@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 4mdk
+%define release 5mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -48,10 +48,16 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/genbasefiles
 %dir %{perl_sitearch}/auto/rpmtools
 %{perl_sitearch}/auto/rpmtools/rpmtools.so
+%{perl_sitearch}/packdrake.pm
 %{perl_sitearch}/rpmtools.pm
-
+%{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Dec  6 2000 François Pons <fpons@mandrakesoft.com> 2.1-5mdk
+- split packdrake into packdrake.pm, updated version to 0.02.
+- rpmtools.pm to 0.02 too.
+- added man pages.
+
 * Thu Nov 23 2000 François Pons <fpons@mandrakesoft.com> 2.1-4mdk
 - fixed deadlock with version_compare().
 - fixed memory leaks in parsehdlist.

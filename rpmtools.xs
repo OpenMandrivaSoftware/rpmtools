@@ -12,6 +12,22 @@
 #include <rpm/rpmlib.h>
 #include <rpm/header.h>
 
+#define HDFLAGS_NAME          0x00000001
+#define HDFLAGS_VERSION       0x00000002
+#define HDFLAGS_RELEASE       0x00000004
+#define HDFLAGS_ARCH          0x00000008
+#define HDFLAGS_GROUP         0x00000010
+#define HDFLAGS_SIZE          0x00000020
+#define HDFLAGS_SENSE         0x00080000
+#define HDFLAGS_REQUIRES      0x00100000
+#define HDFLAGS_PROVIDES      0x00200000
+#define HDFLAGS_OBSOLETES     0x00400000
+#define HDFLAGS_CONFLICTS     0x00800000
+#define HDFLAGS_FILES         0x01000000
+#define HDFLAGS_DIRSIND       0x02000000
+#define HDFLAGS_FILESIND      0x04000000
+
+
 char *get_name(Header header, int_32 tag) {
   int_32 type, count;
   char *name;
@@ -28,22 +44,49 @@ int get_int(Header header, int_32 tag) {
   return *i;
 }
 
-HV* get_info(Header header) {
-  HV* info = newHV();
-  char *name = get_name(header, RPMTAG_NAME);
-  STRLEN len = strlen(name);
+int get_bflag(AV* flag) {
+  int bflag = 0;
+  int flag_len;
+  SV** ret;
+  STRLEN len;
+  char* str;
+  int i;
 
-  if (info != 0) {
-    SV* sv_name = newSVpv(name, len);
-    SV* sv_version = newSVpv(get_name(header, RPMTAG_VERSION), 0);
-    SV* sv_release = newSVpv(get_name(header, RPMTAG_RELEASE), 0);
+  flag_len = av_len(flag);
+  for (i = 0; i <= flag_len; ++i) {
+    ret = av_fetch(flag, i, 0); if (!ret) continue;
+    str = SvPV(*ret, len);
 
-    hv_store(info, "name", 4, sv_name, 0);
-    hv_store(info, "version", 7, sv_version, 0);
-    hv_store(info, "release", 7, sv_release, 0);
+    switch (len) {
+    case 4:
+      if (!strncmp(str, "name", 4))      bflag |= HDFLAGS_NAME;
+      else if (!strncmp(str, "arch", 4)) bflag |= HDFLAGS_ARCH;
+      else if (!strncmp(str, "size", 4)) bflag |= HDFLAGS_SIZE;
+      break;
+    case 5:
+      if (!strncmp(str, "group", 5))      bflag |= HDFLAGS_GROUP;
+      else if (!strncmp(str, "sense", 5)) bflag |= HDFLAGS_SENSE;
+      else if (!strncmp(str, "files", 5)) bflag |= HDFLAGS_FILES;
+      break;
+    case 7:
+      if (!strncmp(str, "version", 7))      bflag |= HDFLAGS_VERSION;
+      else if (!strncmp(str, "release", 7)) bflag |= HDFLAGS_RELEASE;
+      else if (!strncmp(str, "dirsind", 7)) bflag |= HDFLAGS_DIRSIND;
+      break;
+    case 8:
+      if (!strncmp(str, "requires", 8))      bflag |= HDFLAGS_REQUIRES;
+      else if (!strncmp(str, "provides", 8)) bflag |= HDFLAGS_PROVIDES;
+      else if (!strncmp(str, "filesind", 8)) bflag |= HDFLAGS_FILESIND;
+      break;
+    case 9:
+      if (!strncmp(str, "obsoletes", 9))      bflag |= HDFLAGS_OBSOLETES;
+      else if (!strncmp(str, "conflicts", 9)) bflag |= HDFLAGS_CONFLICTS;
+      break;
+    }
   }
+  bflag |= HDFLAGS_NAME; /* this one should always be used */
 
-  return info;
+  return bflag;
 }
 
 SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag_version, HV* iprovides) {
@@ -108,33 +151,152 @@ SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag
   return &PL_sv_undef;
 }
 
-#define HDFLAGS_NAME          0x00000001
-#define HDFLAGS_VERSION       0x00000002
-#define HDFLAGS_RELEASE       0x00000004
-#define HDFLAGS_ARCH          0x00000008
-#define HDFLAGS_GROUP         0x00000010
-#define HDFLAGS_SIZE          0x00000020
-#define HDFLAGS_SENSE         0x00080000
-#define HDFLAGS_REQUIRES      0x00100000
-#define HDFLAGS_PROVIDES      0x00200000
-#define HDFLAGS_OBSOLETES     0x00400000
-#define HDFLAGS_CONFLICTS     0x00800000
-#define HDFLAGS_FILES         0x01000000
-#define HDFLAGS_DIRSIND       0x02000000
-#define HDFLAGS_FILESIND      0x04000000
+HV* get_info(Header header, int bflag, HV* provides) {
+  int_32 type, count;
+  char **list;
+  int_32 *flags;
+  SV** ret;
+  STRLEN len;
+  char* str;
+  int i;
+  SV* sv_name = newSVpv(get_name(header, RPMTAG_NAME), 0);
+  HV* header_info = newHV();
+
+  /* correct bflag according to provides hash else not really usefull */
+  if (provides) bflag |= HDFLAGS_REQUIRES;
+
+  hv_store(header_info, "name", 4, sv_name, 0);
+  if (bflag & HDFLAGS_VERSION)
+    hv_store(header_info, "version", 7, newSVpv(get_name(header, RPMTAG_VERSION), 0), 0);
+  if (bflag & HDFLAGS_RELEASE)
+    hv_store(header_info, "release", 7, newSVpv(get_name(header, RPMTAG_RELEASE), 0), 0);
+  if (bflag & HDFLAGS_ARCH)
+    hv_store(header_info, "arch", 4, newSVpv(get_name(header, RPMTAG_ARCH), 0), 0);
+  if (bflag & HDFLAGS_GROUP)
+    hv_store(header_info, "group", 5, newSVpv(get_name(header, RPMTAG_GROUP), 0), 0);
+  if (bflag & HDFLAGS_SIZE)
+    hv_store(header_info, "size", 4, newSViv(get_int(header, RPMTAG_SIZE)), 0);
+  if (bflag & HDFLAGS_REQUIRES)
+    hv_store(header_info, "requires", 8, get_table_sense(header,                 RPMTAG_REQUIRENAME,
+							 bflag & HDFLAGS_SENSE ? RPMTAG_REQUIREFLAGS : 0,
+							 bflag & HDFLAGS_SENSE ? RPMTAG_REQUIREVERSION : 0, provides), 0);
+  if (bflag & HDFLAGS_PROVIDES)
+    hv_store(header_info, "provides", 8, get_table_sense(header,                 RPMTAG_PROVIDENAME,
+							 bflag & HDFLAGS_SENSE ? RPMTAG_PROVIDEFLAGS : 0,
+							 bflag & HDFLAGS_SENSE ? RPMTAG_PROVIDEVERSION : 0, 0), 0);
+  if (bflag & HDFLAGS_OBSOLETES)
+    hv_store(header_info, "obsoletes", 9, get_table_sense(header,                 RPMTAG_OBSOLETENAME,
+							  bflag & HDFLAGS_SENSE ? RPMTAG_OBSOLETEFLAGS : 0,
+							  bflag & HDFLAGS_SENSE ? RPMTAG_OBSOLETEVERSION : 0, 0), 0);
+  if (bflag & HDFLAGS_CONFLICTS)
+    hv_store(header_info, "conflicts", 9, get_table_sense(header,                 RPMTAG_CONFLICTNAME,
+							  bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTFLAGS : 0,
+							  bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTVERSION : 0, 0), 0);
+  if (provides || (bflag & HDFLAGS_FILES)) {
+    /* at this point, there is a need to parse all files to update provides of needed files,
+       or to store them. */
+    AV* table_files = bflag & HDFLAGS_FILES ? newAV() : 0;
+    char ** baseNames, ** dirNames;
+    int_32 * dirIndexes;
+
+    headerGetEntry(header, RPMTAG_OLDFILENAMES, &type, (void **) &list, &count);
+
+    if (list) {
+      for (i = 0; i < count; i++) {
+	SV** isv;
+
+	len = strlen(list[i]);
+
+	if (provides && (isv = hv_fetch(provides, list[i], len, 0)) != 0) {
+	  if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
+	    SV* choice_table = (SV*)newAV();
+	    SvREFCNT_dec(*isv); /* drop the old as we are changing it */
+	    *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
+	  }
+	  if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
+	}
+	/* if (provides && hv_exists(provides, list[i], len))
+	   hv_store(provides, list[i], len, newSVpv(name, 0), 0); */
+	if (table_files)
+	  av_push(table_files, newSVpv(list[i], len));
+      }
+    }
+
+    headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, 
+		   &count);
+    headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, 
+		   NULL);
+    headerGetEntry(header, RPMTAG_DIRNAMES, &type, (void **) &dirNames, NULL);
+
+    if (baseNames && dirNames && dirIndexes) {
+      char buff[4096];
+      char *p;
+
+      for(i = 0; i < count; i++) {
+	SV** isv;
+
+	len = strlen(dirNames[dirIndexes[i]]);
+	if (len >= sizeof(buff)) continue;
+	memcpy(p = buff, dirNames[dirIndexes[i]], len + 1); p += len;
+	len = strlen(baseNames[i]);
+	if (p - buff + len >= sizeof(buff)) continue;
+	memcpy(p, baseNames[i], len + 1); p += len;
+
+	if (provides && (isv = hv_fetch(provides, buff, p - buff, 0)) != 0) {
+	  if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
+	    SV* choice_table = (SV*)newAV();
+	    SvREFCNT_dec(*isv); /* drop the old as we are changing it */
+	    *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
+	  }
+	  if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
+	}
+	if (table_files)
+	  av_push(table_files, newSVpv(buff, p - buff));
+      }
+    }
+
+    if (table_files)
+      hv_store(header_info, "files", 5, newRV_noinc((SV*)table_files), 0);
+  }
+  if (provides) {
+    /* we have to examine provides to update the hash here. */
+    headerGetEntry(header, RPMTAG_PROVIDENAME, &type, (void **) &list, &count);
+
+    if (list) {
+      for (i = 0; i < count; i++) {
+	SV** isv;
+
+	len = strlen(list[i]);
+
+	isv = hv_fetch(provides, list[i], len, 1);
+	if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
+	  SV* choice_table = (SV*)newAV();
+	  SvREFCNT_dec(*isv); /* drop the old as we are changing it */
+	  *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
+	}
+	if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
+      }
+    }
+  }
+
+  return header_info;
+}
 
 
 MODULE = rpmtools			PACKAGE = rpmtools
 
 
 int
-get_packages_installed(prefix, packages, lnames)
+get_packages_installed(prefix, packages, lnames, ...)
   char* prefix
   SV* packages
   SV* lnames
   PREINIT:
+  SV* flags = &PL_sv_undef;
   int count = 0;
   CODE:
+  if (items > 3)
+    flags = ST(3);
   if (SvROK(packages) && SvTYPE(SvRV(packages)) == SVt_PVAV &&
       SvROK(lnames) && SvTYPE(SvRV(lnames)) == SVt_PVAV) {
     AV* pkgs = (AV*)SvRV(packages);
@@ -143,13 +305,15 @@ get_packages_installed(prefix, packages, lnames)
     SV** isv;
     rpmdb db;
     dbiIndexSet matches;
-    int num, i, j, rc, len;
+    int bflag, num, i, j, rc, len;
     char *name;
     Header header;
     rpmdbMatchIterator mi;
 
     if (rpmReadConfigFiles(NULL, NULL) == 0) {
       if (rpmdbOpen(prefix, &db, O_RDONLY, 0644) == 0) {
+	bflag = SvROK(flags) && SvTYPE(SvRV(flags)) ?
+	  get_bflag((AV*)SvRV(flags)) : (HDFLAGS_NAME | HDFLAGS_VERSION | HDFLAGS_RELEASE);
 	len = av_len(names);
 	for (j = 0; j <= len; ++j) {
 	  isv = av_fetch(names, j, 0);
@@ -158,7 +322,7 @@ get_packages_installed(prefix, packages, lnames)
 	  count=0;
           while (header = rpmdbNextIterator(mi)) {
 	    count++;
-	    info = get_info(header);
+	    info = get_info(header, bflag, NULL);
 
 	    if (info != 0) av_push(pkgs, newRV_noinc((SV*)info));
 
@@ -175,26 +339,31 @@ get_packages_installed(prefix, packages, lnames)
 
 
 int
-get_all_packages_installed(prefix, packages)
+get_all_packages_installed(prefix, packages, ...)
   char* prefix
   SV* packages
   PREINIT:
+  SV* flags = &PL_sv_undef;
   int count = 0;
   CODE:
+  if (items > 2)
+    flags = ST(2);
   if (SvROK(packages) && SvTYPE(SvRV(packages)) == SVt_PVAV) {
     AV* pkgs = (AV*)SvRV(packages);
     HV* info;
     rpmdb db;
-    int num;
+    int bflag, num;
     Header header;
     rpmdbMatchIterator mi;
     
     if (rpmReadConfigFiles(NULL, NULL) == 0) {
       if (rpmdbOpen(prefix, &db, O_RDONLY, 0644) == 0) {
+	bflag = SvROK(flags) && SvTYPE(SvRV(flags)) ?
+	  get_bflag((AV*)SvRV(flags)) : (HDFLAGS_NAME | HDFLAGS_VERSION | HDFLAGS_RELEASE);
 	mi = rpmdbInitIterator(db, RPMDBI_PACKAGES, NULL, 0);
 	
 	while (header = rpmdbNextIterator(mi)) {
-	  info = get_info(header);
+	  info = get_info(header, bflag, NULL);
 
 	  if (info != 0) av_push(pkgs, newRV_noinc((SV*)info));
 
@@ -224,11 +393,8 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
     FD_t fd;
     int fd_is_hdlist;
     Header header;
-    int_32 type, count;
-    char **list;
-    int_32 *flags;
 
-    int bflag = 0;
+    int bflag;
     AV* iflag;
     HV* iinfo;
     HV* iprovides;
@@ -257,164 +423,15 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
     iprovides = (HV*)(provides != &PL_sv_undef ? SvRV(provides) : 0);
 
     /* examine flag and set up iflag, which is faster to fecth out */
-    flag_len = av_len(iflag);
-    for (i = 0; i <= flag_len; ++i) {
-      ret = av_fetch(iflag, i, 0); if (!ret) continue;
-      str = SvPV(*ret, len);
-
-      switch (len) {
-      case 4:
-	if (!strncmp(str, "name", 4))      bflag |= HDFLAGS_NAME;
-	else if (!strncmp(str, "arch", 4)) bflag |= HDFLAGS_ARCH;
-	else if (!strncmp(str, "size", 4)) bflag |= HDFLAGS_SIZE;
-	break;
-      case 5:
-	if (!strncmp(str, "group", 5))      bflag |= HDFLAGS_GROUP;
-	else if (!strncmp(str, "sense", 5)) bflag |= HDFLAGS_SENSE;
-	else if (!strncmp(str, "files", 5)) bflag |= HDFLAGS_FILES;
-	break;
-      case 7:
-	if (!strncmp(str, "version", 7))      bflag |= HDFLAGS_VERSION;
-	else if (!strncmp(str, "release", 7)) bflag |= HDFLAGS_RELEASE;
-	else if (!strncmp(str, "dirsind", 7)) bflag |= HDFLAGS_DIRSIND;
-	break;
-      case 8:
-	if (!strncmp(str, "requires", 8))      bflag |= HDFLAGS_REQUIRES;
-	else if (!strncmp(str, "provides", 8)) bflag |= HDFLAGS_PROVIDES;
-	else if (!strncmp(str, "filesind", 8)) bflag |= HDFLAGS_FILESIND;
-	break;
-      case 9:
-	if (!strncmp(str, "obsoletes", 9))      bflag |= HDFLAGS_OBSOLETES;
-	else if (!strncmp(str, "conflicts", 9)) bflag |= HDFLAGS_CONFLICTS;
-	break;
-      }
-    }
-    bflag |= HDFLAGS_NAME; /* this one should always be used */
-    if (iprovides) bflag |= HDFLAGS_REQUIRES; /* not really usefull else */
+    bflag = get_bflag(iflag);
 
     /* start the big loop,
        parse all header from fileno, then extract information to store into iinfo and iprovides. */
     while (fd_is_hdlist >= 0 ? (fd_is_hdlist > 0 ?
 				((header=headerRead(fd, HEADER_MAGIC_YES)) != 0) :
 				((fd_is_hdlist = -1), rpmReadPackageHeader(fd, &header, &i, NULL, NULL) == 0)) : 0) {
-      char *name = get_name(header, RPMTAG_NAME);
-      SV* sv_name = newSVpv(name, 0);
-      HV* header_info = newHV();
-
-      if (bflag & HDFLAGS_NAME)
-	hv_store(header_info, "name", 4, SvREFCNT_inc(sv_name), 0);
-      if (bflag & HDFLAGS_VERSION)
-	hv_store(header_info, "version", 7, newSVpv(get_name(header, RPMTAG_VERSION), 0), 0);
-      if (bflag & HDFLAGS_RELEASE)
-	hv_store(header_info, "release", 7, newSVpv(get_name(header, RPMTAG_RELEASE), 0), 0);
-      if (bflag & HDFLAGS_ARCH)
-	hv_store(header_info, "arch", 4, newSVpv(get_name(header, RPMTAG_ARCH), 0), 0);
-      if (bflag & HDFLAGS_GROUP)
-	hv_store(header_info, "group", 5, newSVpv(get_name(header, RPMTAG_GROUP), 0), 0);
-      if (bflag & HDFLAGS_SIZE)
-	hv_store(header_info, "size", 4, newSViv(get_int(header, RPMTAG_SIZE)), 0);
-      if (bflag & HDFLAGS_REQUIRES)
-	hv_store(header_info, "requires", 8, get_table_sense(header,                 RPMTAG_REQUIRENAME,
-							     bflag & HDFLAGS_SENSE ? RPMTAG_REQUIREFLAGS : 0,
-							     bflag & HDFLAGS_SENSE ? RPMTAG_REQUIREVERSION : 0, iprovides), 0);
-      if (bflag & HDFLAGS_PROVIDES)
-	hv_store(header_info, "provides", 8, get_table_sense(header,                 RPMTAG_PROVIDENAME,
-							     bflag & HDFLAGS_SENSE ? RPMTAG_PROVIDEFLAGS : 0,
-							     bflag & HDFLAGS_SENSE ? RPMTAG_PROVIDEVERSION : 0, 0), 0);
-      if (bflag & HDFLAGS_OBSOLETES)
-	hv_store(header_info, "obsoletes", 9, get_table_sense(header,                 RPMTAG_OBSOLETENAME,
-							      bflag & HDFLAGS_SENSE ? RPMTAG_OBSOLETEFLAGS : 0,
-							      bflag & HDFLAGS_SENSE ? RPMTAG_OBSOLETEVERSION : 0, 0), 0);
-      if (bflag & HDFLAGS_CONFLICTS)
-	hv_store(header_info, "conflicts", 9, get_table_sense(header,                 RPMTAG_CONFLICTNAME,
-							      bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTFLAGS : 0,
-							      bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTVERSION : 0, 0), 0);
-      if (iprovides || (bflag & HDFLAGS_FILES)) {
-	/* at this point, there is a need to parse all files to update provides of needed files,
-	   or to store them. */
-	AV* table_files = bflag & HDFLAGS_FILES ? newAV() : 0;
-	char ** baseNames, ** dirNames;
-	int_32 * dirIndexes;
-
-	headerGetEntry(header, RPMTAG_OLDFILENAMES, &type, (void **) &list, &count);
-
-	if (list) {
-	  for (i = 0; i < count; i++) {
-	    SV** isv;
-
-	    len = strlen(list[i]);
-
-	    if (iprovides && (isv = hv_fetch(iprovides, list[i], len, 0)) != 0) {
-	      if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
-		SV* choice_table = (SV*)newAV();
-		SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-		*isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
-	      }
-	      if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
-	    }
-	    /*	    if (iprovides && hv_exists(iprovides, list[i], len))
-		    hv_store(iprovides, list[i], len, newSVpv(name, 0), 0); */
-	    if (table_files)
-	      av_push(table_files, newSVpv(list[i], len));
-	  }
-	}
-
-	headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, 
-		       &count);
-	headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, 
-		       NULL);
-	headerGetEntry(header, RPMTAG_DIRNAMES, &type, (void **) &dirNames, NULL);
-
-	if (baseNames && dirNames && dirIndexes) {
-	  char buff[4096];
-	  char *p;
-
-	  for(i = 0; i < count; i++) {
-	    SV** isv;
-
-	    len = strlen(dirNames[dirIndexes[i]]);
-	    if (len >= sizeof(buff)) continue;
-	    memcpy(p = buff, dirNames[dirIndexes[i]], len + 1); p += len;
-	    len = strlen(baseNames[i]);
-	    if (p - buff + len >= sizeof(buff)) continue;
-	    memcpy(p, baseNames[i], len + 1); p += len;
-
-	    if (iprovides && (isv = hv_fetch(iprovides, buff, p - buff, 0)) != 0) {
-	      if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
-		SV* choice_table = (SV*)newAV();
-		SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-		*isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
-	      }
-	      if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
-	    }
-	    if (table_files)
-	      av_push(table_files, newSVpv(buff, p - buff));
-	  }
-	}
-
-	if (table_files)
-	  hv_store(header_info, "files", 5, newRV_noinc((SV*)table_files), 0);
-      }
-      if (iprovides) {
-	/* we have to examine provides to update the hash here. */
-	headerGetEntry(header, RPMTAG_PROVIDENAME, &type, (void **) &list, &count);
-
-	if (list) {
-	  for (i = 0; i < count; i++) {
-	    SV** isv;
-
-	    len = strlen(list[i]);
-
-	    isv = hv_fetch(iprovides, list[i], len, 1);
-	    if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
-	      SV* choice_table = (SV*)newAV();
-	      SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-	      *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
-	    }
-	    if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
-	  }
-	}
-      }
+      SV* sv_name = newSVpv(get_name(header, RPMTAG_NAME), 0);
+      HV* header_info = get_info(header, bflag, iprovides);
 
       /* once the hash header_info is built, store a reference to it
 	 in iinfo.
