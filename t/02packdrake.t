@@ -10,7 +10,7 @@ use_ok('packdrake');
 
 -d "test" || mkdir "test" or die "Can't create directory test";
 
-my $coin = "
+my $coin = q{
  ___________
 < Coin coin >
  -----------
@@ -20,7 +20,7 @@ my $coin = "
        ( (   . /
         \ '-' /
     ~'`~'`~'`~'`~
-";
+};
 
 sub clean_test_files {
     -d "test" or return;
@@ -34,13 +34,13 @@ open(my $fh, "> test/file") or die "Can't create 'test/file'";
 print $fh $coin;
 close $fh;
 
-symlink("file", "test/link") or die "Can't create symlink 'test/link'";
+symlink("file", "test/link") or die "Can't create symlink 'test/link': $!\n";
 
-open($fh, "> test/list") or die "can't open 'test/list'";
+open($fh, "> test/list") or die "can't open 'test/list': $!\n";
 print($fh join("\n", qw(dir file link)) ."\n");
 close($fh);
 
-open(my $listh, "< test/list");
+open(my $listh, "< test/list") or die "can't read 'test/list': $!\n";
 ok(packdrake::build_archive(
     $listh,
     "test",
@@ -58,7 +58,7 @@ ok($pack->extract_archive("test", qw(dir file link)), "Extracting files from arc
 
 ok(open($fh, "test/file"), "Opening extract file");
 sysread($fh, my $data, 1_000);
-ok($data == $coin, "data succefully restored");
+ok($data eq $coin, "data succefully restored");
 ok(-d "test/dir", "dir succefully restored");
 ok(readlink("test/link") eq "file", "symlink succefully restored");
 
