@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 12mdk
+%define release 13mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
@@ -53,6 +53,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed May 29 2002 François Pons <fpons@mandrakesoft.com> 4.2-13mdk
+- incorporated fix from URPM module.
+- problably latest stable rpmtools release.
+
 * Mon Apr 22 2002 François Pons <fpons@mandrakesoft.com> 4.2-12mdk
 - removed "rpmlib(" from synthesis file.
 
