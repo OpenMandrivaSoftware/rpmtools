@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 7mdk
+%define release 8mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.0
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Jul  5 2001 François Pons <fpons@mandrakesoft.com> 3.0-8mdk
+- added compute_id function.
+
 * Mon Jul  2 2001 François Pons <fpons@mandrakesoft.com> 3.0-7mdk
 - added arch check support for parsehdlist.
 

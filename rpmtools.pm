@@ -191,6 +191,25 @@ sub read_rpms {
     map { rpmtools::_parse_($_, $params->{flags}, $params->{info}, $params->{provides}) } @rpms;
 }
 
+#- allocate id for newly entered value.
+#- this is no more necessary to compute_depslist on them (and impossible)
+sub compute_id {
+    my ($params) = @_;
+
+    #- avoid recomputing already present infos, take care not to modify
+    #- existing entries, as the array here is used instead of values of infos.
+    my @info = grep { ! exists $_->{id} } values %{$params->{info}};
+
+    #- give an id to each packages, start from number of package already
+    #- registered in depslist.
+    my $global_id = scalar @{$params->{depslist}};
+    foreach (sort { package_name_compare($a->{name}, $b->{name}) } @info) {
+	$_->{id} = $global_id++;
+	push @{$params->{depslist}}, $_;
+    }
+    1;
+}
+
 #- compute dependencies, result in stored in info values of params.
 #- operations are incremental, it is possible to read just one hdlist, compute
 #- dependencies and read another hdlist, and again.
