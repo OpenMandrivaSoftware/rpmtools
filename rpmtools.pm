@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA %compat_arch);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '4.3';
+$VERSION = '4.4';
 
 bootstrap rpmtools $VERSION;
 

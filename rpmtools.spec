@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 6mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 4.3
+%define version 4.4
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
@@ -18,7 +18,7 @@ Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires:	bzip2-devel gcc perl-devel rpm-devel >= 4.0
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.02
+Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.50-2mdk
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -48,12 +48,15 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/gendistrib
 %{_bindir}/distriblint
 %{_bindir}/genhdlist
-%{perl_vendorarch}/auto/rpmtools
+#%{perl_vendorarch}/auto/rpmtools
 %{perl_vendorarch}/packdrake.pm
-%{perl_vendorarch}/rpmtools.pm
+#%{perl_vendorarch}/rpmtools.pm
 %{_mandir}/*/*
 
 %changelog
+* Tue Jul 23 2002 François Pons <fpons@mandrakesoft.com> 4.4-1mdk
+- removed rpmtools perl module obsoleted.
+
 * Tue Jul  9 2002 Pixel <pixel@mandrakesoft.com> 4.3-6mdk
 - rebuild for perl 5.8.0
 - little clean of %%files
