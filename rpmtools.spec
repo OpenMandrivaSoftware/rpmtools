@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 4mdk
+%define release 5mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Feb 26 2001 François Pons <fpons@mandrakesoft.com> 2.3-5mdk
+- improved base flag usage so obsoleted use_base_flag.
+
 * Mon Feb 19 2001 François Pons <fpons@mandrakesoft.com> 2.3-4mdk
 - _parse_ returns now fullname of package read.
 

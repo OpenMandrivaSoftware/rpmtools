@@ -81,7 +81,6 @@ sub new {
     my ($class, @tags) = @_;
     my %tags; @tags{@_} = ();
     bless {
-	   use_base_flag => 0,
 	   flags         => [ qw(name version release size arch group requires provides),
 			      grep { exists $tags{$_} } qw(sense files obsoletes conflicts conffiles) ],
 	   info          => {},
@@ -272,7 +271,7 @@ sub compute_depslist {
 	ref $_ or $params->{info}{$_} and $params->{info}{$_}{base} = undef;
     }
     #- some package are always installed as base and can safely be marked as such.
-    foreach (qw(glibc)) {
+    foreach (qw(basesystem glibc)) {
 	$params->{info}{$_} and $params->{info}{$_}{base} = undef;
     }
 
@@ -295,7 +294,7 @@ sub compute_depslist {
 		foreach (@$_) {
 		    my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id}, exists $params->{info}{$_}{base}) : ($_, 0);
 		    $base and push @choices_base_id, $id;
-		    $base &&= $params->{use_base_flag} && $pkg->{name} ne 'basesystem';
+		    $base &&= ! exists $pkg->{base};
 		    $to_drop ||= $id == $pkg->{id} || $requires_id{$id} || $base;
 		    push @choices_id, $id;
 		}
@@ -315,13 +314,12 @@ sub compute_depslist {
 	    }
 
 	    #- select individual package.
-	    $base &&= $params->{use_base_flag} && $pkg->{name} ne 'basesystem';
+	    $base &&= ! exists $pkg->{base};
 	    $requires_id{$id} = $_;
 	    $id == $pkg->{id} || $base or push @requires_id, $id;
 	}
 	#- cannot remove requires values as they are necessary for closure on incremental job.
 	$pkg->{deps} = join(' ', map { join '|', @{ref $_ ? $_ : [$_]} } @requires_id);
-	$pkg->{name} eq 'basesystem' and $params->{use_base_flag} = 1;
 	push @{$params->{depslist}}, $pkg;
     }
     1;
@@ -356,11 +354,9 @@ sub read_depslist {
 	foreach (split ' ', $params->{info}{basesystem}{deps}) {
 	    /\|/ or push @requires_id, $_;
 	}
-	foreach (@requires_id) {
+	foreach ($params->{info}{basesystem}{id}, @requires_id) {
 	    $params->{depslist}[$_] and $params->{depslist}[$_]{base} = undef;
 	}
-	$params->{info}{basesystem}{base} = undef; #- make sure.
-	$params->{use_base_flag} = 1;
     }
     1;
 }
@@ -451,7 +447,6 @@ sub keep_only_cleaned_provides_files {
     }
 
     #- clean everything else at this point.
-    $params->{use_base_flag} = 0;
     $params->{info} = {};
     $params->{depslist} = [];
 }
@@ -460,7 +455,6 @@ sub keep_only_cleaned_provides_files {
 sub clean {
     my ($params) = @_;
 
-    $params->{use_base_flag} = 0;
     $params->{info} = {};
     $params->{depslist} = [];
     $params->{provides} = {};
