@@ -323,7 +323,9 @@ Return 1 on success, 0 if media.cfg can't be found or is invalid.
 sub parse_mediacfg {
     my ($distrib, $mediacfg) = @_;
     $mediacfg ||= "$distrib->{root}/$distrib->{infodir}/media.cfg";
-    ($distrib->{cfg} = new Config::IniFiles( -file => $mediacfg, -default => 'media_info', -allowcontinue => 1)) or return 0;
+    (-f $mediacfg && -r _) &&
+        ($distrib->{cfg} = new Config::IniFiles( -file => $mediacfg, -default => 'media_info', -allowcontinue => 1)) 
+            or return 0;
     return 1;
 }
 
@@ -441,6 +443,9 @@ Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.2  2005/02/21 12:47:34  othauvin
+    - avoid error message about non existing media.cfg
+
     Revision 1.1  2005/02/20 21:15:50  othauvin
     - initials release for managing mandrakelinux distro tree
 
