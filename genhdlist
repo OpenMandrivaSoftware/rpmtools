@@ -4,7 +4,7 @@
 # $Id$
 #
 
-#- Copyright (C) 1999 MandrakeSoft
+#- Copyright (C) 1999-2005 Mandrakesoft
 #-
 #- This program is free software; you can redistribute it and/or modify
 #- it under the terms of the GNU General Public License as published by
@@ -27,7 +27,7 @@ use File::Find;
 use File::Path;
 use Getopt::Long;
 
-my ($noclean, $nooutput, $dontdie, $suffix, $dest) = (0, 0, 0, "");
+my ($noclean, $nooutput, $dontdie, $suffix, $dest) = (0, 0, 0, "", "");
 my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
 sub usage {
@@ -41,7 +41,6 @@ Options:
   --nobadrpm          do not stop on bad rpm
   --noclean           keep cache files
   --suffix SUFFIX     put a suffix on hdlist names
-  
 EOF
 }
 
@@ -62,46 +61,46 @@ my @dir = @ARGV ? @ARGV : (".");
 
 grep { m!^/! } @dir and die "Directory path to parse should be relative";
 
-$dest and do { chdir $dest or die "can't chdir in directory $dest"; };
+$dest and do { chdir $dest or die "can't chdir in directory $dest" };
 rmtree($tmpdir) unless $noclean;
 mkpath($tmpdir);
 
 my @rpms;
 my %rpmslist;
 sub wanted {
-    	if (-f $_ && $_ =~ /^.*\.rpm$/ ) {
-        	push(@rpms, $File::Find::name);
-    	}
+    if (-f $_ && /^.*\.rpm$/) {
+	push(@rpms, $File::Find::name);
+    }
 }
 
 # get rpm list
-open(LIST, "> list$suffix") or die "can't create list file: $!";
+open my $list, ">", "list$suffix" or die "can't create list file: $!";
 foreach my $dir (@dir) {
-	print "parsing $dir\n" unless $nooutput;
-	@rpms = ();
+    print "parsing $dir\n" unless $nooutput;
+    @rpms = ();
     %rpmslist = ();
-	File::Find::find({wanted => \&wanted}, $dir);
-	$urpm->parse_rpms_build_headers(
-                    dir  => $tmpdir,
-					rpms => \@rpms,
-			        dontdie => $dontdie,
-					silent => $nooutput,
-                    callback => sub {
-                        my ($urpm, $id, %options) = @_;
-                        
-                        # This code need a fix in perl-URPM
-                        # print LIST "$options{file}\n";
-                        $rpmslist{scalar($urpm->{depslist}[$id]->fullname).".rpm"} = 1;
-                        $urpm->{depslist}[$id]->pack_header;
-                    },
-                );
+    File::Find::find({ wanted => \&wanted, follow => 1 }, $dir);
+    $urpm->parse_rpms_build_headers(
+	dir  => $tmpdir,
+	rpms => \@rpms,
+	dontdie => $dontdie,
+	silent => $nooutput,
+	callback => sub {
+	    my ($urpm, $id, %options) = @_;
+
+	    # This code need a fix in perl-URPM
+	    # print $list "$options{file}\n";
+	    $rpmslist{scalar($urpm->{depslist}[$id]->fullname) . ".rpm"} = 1;
+	    $urpm->{depslist}[$id]->pack_header;
+	},
+    );
     # This code will become useless... see above
     foreach my $rpm (@rpms) { 
-        $rpmslist{($rpm =~ m!.*/(.*)$!)[0]} or next;
-        print LIST "$rpm\n";
+	$rpmslist{($rpm =~ m!.*/(.*)$!)[0]} or next;
+	print $list "$rpm\n";
     }
 }
-close(LIST);
+close($list);
 
 # create index file
 # No rpms, exit !
@@ -118,4 +117,3 @@ rmtree($tmpdir) unless $noclean;
 $urpm->build_synthesis(start     => 0,
 		       end       => $#{$urpm->{depslist}},
 		       synthesis => $synthesis);
-
