@@ -2,6 +2,7 @@
 #include <sys/wait.h>
 #include <sys/stat.h>
 #include <fcntl.h>
+#include <signal.h>
 #include <errno.h>
 #include <rpm/rpmlib.h>
 #include <rpm/header.h>
@@ -334,6 +335,7 @@ int main(int argc, char **argv)
       }
       fdClose(fd);
       if (pid) {
+	kill(pid, SIGTERM);
 	waitpid(pid, NULL, 0);
 	pid = 0;
       }

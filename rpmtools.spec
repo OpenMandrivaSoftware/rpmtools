@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 8mdk
+%define release 9mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Mar  7 2001 François Pons <fpons@mandrakesoft.com> 2.3-9mdk
+- make sure parsehdlist exit correctly.
+
 * Mon Mar  5 2001 François Pons <fpons@mandrakesoft.com> 2.3-8mdk
 - added requires on db2 and db3.
 
