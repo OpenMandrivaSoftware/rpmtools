@@ -510,8 +510,8 @@ sub main {
 
     $tmpz = "$tmpdir/packdrake-tmp.$$";
     unless ($method) {
-	$file =~ /\.cz$/  and $method = "/bin/gzip";
-	$file =~ /\.cz2$/ and $method = "/usr/bin/bzip2";
+	$file =~ /\.cz$/  and $method = "gzip";
+	$file =~ /\.cz2$/ and $method = "bzip2";
     }
 
     $compress ||= "$method -$ratio";
