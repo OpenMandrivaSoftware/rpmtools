@@ -223,7 +223,7 @@ sub compute_depslist {
 		    foreach (@{$info->{requires} || []}) {
 			unless (exists $requires{$_}) {
 			    $requires{$_} = undef;
-			    push @requires, $_;
+			    push @{ref $_ ? \@required_packages : \@requires}, $_;
 			}
 		    }
 		}
@@ -314,7 +314,9 @@ sub compute_depslist {
 		if (@choices_base_id) {
 		    ($id, $base) = ($choices_base_id[0], 1);
 		} else {
-		    push @requires_id, \@choices_id;
+		    my $choices_key = join '|', @choices_id;
+		    exists $requires_id{$choices_key} or push @requires_id, \@choices_id;
+		    $requires_id{$choices_key} = undef;
 		    next;
 		}
 	    } else {

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 9mdk
+%define release 10mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Mar  8 2001 François Pons <fpons@mandrakesoft.com> 2.3-10mdk
+- fixed duplicate choices in depslist.ordered file.
+- fixed missing choices on some deps.
+
 * Wed Mar  7 2001 François Pons <fpons@mandrakesoft.com> 2.3-9mdk
 - make sure parsehdlist exit correctly.
 
