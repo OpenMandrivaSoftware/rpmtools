@@ -109,7 +109,7 @@ SV *get_fullname_sv(Header header) {
   char *name = get_name(header, RPMTAG_NAME);
   char *version = get_name(header, RPMTAG_VERSION);
   char *release = get_name(header, RPMTAG_RELEASE);
-  char *arch = get_name(header, RPMTAG_ARCH);
+  char *arch = headerIsEntry(header, RPMTAG_SOURCEPACKAGE) ? "src" : get_name(header, RPMTAG_ARCH);
   char *fullname = (char*)alloca(strlen(name)+strlen(version)+strlen(release)+strlen(arch)+4);
   STRLEN fullname_len = sprintf(fullname, "%s-%s-%s.%s", name, version, release, arch);
   return newSVpv(fullname, fullname_len);
@@ -217,7 +217,7 @@ HV* get_info(Header header, int bflag, HV* provides) {
   if (bflag & HDFLAGS_RELEASE)
     hv_store(header_info, "release", 7, newSVpv(get_name(header, RPMTAG_RELEASE), 0), 0);
   if (bflag & HDFLAGS_ARCH)
-    hv_store(header_info, "arch", 4, newSVpv(get_name(header, RPMTAG_ARCH), 0), 0);
+    hv_store(header_info, "arch", 4, newSVpv(headerIsEntry(header, RPMTAG_SOURCEPACKAGE) ? "src" : get_name(header, RPMTAG_ARCH), 0), 0);
   if (bflag & HDFLAGS_GROUP)
     hv_store(header_info, "group", 5, newSVpv(get_name(header, RPMTAG_GROUP), 0), 0);
   if (bflag & HDFLAGS_SIZE)

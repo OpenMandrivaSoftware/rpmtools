@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
@@ -54,6 +54,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Feb  8 2002 François Pons <fpons@mandrakesoft.com> 4.2-2mdk
+- missing fixing arch determination for _parse_ (now correctly
+  handles src architecture).
+
 * Fri Feb  8 2002 François Pons <fpons@mandrakesoft.com> 4.2-1mdk
 - fixed --descriptions and --summary of parsehdlist for multiline
   output by adding prefix after each linefeed.
