@@ -27,7 +27,7 @@ use Getopt::Long;
 
 my $urpm = new URPM;
 my ($noclean, $nohdlists, $nobasefiles, $nooutput, $dontdie, $nochkdep, $rootdistrib, @root, @hdlists) = (0, 0, 0, 0);
-my $headers_dir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
+my $headers_dir = (-d "$ENV{TMPDIR}" ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp") . "/.build_hdlist";
 
 sub usage {
 	print <<EOF;
