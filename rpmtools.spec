@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 2mdk
+%define release 3mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.0
@@ -54,6 +54,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Jun 26 2001 François Pons <fpons@mandrakesoft.com> 3.0-3mdk
+- improved arch management and relocation code.
+- fix bad arch parsing when building hdlist.
+- fix bad evalution of bad rpm filename.
+
 * Mon Jun 25 2001 François Pons <fpons@mandrakesoft.com> 3.0-2mdk
 - fixed version_compare to match rpm behaviour on some cases,
   needed for Garbage Collector cases.

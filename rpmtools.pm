@@ -150,10 +150,10 @@ sub build_hdlist {
 	$? == 0 or unlink("$dir/$key"), die "bad rpm $_\n";
 	-s "$dir/$key" or unlink("$dir/$key"), die "bad rpm $_\n";
 
-	my ($name, $version, $release, $arch) = $key =~ /(.*)-([^-]*)-([^-]*)\.([^\.])*$/;
+	my ($name, $version, $release, $arch) = $key =~ /(.*)-([^-]*)-([^-]*)\.([^\.]*)$/;
 	my ($realname, $realversion, $realrelease, $realarch) =
-	  `parsehdlist --raw '$dir/$key'` =~ /(.*)-([^-]*)-([^-]*)\.([^\.])*\.rpm$/;
-	unless ($name && $version && $release && $arch &&
+	  `parsehdlist --raw '$dir/$key'` =~ /(.*)-([^-]*)-([^-]*)\.([^\.]*)\.rpm$/;
+	unless (length($name) && length($version) && length($release) && length($arch) &&
 		$name eq $realname && $version eq $realversion && $release eq $realrelease && $arch eq $realarch) {
 	    my $newkey = "$realname-$realversion-$realrelease.$realarch:$key";
 	    symlink "$dir/$key", "$dir/$newkey" unless -e "$newkey";
@@ -383,7 +383,7 @@ sub read_depslist {
 							       version     => $version,
 							       release     => $release,
 							       arch        => $arch,
-							       serial      => $serial,
+							       $serial ? (serial      => $serial) : (),
 							       size        => $size,
 							       deps        => $deps,
 							       id          => $global_id++,
@@ -405,8 +405,8 @@ sub read_depslist {
     1;
 }
 
-#- relocate depslist array to use only the most recent packages,
-#- reorder info hashes too in the same manner.
+#- relocate depslist array id to use only the most recent packages,
+#- reorder info hashes to give only access to best packages.
 sub relocate_depslist {
     my ($params) = @_;
     my $relocated_entries = 0;
@@ -415,22 +415,42 @@ sub relocate_depslist {
 	if ($params->{info}{$_->{name}} != $_) {
 	    #- at this point, it is sure there is a package that
 	    #- is multiply defined and this should be fixed.
-	    #- first correct info hash, then a second pass on depslist
-	    #- is required to relocate its entries.
-	    my $cmp_version = version_compare($_->{version}, $params->{info}{$_->{name}}{version});
-	    if ($cmp_version > 0 ||
-		$cmp_version == 0 && version_compare($_->{release}, $params->{info}{$_->{name}}{release}) > 0) {
-		$params->{info}{$_->{name}} = $_;
-		++$relocated_entries;
+	    #- remove access to info if arch is incompatible and only
+	    #- take into account compatible arch to examine.
+	    #- correct info hash by prefering first better version,
+	    #- then better release, then better arch.
+	    my $p = $params->{info}{$_->{name}};
+	    if ($p && !compat_arch($p->{arch})) {
+		delete $params->{info}{$_->{name}};
+	    }
+	    if (compat_arch($_->{arch})) {
+		if ($p) {
+		    my $cmp_version = version_compare($_->{version}, $p->{version});
+		    my $cmp_release = $cmp_version == 0 && version_compare($_->{release}, $p->{release});
+		    if ($cmp_version > 0 ||
+			$cmp_release > 0 ||
+			$cmp_version == 0 && $cmp_release == 0 && better_arch($_->{arch}, $p->{arch})) {
+			$params->{info}{$_->{name}} = $_;
+			++$relocated_entries;
+		    }
+		} else {
+		    $params->{info}{$_->{name}} = $_;
+		    ++$relocated_entries;
+		}
 	    }
 	}
     }
 
+    #- relocate id used in depslist array, delete id if the package
+    #- should NOT be used.
     if ($relocated_entries) {
-	for (0 .. scalar(@{$params->{depslist}}) - 1) {
-	    my $pkg = $params->{depslist}[$_];
-	    $pkg->{source} and next; #- hack to avoid losing local package.
-	    $params->{depslist}[$_] = $params->{info}{$pkg->{name}};
+	foreach (@{$params->{depslist}}) {
+	    $_->{source} and next; #- hack to avoid losing local package.
+	    if (defined $params->{info}{$_->{name}}) {
+		$_->{id} = $params->{info}{$_->{name}}{id};
+	    } else {
+		delete $_->{id};
+	    }
 	}
     }
 
