@@ -43,9 +43,7 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/packdrake
 %{_bindir}/parsehdlist
 %{_bindir}/rpm2header
-%{_bindir}/genhdlists
-%{_bindir}/genhdlist_cz2
-%{_bindir}/genbasefiles
+%{_bindir}/gendistrib
 %dir %{perl_sitearch}/auto/rpmtools
 %{perl_sitearch}/auto/rpmtools/rpmtools.so
 %{perl_sitearch}/packdrake.pm
