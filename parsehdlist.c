@@ -28,6 +28,8 @@ static struct {
 static int count_headers = 0;
 
 static int raw_hdlist = 0;
+static int sql_mode = 0;
+static int sql_state = 0;
 static int interactive_mode = 0;
 static int silent = 0;
 static int print_quiet = 0;
@@ -45,6 +47,7 @@ static int print_obsoletes = 0;
 static int print_files = 0;
 static int print_files_more_info = 0;
 static int print_prereqs = 0;
+static int print_url = 0;
 static char print_sep = 0;
 
 static
@@ -214,6 +217,56 @@ void print_multiline(char *format, char *name, char *multiline_str) {
 }
 
 static
+int sql_print_name (Header header, int tag, int state) {
+    char *value;
+    if (state) putchar(',');
+    value = get_name(header, tag);
+    putchar('\'');
+    if (value != NULL) {
+	while (*value) {
+	    switch (*value) {
+		case '\'':
+		    printf("\\'");
+		    break;
+		case '\n':
+		    printf("\\n");
+		    break;
+		case '\t':
+		    printf("\\t");
+		    break;
+		case '\\':
+		    printf("\\\\");
+		    break;
+		default:
+		    if (isprint(*value))
+			putchar(*value);
+		    else
+			putchar('?');
+	    }
+	    ++value;
+	}
+    }
+    putchar('\'');
+    if (!state)
+	++state;
+    return state;
+}
+
+static
+int sql_print_int(Header header, int tag, int state) {
+    int *value;
+    if (state) putchar(',');
+    value = (int *) get_name(header, tag);
+    if (value == NULL)
+	printf("null");
+    else
+	printf("%d", *value);
+    if (! state)
+	++state;
+    return state;
+}
+
+static
 void print_help(void) {
   fprintf(stderr,
 	  "parsehdlist version " VERSION_STRING "\n"
@@ -223,6 +276,7 @@ void print_help(void) {
 	  "usage:\n"
 	  "  --help         - print this help message.\n"
 	  "  --raw          - assume raw hdlist (always the case for -).\n"
+	  "  --sql          - SQL mode (output results as INSERT statements)\n"
 	  "  --interactive  - interactive mode (following options are taken from stdin\n"
 	  "                   and output only the necessary data, end as emtpy line, not\n"
 	  "                   compatible with any print tag commands).\n"
@@ -246,6 +300,7 @@ void print_help(void) {
 	  "  --conflicts    - print tag conflicts: all conflicts (multiple lines).\n"
 	  "  --obsoletes    - print tag obsoletes: all obsoletes (multiple lines).\n"
 	  "  --prereqs      - print tag prereqs: all prereqs (multiple lines).\n"
+	  "  --url          - print tag url: source URL for package.\n"
 	  "\nwithout any option, print only rpm filenames\n"
 	  "\n");
 }
@@ -268,6 +323,7 @@ print_header_flag_interactive(char *in_tag, Header header)
   else if (!strncmp(in_tag, "serial", 6)) printf("%d\n", get_int(header, RPMTAG_SERIAL));
   else if (!strncmp(in_tag, "size", 4)) printf("%d\n", get_int(header, RPMTAG_SIZE));
   else if (!strncmp(in_tag, "group", 5)) printf("%s\n", get_name(header, RPMTAG_GROUP));
+  else if (!strncmp(in_tag, "url", 3)) printf("%s\n", get_name(header, RPMTAG_URL));
   else if (!strncmp(in_tag, "summary", 7)) printf("%s\n", get_name(header, RPMTAG_SUMMARY));
   else if (!strncmp(in_tag, "description", 11)) printf("%s\n", get_name(header, RPMTAG_DESCRIPTION));
 }
@@ -286,6 +342,7 @@ int main(int argc, char **argv)
 	print_help();
 	exit(0);
       } else if (strcmp(argv[i], "--raw") == 0)       raw_hdlist = 1;
+      else if (strcmp(argv[i], "--sql") == 0)         sql_mode = 1;
       else if (strcmp(argv[i], "--interactive") == 0) interactive_mode = 1;
       else if (strcmp(argv[i], "--silent") == 0)      silent = 1;
       else if (strcmp(argv[i], "--quiet") == 0)       print_quiet = 1;
@@ -304,6 +361,7 @@ int main(int argc, char **argv)
       else if (strcmp(argv[i], "--conflicts") == 0)   print_conflicts = 1;
       else if (strcmp(argv[i], "--obsoletes") == 0)   print_obsoletes = 1;
       else if (strcmp(argv[i], "--prereqs") == 0)     print_prereqs = 1;
+      else if (strcmp(argv[i], "--url") == 0)         print_url = 1;
       else if (strcmp(argv[i], "--output") == 0) {
 	if (i+1 >= argc || !argv[i+1] || !argv[i+1][0]) {
 	  if (!silent) { fprintf(stderr, "option --output need a valid filename after it\n"); }
@@ -324,6 +382,7 @@ int main(int argc, char **argv)
 	print_conflicts = 1;
 	print_obsoletes = 1;
 	print_prereqs = 1;
+	print_url = 1;
       } else if (strcmp(argv[i], "--synthesis") == 0) {
 	print_sep = '@';
 	print_info = 1;
@@ -433,6 +492,22 @@ int main(int argc, char **argv)
 	    headers[count_headers].header = header;
 
 	    ++count_headers;
+	  } else if (sql_mode) {
+	    sql_state = 0;
+	    printf("INSERT INTO rpms VALUES(");
+	    if (print_name) {
+	      sql_state = sql_print_name(header, RPMTAG_NAME, sql_state);
+	      sql_state = sql_print_name(header, RPMTAG_VERSION, sql_state);
+	      sql_state = sql_print_name(header, RPMTAG_RELEASE, sql_state);
+	    }
+	    if (print_group) sql_state = sql_print_name(header, RPMTAG_GROUP, sql_state);
+	    if (print_size) sql_state = sql_print_int(header, RPMTAG_SIZE, sql_state);
+	    if (print_serial) sql_state = sql_print_name(header, RPMTAG_SERIAL, sql_state);
+	    if (print_url) sql_state = sql_print_name(header, RPMTAG_URL, sql_state);
+	    if (print_summary) sql_state = sql_print_name(header, RPMTAG_SUMMARY, sql_state);
+	    if (print_description) sql_state = sql_print_name(header, RPMTAG_DESCRIPTION, sql_state);
+	    printf (");\n");
+	    headerFree(header);
 	  } else {
 	    if (print_provides) print_list_flags(header, RPMTAG_PROVIDENAME, RPMTAG_PROVIDEFLAGS, RPMTAG_PROVIDEVERSION,
 						 printable_header(print_quiet, "provides", print_sep, 0), print_sep, name);
