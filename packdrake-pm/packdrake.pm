@@ -483,7 +483,7 @@ sub build_archive {
     my @data_f;
 
     foreach my $file (@{$packer->{files}}) {
-	$packer->{data}{$file} or die "packdrake: internal error on $_\n";
+	$packer->{data}{$file} or die "packdrake: internal error on $file\n";
 
 	#- specific according to type.
 	#- with this version, only f has specific data other than strings.
