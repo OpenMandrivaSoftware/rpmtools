@@ -27,7 +27,7 @@ use Getopt::Long;
 
 my $urpm = new URPM;
 my ($noclean, $nohdlists, $nobasefiles, $nooutput, $dontdie, $nochkdep, $rootdistrib, @root, @hdlists) = (0, 0, 0, 0);
-my $headers_dir = (-d "$ENV{TMPDIR}" ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp") . "/.build_hdlist";
+my $headers_dir = (-d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp") . "/.build_hdlist";
 
 sub usage {
 	print <<EOF;
@@ -78,17 +78,17 @@ my %default_urpmfiles = (
 );
 
 while (my ($k, $v) = each(%default_urpmfiles)) {
-	$urpmfiles{$k} ||= $v;
+    $urpmfiles{$k} ||= $v;
 }
 
-open F, $urpmfiles{hdlists} or die "unable to open $urpmfiles{hdlists}";
-foreach (<F>) {
+open my $fh, $urpmfiles{hdlists} or die "unable to open $urpmfiles{hdlists}";
+foreach (<$fh>) {
     chomp;
     s/\s*#.*$//;
     /^\s*$/ and next;
     /^(?:askmedia|suppl)/ and next;
     my ($name, $dir, $descr) = m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/
-	or die "invalid hdlist description \"$_\" in hdlists file";
+	or die qq(invalid hdlist description "$_" in hdlists file\n);
 
     $descr =~ s/\([^(]+\)\s*$//; #- remove trailing size info
     $descr =~ s/\s*$//;
@@ -99,7 +99,7 @@ foreach (<F>) {
 	descr => $descr,
     };
 }
-close F;
+close $fh;
 
 sub clean_cache {
     system($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}, "rm", "-rf", $headers_dir) unless $noclean;
@@ -139,8 +139,12 @@ foreach (0..$#hdlists) {
     @files or die "unable to find rpm files in $e->{dir}\n";
 
     print STDERR "parsing rpm files in directory $r/$e->{dir}\n" unless $nooutput;
-    my @headers = $urpm->parse_rpms_build_headers(dir  => $headers_dir, rpms => \@files,
-    						dontdie => $dontdie, silent => $nooutput);
+    my @headers = $urpm->parse_rpms_build_headers(
+	dir  => $headers_dir,
+	rpms => \@files,
+	dontdie => $dontdie,
+	silent => $nooutput,
+    );
     $e->{headers} = \@headers;
 }
 
@@ -151,7 +155,7 @@ $urpm->unresolved_provides_clean;
 foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
 
-    print STDERR "parsing headers for \"$e->{descr}\"\n" unless $nooutput;
+    print STDERR qq(parsing headers for "$e->{descr}"\n) unless $nooutput;
     my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
 					     headers => $e->{headers},
 				             dontdie => $dontdie,
@@ -160,14 +164,14 @@ foreach (0..$#hdlists) {
     print STDERR "computing deps\n" unless $nooutput;
     $urpm->compute_deps;
 
-    print STDERR "building hdlist for medium \"$e->{descr}\"\n" unless $nooutput;
+    print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
     $urpm->build_hdlist(start  => $start,
 			end    => $end,
 			dir    => $headers_dir,
 			hdlist => $e->{hdlist},
 			ratio  => 9);
 
-    print STDERR "building synthesis for medium \"$e->{descr}\"\n" unless $nooutput;
+    print STDERR qq(building synthesis for medium "$e->{descr}"\n) unless $nooutput;
     $urpm->build_synthesis(start     => $start,
 			   end       => $end,
 			   synthesis => $e->{synthesis});
@@ -183,7 +187,7 @@ $urpm->build_base_files(depslist => $urpmfiles{depslist},
 #- safety cleaning
 unlink $urpmfiles{md5sum};
 
-#- check if there are NOTFOUND in dependancy, check if they are in other medium, warn the user.
+#- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
 if ($nooutput || !$nochkdep) {
     foreach (0 .. $#{$urpm->{depslist}}) {
         my $pkg = $urpm->{depslist}[$_];
