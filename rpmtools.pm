@@ -473,7 +473,7 @@ sub write_depslist {
 	my $pkg = $params->{depslist}[$_];
 	printf $FILE ("%s-%s-%s.%s%s %s %s\n",
 		      $pkg->{name}, $pkg->{version}, $pkg->{release}, $pkg->{arch},
-		      ($pkg->{serial} ? ":$pkg->{serial}" : ''), $pkg->{size}, $pkg->{deps});
+		      ($pkg->{serial} ? ":$pkg->{serial}" : ''), $pkg->{size} || 0, $pkg->{deps});
     }
     1;
 }
