@@ -118,7 +118,6 @@ sub read_hdlists {
 	if (my $pid = fork()) {
 	    close O;
 
-	    select(undef, undef, undef, 0.05);
 	    push @names, rpmtools::_parse_(fileno *I, $params->{flags}, $params->{info}, $params->{provides});
 
 	    close I;

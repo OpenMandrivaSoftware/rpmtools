@@ -3,8 +3,11 @@
 #include "XSUB.h"
 
 #include <sys/utsname.h>
+#include <sys/select.h>
+#include <sys/time.h>
 #include <sys/types.h>
 #include <sys/stat.h>
+#include <unistd.h>
 #include <fcntl.h>
 
 #undef Fflush
@@ -487,6 +490,16 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
     int i;
 
     if (SvIOK(fileno_or_rpmfile)) {
+      int d = SvIV(fileno_or_rpmfile);
+      fd_set readfds;
+      struct timeval timeout;
+
+      FD_ZERO(&readfds);
+      FD_SET(d, &readfds);
+      timeout.tv_sec = 1;
+      timeout.tv_usec = 0;
+      select(d+1, &readfds, NULL, NULL, &timeout);
+
       fd = fdDup(SvIV(fileno_or_rpmfile));
       fd_is_hdlist = 1;
     } else {
