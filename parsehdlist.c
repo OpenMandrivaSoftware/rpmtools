@@ -276,7 +276,6 @@ int main(int argc, char **argv)
       hash_in_name = hash(in_name);
       for (i = 0; i < count_headers; ++i) {
 	if (headers[i].hash_name == hash_in_name && !strcmp(headers[i].name, in_name)) {
-	  printf("found %s:%s\n", in_name, in_tag);
 	  if (!strncmp(in_tag, "provides", 8)) print_list(headers[i].header, RPMTAG_PROVIDENAME, "%2$s\n", "");
 	  else if (!strncmp(in_tag, "requires", 8)) print_list_flags(headers[i].header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS,
 								     RPMTAG_REQUIREVERSION,"%2$s", "");
