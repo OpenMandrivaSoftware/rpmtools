@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 18mdk
+%define release 19mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Sat Apr 14 2001 François Pons <fpons@mandrakesoft.com> 2.3-19mdk
+- fixed parsehdlist to print what is needed in synthesis file
+  of hdlists.
+
 * Thu Apr 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-18mdk
 - added quiet support for packdrake module (for DrakX).
 
