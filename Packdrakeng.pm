@@ -806,7 +806,7 @@ toc and the archive itself:
 
 =head1 FUNCTIONS
 
-=over
+=over 2
 
 =item B<new(%options)>
 
@@ -871,6 +871,8 @@ last block is smaller than C<block_size>. If some compression options can't be
 found in the archive, the new preference will be applied.
 
 Options are same than the C<new()> function.
+
+=back
 
 =head1 AUTHOR
 
