@@ -29,7 +29,7 @@ my ($noclean, $nohdlists, $nobasefiles, @root, @hdlists) = 0;
 
 @root > 0 && @ARGV == 0 or die "usage: gendistrib [--noclean] [--nohdlists] [--nobasefiles] --distrib <root distrib> <root_distrib2> ...\n";
 
-my ($i, $root) = (0, $root[0]);
+my $root = $root[0];
 my ($depslist, $provides, $compss, $hdlists) = ("$root/Mandrake/base/depslist.ordered",
 						"$root/Mandrake/base/provides",
 						"$root/Mandrake/base/compss",
@@ -55,15 +55,15 @@ foreach (<F>) {
 close F;
 
 unless ($nohdlists) {
-    foreach (@hdlists) {
-	my ($hdlist, $dir, $descr) = @$_;
+    for (0..$#hdlists) {
+	my ($hdlist, $dir, $descr) = @{$hdlists[$_]};
 
 	#- try to find the right repository where can be found the directory
 	#- listed in the hdlist file.
 	#- if the number of root is equal the number of medium, assume a medium
 	#- foreach root, else try to find a valid root containing the medium.
 	if (scalar(@hdlists ) == scalar(@root)) {
-	    $root = $root[$i];
+	    $root = $root[$_];
 	} else {
 	    foreach (@root) {
 		-d "$_/$dir" and $root = $_, last;

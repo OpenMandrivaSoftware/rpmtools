@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Feb 27 2001 François Pons <fpons@mandrakesoft.com> 2.3-6mdk
+- fixed gendistrib with multi source of same number as
+  media listed in hdlists file.
+
 * Mon Feb 26 2001 François Pons <fpons@mandrakesoft.com> 2.3-5mdk
 - improved base flag usage so obsoleted use_base_flag.
 
