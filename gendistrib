@@ -72,7 +72,8 @@ foreach (0..$#hdlists) {
     #- fake build of architecture dependent directory.
     my @files;
     if ($e->{dir} =~ /%{ARCH}/) {
-	foreach my $arch (qw(i686 i586 i486 i386 k8 k7 k6 amd64 amd32 x86_64 x86_32 ia64 ia32 ppc sparc sparc32 sparc64 alpha)) {
+	foreach my $arch (qw(i686 i586 i486 i386 k8 k7 k6 amd64 amd32 x86_64 x86_32 ia64 ia32
+                             ppc sparc sparc32 sparc64 alpha noarch)) {
 	    my $dir = $e->{dir};
 	    $dir =~ s|%{ARCH}|$arch|g;
 	    push @files, glob("$r/$dir/*.$arch.rpm");
