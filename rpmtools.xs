@@ -552,6 +552,8 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
       /* continue loop for hdlist */
       if (fd_is_hdlist)
 	header=headerRead(fd, HEADER_MAGIC_YES);
+      else
+	header=0;
     }
     fdClose(fd);
   } else croak("bad arguments list");

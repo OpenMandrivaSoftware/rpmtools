@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.1
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Thu Jan 24 2002 François Pons <fpons@mandrakesoft.com> 4.1-2mdk
+- fixed wrong _parse_ or rpm file.
+
 * Tue Jan 22 2002 François Pons <fpons@mandrakesoft.com> 4.1-1mdk
 - added write_synthesis_hdlist function to handle synthesis file.
 - gendistrib now build good synthesis file in Mandrake/base
