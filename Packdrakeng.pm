@@ -254,9 +254,10 @@ sub read_toc {
         $pack->{files}{$f}{off} = shift(@size_offset);
         $pack->{files}{$f}{size} = shift(@size_offset);
         # looking for offset for this archive
-        $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize} > $pack->{coff} and
-            $pack->{coff} = $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize};
-        }
+        $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize} > $pack->{coff}
+	    and $pack->{coff} = $pack->{files}{$f}{coff} + $pack->{files}{$f}{csize};
+    }
+    $pack->{toc_f_count} = $toc_f_count;
     1;
 }
 
