@@ -32,6 +32,7 @@ static int print_conflicts = 0;
 static int print_obsoletes = 0;
 static int print_files = 0;
 static int print_prereqs = 0;
+static char print_sep = 0;
 
 static
 unsigned long hash(char *str) {
@@ -52,21 +53,26 @@ char *get_name(Header header, int_32 tag) {
 }
 
 static
-void print_list(Header header, int_32 tag_name, char *format, char *name) {
+void print_list(Header header, int_32 tag_name, char *format, char sep, char *name) {
   int_32 type, count;
   char **list;
   int i;
 
   headerGetEntry(header, tag_name, &type, (void **) &list, &count);
 
-  if (list)
-    for(i = 0; i < count; i++)
-      printf(format, name, list[i]);
+  if (list) {
+    for(i = 0; i < count; i++) {
+      if (sep && i > 0) printf("%c%s", sep, list[i]);
+      else printf(format, name, list[i]);
+      if (!sep) printf("\n");
+    }
+    if (sep) printf("\n");
+  }
   free(list);
 }
 
 static
-void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag_version, char *format, char *name) {
+void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag_version, char *format, char sep, char *name) {
   int_32 type, count;
   char **list;
   int_32 *flags;
@@ -77,10 +83,11 @@ void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 t
   headerGetEntry(header, tag_flags, &type, (void **) &flags, &count);
   headerGetEntry(header, tag_version, &type, (void **) &list_evr, &count);
 
-  if (list)
+  if (list) {
     for(i = 0; i < count; i++) {
-      printf(format, name, list[i]);
-      if (list_evr[i]) {
+      if (sep && i > 0) printf("%c%s", sep, list[i]);
+      else printf(format, name, list[i]);
+      if (list_evr[i] && list_evr[i][0]) {
 	printf(" ");
 	if (flags[i] & RPMSENSE_LESS) printf("<");
 	if (flags[i] & RPMSENSE_GREATER) printf(">");
@@ -88,8 +95,10 @@ void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 t
 	if ((flags[i] & (RPMSENSE_LESS|RPMSENSE_EQUAL|RPMSENSE_GREATER)) == RPMSENSE_EQUAL) printf("=");
 	printf(" %s", list_evr[i]);
       }
-      printf("\n");
+      if (!sep) printf("\n");
     }
+    if (sep) printf("\n");
+  }
   free(list);
 }
 
@@ -153,6 +162,7 @@ void print_help(void) {
 	  "                    compatible with any print tag commands).\n"
 	  "  --quiet         - do not print tag name (default if no tag given on command\n"
 	  "                    line, incompatible with interactive mode).\n"
+	  "  --compact       - print compact provides, requires, conflicts, obsoletes flags.\n"
 	  "  --all           - print all tags (incompatible with interactive mode).\n"
 	  "  --name          - print tag name: rpm filename (assumed if no tag given on\n"
 	  "                    command line but without package name).\n"
@@ -169,13 +179,13 @@ void print_help(void) {
 void
 print_header_flag_interactive(char *in_tag, Header header)
 {
-  if (!strncmp(in_tag, "provides", 8)) print_list(header, RPMTAG_PROVIDENAME, "%2$s\n", "");
+  if (!strncmp(in_tag, "provides", 8)) print_list(header, RPMTAG_PROVIDENAME, "%2$s", 0, "");
   else if (!strncmp(in_tag, "requires", 8)) print_list_flags(header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS,
-							     RPMTAG_REQUIREVERSION,"%2$s", "");
+							     RPMTAG_REQUIREVERSION,"%2$s", 0, "");
   else if (!strncmp(in_tag, "conflicts", 9)) print_list_flags(header, RPMTAG_CONFLICTNAME, RPMTAG_CONFLICTFLAGS,
-							      RPMTAG_CONFLICTVERSION, "%2$s", "");
+							      RPMTAG_CONFLICTVERSION, "%2$s", 0, "");
   else if (!strncmp(in_tag, "obsoletes", 9)) print_list_flags(header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS,
-							      RPMTAG_OBSOLETEVERSION,"%2$s", "");
+							      RPMTAG_OBSOLETEVERSION,"%2$s", 0, "");
   else if (!strncmp(in_tag, "files", 5)) print_list_files(header, "%2$s\n", "");
   else if (!strncmp(in_tag, "prereqs", 7)) print_list_prereqs(header, "%2$s\n", "");
   else if (!strncmp(in_tag, "group", 5)) printf("%s\n", get_name(header, RPMTAG_GROUP));
@@ -202,6 +212,7 @@ int main(int argc, char **argv)
       } else if (strcmp(argv[i], "--raw") == 0)       raw_hdlist = 1;
       else if (strcmp(argv[i], "--interactive") == 0) interactive_mode = 1;
       else if (strcmp(argv[i], "--quiet") == 0)       print_quiet = 1;
+      else if (strcmp(argv[i], "--compact") == 0)     print_sep = ':';
       else if (strcmp(argv[i], "--name") == 0)        print_name = 1;
       else if (strcmp(argv[i], "--group") == 0)       print_group = 1;
       else if (strcmp(argv[i], "--provides") == 0)    print_provides = 1;
@@ -310,13 +321,13 @@ int main(int argc, char **argv)
 
 	    ++count_headers;
 	  } else {
-	    if (print_provides) print_list(header, RPMTAG_PROVIDENAME, print_quiet ? "%s:%s\n" : "%s:provides:%s\n", name);
+	    if (print_provides) print_list(header, RPMTAG_PROVIDENAME, print_quiet ? "%s:%s" : "%s:provides:%s", print_sep, name);
 	    if (print_requires) print_list_flags(header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS, RPMTAG_REQUIREVERSION,
-						 print_quiet ? "%s:%s" : "%s:requires:%s", name);
+						 print_quiet ? "%s:%s" : "%s:requires:%s", print_sep, name);
 	    if (print_conflicts) print_list_flags(header, RPMTAG_CONFLICTNAME, RPMTAG_CONFLICTFLAGS, RPMTAG_CONFLICTVERSION,
-						  print_quiet ? "%s:%s" : "%s:conflicts:%s", name);
+						  print_quiet ? "%s:%s" : "%s:conflicts:%s", print_sep, name);
 	    if (print_obsoletes) print_list_flags(header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS, RPMTAG_OBSOLETEVERSION,
-						  print_quiet ? "%s:%s" : "%s:obsoletes:%s", name);
+						  print_quiet ? "%s:%s" : "%s:obsoletes:%s", print_sep, name);
 	    if (print_files) print_list_files(header, print_quiet ? "%s:%s\n" : "%s:files:%s\n", name);
 	    if (print_prereqs) print_list_prereqs(header, print_quiet ? "%s:%s\n" : "%s:prereqs:%s\n", name);
 	    if (print_group) printf(print_quiet ? "%s:%s\n" : "%s:group:%s\n", name, get_name(header, RPMTAG_GROUP));
