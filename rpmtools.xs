@@ -120,7 +120,7 @@ void update_provides(int force, HV* provides, char *name, STRLEN len, Header hea
 
   if (provides) {
     if ((isv = hv_fetch(provides, name, len, force))) {
-      if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVHV) {
+      if (isv && !SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVHV) {
 	SV* choice_set = (SV*)newHV();
 	SvREFCNT_dec(*isv); /* drop the old as we are changing it */
 	*isv = choice_set ? newRV_noinc(choice_set) : &PL_sv_undef;
