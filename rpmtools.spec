@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 1mdk
+%define release %mkrel 1
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.16
+%define version 5.0.17
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -79,6 +79,9 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Mon Mar 07 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.17-1mdk
+- gendistrib: fix generation of per-media MD5SUM files. Plus doc nits.
+
 * Tue Mar 01 2005 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.16-1mdk
 - packdrake: report size of toc (for rpmdrake's search progress bar)
 - parsehdlist: add support to output SQL statements (Leon Brooks)
