@@ -6,7 +6,7 @@ use vars qw($VERSION @ISA %compat_arch);
 require DynaLoader;
 
 @ISA = qw(DynaLoader);
-$VERSION = '3.2';
+$VERSION = '4.0';
 
 bootstrap rpmtools $VERSION;
 
@@ -205,14 +205,7 @@ sub compute_id {
     #- speed up the search by giving a provide from all packages.
     #- and remove all dobles for each one !
     foreach (@info) {
-	push @{$params->{provides}{$_->{name}} ||= []}, "$_->{name}-$_->{version}-$_->{release}.$_->{arch}";
-    }
-
-    #- remove all dobles for each provides.
-    foreach (keys %{$params->{provides}}) {
-	$params->{provides}{$_} or next;
-	my %provides; @provides{@{$params->{provides}{$_}}} = ();
-	$params->{provides}{$_} = [ keys %provides ];
+	$params->{provides}{$_->{name}}{"$_->{name}-$_->{version}-$_->{release}.$_->{arch}"} = undef;
     }
 
     #- give an id to each packages, start from number of package already
@@ -238,14 +231,7 @@ sub compute_depslist {
     #- speed up the search by giving a provide from all packages.
     #- and remove all dobles for each one !
     foreach (@info) {
-	push @{$params->{provides}{$_->{name}} ||= []}, "$_->{name}-$_->{version}-$_->{release}.$_->{arch}";
-    }
-
-    #- remove all dobles for each provides.
-    foreach (keys %{$params->{provides}}) {
-	$params->{provides}{$_} or next;
-	my %provides; @provides{@{$params->{provides}{$_}}} = ();
-	$params->{provides}{$_} = [ keys %provides ];
+	$params->{provides}{$_->{name}}{"$_->{name}-$_->{version}-$_->{release}.$_->{arch}"} = undef;
     }
 
     #- take into account in which hdlist a package has been found.
@@ -261,7 +247,7 @@ sub compute_depslist {
 	while (my $req = shift @requires) {
 	    $req =~ /^basesystem/ and next; #- never need to requires basesystem directly as always required! what a speed up!
 	    ref $req or $req = ($params->{info}{$req} && [ $req ] ||
-				$params->{provides}{$req} ||
+				$params->{provides}{$req} && [ keys %{$params->{provides}{$req}} ] ||
 				($req =~ /rpmlib\(/ ? [] : [ ($req !~ /NOTFOUND_/ && "NOTFOUND_") . $req ]));
 	    if (@$req > 1) {
 		#- this is a choice, no closure need to be done here.
@@ -338,7 +324,7 @@ sub compute_depslist {
     #- some package should be sorted at the beginning.
     my $fixed_weight = 10000;
     foreach (qw(basesystem filesystem setup glibc sash bash libtermcap2 termcap readline ldconfig)) {
-	foreach (@{$params->{provides}{$_} || []}) {
+	foreach (keys %{$params->{provides}{$_} || {}}) {
 	    $ordered{$_} = $fixed_weight;
 	}
 	$fixed_weight += 10000;
@@ -347,7 +333,7 @@ sub compute_depslist {
     #- compute base flag, consists of packages which are required without
     #- choices of basesystem and are ALWAYS installed. these packages can
     #- safely be removed from requires of others packages.
-    foreach (@{$params->{provides}{basesystem} || []}) {
+    foreach (keys %{$params->{provides}{basesystem} || {}}) {
 	foreach (@{$params->{info}{$_}{requires}}) {
 	    ref $_ or $params->{info}{$_} and $params->{info}{$_}{base} = undef;
 	}
@@ -355,7 +341,7 @@ sub compute_depslist {
 
     #- some package are always installed as base and can safely be marked as such.
     foreach (qw(basesystem glibc kernel)) {
-	foreach (@{$params->{provides}{$_} || []}) {
+	foreach (keys %{$params->{provides}{$_} || {}}) {
 	    $params->{info}{$_} and $params->{info}{$_}{base} = undef;
 	}
     }
@@ -443,13 +429,13 @@ sub read_depslist {
 							     };
 	#- this can be really usefull as there are no more hash on name directly,
 	#- but provides gives something quite interesting here.
-	push @{$params->{provides}{$name}}, "$name-$version-$release.$arch";
+	$params->{provides}{$name}{"$name-$version-$release.$arch"} = undef;
     }
 
     #- compute base flag, consists of packages which are required without
     #- choices of basesystem and are ALWAYS installed. these packages can
     #- safely be removed from requires of others packages.
-    foreach (@{$params->{provides}{basesystem} || []}) {
+    foreach (keys %{$params->{provides}{basesystem} || {}}) {
 	if ($params->{info}{$_} && ! exists $params->{info}{$_}{base}) {
 	    my @requires_id;
 	    foreach (split ' ', $params->{info}{$_}{deps}) {
@@ -539,7 +525,7 @@ sub read_provides {
     while (<$FILE>) {
 	chomp;
 	my ($k, @v) = split '@';
-	$params->{provides}{$k} = @v > 0 ? \@v : undef;
+	$params->{provides}{$k}{$_} = undef foreach @v;
     }
 }
 
@@ -549,7 +535,7 @@ sub write_provides {
     my ($k, $v);
 
     while (($k, $v) = each %{$params->{provides}}) {
-	printf $FILE "%s\n", join '@', $k, @{$v || []};
+	printf $FILE "%s\n", join '@', $k, keys %{$v || {}};
     }
 }
 

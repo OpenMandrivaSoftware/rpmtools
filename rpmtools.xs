@@ -118,12 +118,17 @@ void update_provides(int force, HV* provides, char *name, STRLEN len, Header hea
   if (!len) len = strlen(name);
 
   if (force && (isv = hv_fetch(provides, name, len, 1)) || provides && (isv = hv_fetch(provides, name, len, 0)) != 0) {
-    if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
-      SV* choice_table = (SV*)newAV();
+    if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVHV) {
+      SV* choice_set = (SV*)newHV();
       SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-      *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
+      *isv = choice_set ? newRV_noinc(choice_set) : &PL_sv_undef;
     }
-    if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), get_fullname_sv(header));
+    if (*isv != &PL_sv_undef) {
+      STRLEN key_len;
+      char *key;
+      key = SvPV(get_fullname_sv(header), key_len);
+      hv_fetch((HV*)SvRV(*isv), key, key_len, 1);
+    }
   }
 }
 

@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 3.2
+%define version 4.0
 
 %{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Dec  5 2001 François Pons <fpons@mandrakesoft.com> 4.0-1mdk
+- improved provides management but breaks older urpmi.
+
 * Wed Dec  5 2001 François Pons <fpons@mandrakesoft.com> 3.2-1mdk
 - added --info to parsehdlist, needed for brand new urpmi.
 

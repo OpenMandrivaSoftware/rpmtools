@@ -150,7 +150,7 @@ foreach my $pkg (@{$params->{depslist}}) {
 	print STDERR "$pkg->{name}-$pkg->{version}-$pkg->{release} require [$1] which\n";
 	if ($params->{provides}{$1}) {
 	    print STDERR "  is available on packages not listed in this medium or previous medium:\n";
-	    foreach (@{$params->{provides}{$1}}) {
+	    foreach (keys %{$params->{provides}{$1}}) {
 		print STDERR "    $params->{info}{$_}{name}-$params->{info}{$_}{version}-$params->{info}{$_}{release}\n";
 	    }
 	} else {
