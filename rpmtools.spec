@@ -57,6 +57,7 @@ rm -rf $RPM_BUILD_ROOT
 * Mon Jun 25 2001 François Pons <fpons@mandrakesoft.com> 3.0-2mdk
 - fixed version_compare to match rpm behaviour on some cases,
   needed for Garbage Collector cases.
+- fixed use of : by @ in provides file.
 
 * Thu Jun 21 2001 François Pons <fpons@mandrakesoft.com> 3.0-1mdk
 - changed depslist format to fix support multi-arch.
