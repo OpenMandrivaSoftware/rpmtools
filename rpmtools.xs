@@ -146,24 +146,23 @@ get_packages_installed(prefix, packages, lnames)
     int num, i, j, rc, len;
     char *name;
     Header header;
-    
+    rpmdbMatchIterator mi;
+
     if (rpmReadConfigFiles(NULL, NULL) == 0) {
       if (rpmdbOpen(prefix, &db, O_RDONLY, 0644) == 0) {
 	len = av_len(names);
 	for (j = 0; j <= len; ++j) {
 	  isv = av_fetch(names, j, 0);
 	  name = SvPV_nolen(*isv);
-	  rc = rpmdbFindPackage(db, name, &matches);
-	  if (rc == 0) {
-	    count += matches.count;
-	    for (i = 0; i < matches.count; ++i) {
-	      header = rpmdbGetRecord(db, matches.recs[i].recOffset);
-	      info = get_info(header);
+	  mi = rpmdbInitIterator(db, RPMTAG_NAME, name, 0);
+	  count=0;
+          while (header = rpmdbNextIterator(mi)) {
+	    count++;
+	    info = get_info(header);
 
-	      if (info != 0) av_push(pkgs, newRV_noinc((SV*)info));
+	    if (info != 0) av_push(pkgs, newRV_noinc((SV*)info));
 
-	      headerFree(header);
-	    }
+	    headerFree(header);
 	  }
 	}
 	rpmdbClose(db);
@@ -188,18 +187,18 @@ get_all_packages_installed(prefix, packages)
     rpmdb db;
     int num;
     Header header;
+    rpmdbMatchIterator mi;
     
     if (rpmReadConfigFiles(NULL, NULL) == 0) {
       if (rpmdbOpen(prefix, &db, O_RDONLY, 0644) == 0) {
-	num = rpmdbFirstRecNum(db);
-	while (num > 0) {
-	  header = rpmdbGetRecord(db, num);
+	mi = rpmdbInitIterator(db, RPMDBI_PACKAGES, NULL, 0);
+	
+	while (header = rpmdbNextIterator(mi)) {
 	  info = get_info(header);
 
 	  if (info != 0) av_push(pkgs, newRV_noinc((SV*)info));
 
 	  headerFree(header);
-	  num = rpmdbNextRecNum(db, num);
 	  ++count;
 	}
 	rpmdbClose(db);

@@ -28,17 +28,18 @@ int main() {
   int numConflicts;
   rpmdb db;
   int i;
+  rpmdbMatchIterator mi;
 
   rpmReadConfigFiles(NULL, NULL);
 
   db = open_rpmdb();
 
-  for(i = rpmdbFirstRecNum(db); i; i = rpmdbNextRecNum(db, i)) {
+  while(header = rpmdbNextIterator(mi)) {
     trans = rpmtransCreateSet(db, NULL);
+    i=rpmdbGetIteratorOffset(mi);
     rpmtransRemovePackage(trans, i);
     if (rpmdepCheck(trans, &conflicts, &numConflicts)) die("rpmdepCheck");
     if (numConflicts == 0) {
-      header = rpmdbGetRecord(db, i);
       printf("%s-%s-%s\n", get(RPMTAG_NAME), get(RPMTAG_VERSION), get(RPMTAG_RELEASE));
       headerFree(header);
     }
