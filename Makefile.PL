@@ -1,0 +1,71 @@
+# $Id$
+
+# use 5.008;
+use ExtUtils::MakeMaker;
+
+my $rpmtools_version = '5.0';
+
+sub MY::postamble {
+    <<MAKEMAKEFILE;
+.PHONY: ChangeLog
+
+\$(FROMCC): %: %.cc 
+	\$(CXX) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
+
+\$(FROMCC_STATIC): %_static: %.cc 
+	\$(CXX) -s -static \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
+
+\$(FROMC): %: %.c
+	\$(CC) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
+
+\$(FROMC_STATIC): %_static: %.c
+	\$(CC) -g -s -static \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(LIBRPM_STATIC) \$(INCRPM) \$(DEFRPM) -o \$@
+
+buildc: \$(FROMC) \$(FROMCC) # \$(FROMC_STATIC) \$(FROMCC_STATIC)
+    
+cleanc:
+	rm -f \$(FROMC) \$(FROMCC) \$(FROMC_STATIC) \$(FROMCC_STATIC)
+
+ChangeLog:
+	cvs2cl -W 400 -I ChangeLog --accum -U ../common/username
+	rm -f *.bak
+
+rpm: dist
+	rpm --define "_sourcedir `pwd`" -ba rpmtools.spec
+MAKEMAKEFILE
+}
+
+WriteMakefile(
+    NAME	    => 'rpmtools',
+    VERSION    => $rpmtools_version,
+    macro => {
+        RPMTOOLSVERSION => $rpmtools_version,
+        FROMC => 'parsehdlist rpm2header #rpm-find-leaves',
+        FROMCC => '#gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups',
+        FROMC_STATIC  => '$(FROMC:%=%_static)',
+        FROMCC_STATIC => '$(FROMCC:%=%_static)',
+        LIBRPM => '-lrpm -lrpmio -lrpmdb -lrpmbuild -lz -lbz2 -lpopt',
+        INCRPM => '-I/usr/include/rpm',
+        DEFRPM => '-DRPM_42', 
+    },
+    depend => {
+        clean_subdirs => 'cleanc',
+        pm_to_blib => 'buildc',
+    },
+    PM	    => {
+        'Packdrakeng.pm' => '$(INST_LIBDIR)/Packdrakeng.pm',
+        'packdrake.pm' => '$(INST_LIBDIR)/packdrake.pm',
+    },
+    'EXE_FILES' => [ qw(gendistrib genhdlist packdrake rpm2header parsehdlist rpm2cpio.pl) ],
+    C => [],
+    'OBJECT'        => '',
+    CCFLAGS	    => '-Wall',
+    OPTIMIZE	    => '-O3 -fomit-frame-pointer -fno-exceptions -pipe -s -ffast-math -fexpensive-optimizations',
+    INC => '',
+    LIBS	    => [ '' ],
+    INSTALLDIRS	    => 'vendor',
+    dist    => { 
+        COMPRESS => 'bzip2 --best',
+        SUFFIX => '.bz2',
+    },
+);

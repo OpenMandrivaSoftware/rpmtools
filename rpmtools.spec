@@ -1,22 +1,16 @@
 %define name rpmtools
-%define release 25mdk
+%define release 0.1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 4.5
+%define version 5.0
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
-%{expand:%%define rpm_define %%(perl -e 'printf "%%s\\n", ("%rpm_version" =~ /^(?:4\.[2-9]|[5-9]|\d{2})/ ? "-DRPM_42" : "")')}
-
-%{expand:%%define compat_makeinstall_std %(perl -e 'printf "%%s\n", "%{?makeinstall_std:1}" ? "%%makeinstall_std" : "%%{__make} install PREFIX=%%{buildroot}%%{_prefix}"')}
-%{expand:%%define compat_perl_vendorlib %(perl -MConfig -e 'printf "%%s\n", "%{?perl_vendorlib:1}" ? "%%{perl_vendorlib}" : "$Config{installvendorlib}"')}
-%{expand:%%define buildreq_perl_devel %%(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "perl-devel" : "perl"')}
-%{expand:%%define real_release %%(perl -e 'printf "%%s\\n", ("%_vendor" !~ /mandrake/i && ("%release" =~ /(.*?)mdk/)[0] || "%release")')}
 
 Summary: Contains various rpm command-line tools
 Name: %{name}
 Version: %{version}
-Release: %{real_release}
+Release: %{release}
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
 Source0: %{name}-%{version}.tar.bz2
@@ -25,7 +19,8 @@ Group: %{group}
 URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
+BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
+BuildRequires: perl-devel
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94 perl-base >= 5.8.4
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 Provides: perl(packdrake)
@@ -34,21 +29,16 @@ Provides: perl(packdrake)
 Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %prep
-%setup
+%setup -q
 
 %build
-(
-  cd packdrake-pm ;
-  %{__perl} Makefile.PL INSTALLDIRS=vendor
-  %{__make} OPTIMIZE="$RPM_OPT_FLAGS"
-)
-%{__make} CFLAGS="$RPM_OPT_FLAGS %{rpm_define}"
+%{__perl} Makefile.PL INSTALLDIRS=vendor
+%make OPTIMIZE="%optflags"
+%make test
 
 %install
 %{__rm} -rf %{buildroot}
-%{__make} install PREFIX=%{buildroot}
-%{compat_makeinstall_std} -C packdrake-pm
-%{__rm} -f %{buildroot}%{perl_archlib}/perllocal.pod
+%makeinstall_std
 
 %clean
 %{__rm} -rf %{buildroot}
@@ -59,10 +49,10 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_bindir}/parsehdlist
 %{_bindir}/rpm2header
 %{_bindir}/gendistrib
-%{_bindir}/distriblint
 %{_bindir}/genhdlist
 %{_bindir}/rpm2cpio.pl
-%{compat_perl_vendorlib}/packdrake.pm
+%{perl_vendorlib}/packdrake.pm
+%{perl_vendorlib}/Packdrakeng.pm
 %{_mandir}/*/*
 
 %changelog
