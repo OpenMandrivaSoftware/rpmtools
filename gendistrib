@@ -108,3 +108,28 @@ $urpm->build_base_files(depslist => "$root/Mandrake/base/depslist.ordered",
 			provides => "$root/Mandrake/base/provides",
 			compss   => "$root/Mandrake/base/compss");
 
+#- check if there are NOTFOUND in dependancy, check if they are in other medium, warn the user.
+foreach (0 .. $#{$urpm->{depslist}}) {
+    my $pkg = $urpm->{depslist}[$_];
+
+    foreach (split " ", $urpm->{deps}[$_]) {
+	/NOTFOUND_(.*)/ or next;
+	print STDERR $pkg->fullname . " requires [$1] which\n";
+	if ($urpm->{provides}{$1}) {
+	    print STDERR "  is available on packages not listed in this medium or previous medium:\n";
+	    foreach (keys %{$urpm->{provides}{$1}}) {
+		my $dep_pkg = $urpm->{depslist}[$_];
+		print STDERR "    " . $dep_pkg->fullname . "\n";
+	    }
+	} else {
+	    print STDERR "  is not available in any medium listed\n";
+	    if (/NOTFOUND_(\D*)(\d+[\.\-\d]*)?(.*)?\.so\./) {
+		my $re = (quotemeta $1) . '(\d+[\.\-\d]*)' . (!$2 && "?") . '\.so\.';
+		foreach (keys %{$urpm->{provides}}) {
+		    /$re/ or next;
+		    print STDERR "  but a similar provides is available as [$_], need rebuild ?\n";
+		}
+	    }
+	}
+    }
+}
