@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 20mdk
+%define release 21mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Fri Apr 28 2000 Pixel <pixel@mandrakesoft.com> 1.1-21mdk
+- more robust gendepslist2
+
 * Thu Apr 20 2000 François Pons <fpons@mandrakesoft.com> 1.1-20mdk
 - dropped use strict in some perl script, for rescue.
 
