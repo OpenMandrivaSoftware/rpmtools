@@ -1,6 +1,22 @@
+2005-02-21 16:45  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - 5.0.14
+
+2005-02-21 16:42  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: -fix wrong commit
+
+2005-02-21 16:34  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm, gendistrib: Distribconf
+
 2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
 	* rpmtools.spec: - 5.0.13
+
+2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm: - add doc for pubkey
 
 2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
 
