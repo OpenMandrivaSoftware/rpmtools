@@ -240,7 +240,7 @@ if (-f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodi
     if (! -f $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists' ||
         ((stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/media.cfg'))[9] >
             (stat($distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir') . '/hdlists'))[9])) {
-            print STDERR "Write hdlists files" unless($nooutput);
+            print STDERR "Write hdlists files\n" unless($nooutput);
             $distrib->write_hdlists();
     }
 }
