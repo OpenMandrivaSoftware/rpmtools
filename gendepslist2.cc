@@ -333,7 +333,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 }
 
 FD_t hdlists(const char *hdlist) {
-  return fdDup(fileno(popen(((string) "cat " + hdlist + " 2>/dev/null").c_str(), "r")));
+  return fdDup(fileno(popen(((string) "bzip2 -dc " + hdlist + " 2>/dev/null").c_str(), "r")));
 }
 
 int main(int argc, char **argv) 
