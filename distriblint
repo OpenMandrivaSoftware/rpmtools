@@ -32,6 +32,7 @@ use strict qw(subs vars refs);
 my @passtest = (
 		\&pass_get_hdlists,
 		\&pass_check_filenames,
+		\&pass_check_requires,
 	       );
 
 #- pass function for getting all package and simple checking.
@@ -97,10 +98,11 @@ sub pass_check_filenames {
 	foreach (0 .. $#files) {
 	    my $file = $files[$_];
 	    my $key = join ' ', $md5sums[$_], $modes[$_], $sizes[$_], $owners[$_], $groups[$_];
-	    if (exists $o->{files}{$file} && $o->{files}{$file}[1] ne $key) {
+	    my ($existing_id, $existing_key) = $o->{files}{$file} =~ /([^:]*):(.*)/;
+	    if (exists $o->{files}{$file} && $existing_key ne $key) {
 		#- check if package is marked as conflicting with this one.
 		#- if this is the case, everything is right, else complains...
-		my $p = $o->{files}{$file}[0];
+		my $p = $o->{depslist}[$existing_id];
 		my $ok = 0;
 
 		my $provide_p = $p->name." == ".$p->epoch.":".$p->version."-".$p->release;
@@ -113,9 +115,9 @@ sub pass_check_filenames {
 		    URPM::ranges_overlap($provide_pkg, $_) and $ok = 1, last;
 		}
 
-		$ok or push @{$files{$o->{files}{$file}[0]->fullname}}, $file; #- conflicting package name is used.
+		$ok or push @{$files{$p->fullname}}, $file; #- conflicting package name is used.
 	    } else {
-		$o->{files}{$file} = [ $pkg, $key ] unless exists $o->{files}{$file};
+		$o->{files}{$file} = $pkg->id . ':' . $key unless exists $o->{files}{$file};
 	    }
 	}
 	
@@ -137,6 +139,36 @@ sub pass_check_filenames {
 	    $o->{cerr}->($s);
 	} else {
 	    $o->{cok}->();
+	}
+    }
+}
+
+#- pass function for requires checking, at least one provide should be allowed.
+sub pass_check_requires {
+    my ($o) = @_;
+
+    $o->{c}->("check requires of all packages, avoid unresolved.");
+
+    foreach my $pkg (@{$o->{depslist}}) {
+	foreach ($pkg->requires) {
+	    if (my ($property, $name) = /^(([^\s\[]*).*)/) {
+		my $ok = 0;
+		foreach my $id (keys %{$o->{provides}{$name} || {}}) {
+		    my $p = $o->{depslist}[$id];
+		    foreach ($p->provides) {
+			URPM::ranges_overlap($_, $property) and ++$ok;
+		    }
+		}
+		#- for files, check directly into files created by above test.
+		exists $o->{files}{$name} and ++$ok;
+		if ($ok) {
+		    $o->{cok}->();
+		} else {
+		    $o->{cerr}->($pkg->fullname." has unresolved require [$property].");
+		}
+	    } else {
+		$o->{cerr}->($pkg->fullname." has non parseable require [$_].");
+	    }
 	}
     }
 }

@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 4mdk
+%define release 5mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.3
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Fri Jun 28 2002 François Pons <fpons@mandrakesoft.com> 4.3-5mdk
+- added new test to check requires of all package to distriblint.
+
 * Thu Jun 27 2002 François Pons <fpons@mandrakesoft.com> 4.3-4mdk
 - added distriblint (was mdkdischk) now using perl-URPM and
   only ported two tests instead of the initial five (some are
