@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 8mdk
+%define release 9mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.2
@@ -53,6 +53,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Wed Mar 20 2002 Frederic Lepied <flepied@mandrakesoft.com> 4.2-9mdk
+- rebuild for rpm 4.0.4
+
 * Wed Mar  6 2002 François Pons <fpons@mandrakesoft.com> 4.2-8mdk
 - partial fix, now choices are really sorted in depslist.ordered.
 
