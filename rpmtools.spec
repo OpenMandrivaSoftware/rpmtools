@@ -22,7 +22,7 @@ Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
 BuildRequires: perl-devel
 BuildRequires: perl-Compress-Zlib
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94 perl-base >= 5.8.4
+Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
