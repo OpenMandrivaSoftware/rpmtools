@@ -265,6 +265,10 @@ sub compute_depslist {
     foreach (@{$params->{info}{basesystem}{requires}}) {
 	ref $_ or $params->{info}{$_} and $params->{info}{$_}{base} = undef;
     }
+    #- some package are always installed as base and can safely be marked as such.
+    foreach (qw(glibc)) {
+	$params->{info}{$_} and $params->{info}{$_}{base} = undef;
+    }
 
     #- give an id to each packages, start from number of package already
     #- registered in depslist.
@@ -282,21 +286,32 @@ sub compute_depslist {
 	    if (ref $_) {
 		#- all choices are grouped together at the end of requires,
 		#- this allow computation of dropable choices.
-		my @choices_id;
-		my $to_drop;
+		my ($to_drop, @choices_base_id, @choices_id);
 		foreach (@$_) {
-		    my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id},
-							     $params->{use_base_flag} && exists $params->{info}{$_}{base}) : ($_, 0);
-		    $to_drop ||= $id == $pkg->{id} || $requires_id{$id} || $pkg->{name} ne 'basesystem' && $base;
+		    my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id}, exists $params->{info}{$_}{base}) : ($_, 0);
+		    $base and push @choices_base_id, $id;
+		    $base &&= $params->{use_base_flag} && $pkg->{name} ne 'basesystem';
+		    $to_drop ||= $id == $pkg->{id} || $requires_id{$id} || $base;
 		    push @choices_id, $id;
 		}
-		$to_drop or push @requires_id, \@choices_id;
-	    } else {
-		my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id},
-							 $params->{use_base_flag} && exists $params->{info}{$_}{base}) : ($_, 0);
-		$requires_id{$id} = $_;
-		$id == $pkg->{id} || $pkg->{name} ne 'basesystem' && $base or push @requires_id, $id;
+
+		#- package can safely be dropped as it will be selected in requires directly.
+		$to_drop and next;
+
+		#- if a base package is in a list, keep it instead of the choice.
+		if (@choices_base_id) {
+		    $_ = $choices_base_id[0];
+		} else {
+		    push @requires_id, \@choices_id;
+		    next;
+		}
 	    }
+
+	    #- select individual package.
+	    my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id}, exists $params->{info}{$_}{base}) : ($_, 0);
+	    $base &&= $params->{use_base_flag} && $pkg->{name} ne 'basesystem';
+	    $requires_id{$id} = $_;
+	    $id == $pkg->{id} || $base or push @requires_id, $id;
 	}
 	#- cannot remove requires values as they are necessary for closure on incremental job.
 	$pkg->{deps} = join(' ', map { join '|', @{ref $_ ? $_ : [$_]} } @requires_id);
