@@ -26,7 +26,7 @@ ChangeLog:
 	rm -f *.bak
 
 rpm: dist
-	rpm --define "_sourcedir `pwd`" -ba rpmtools.spec
+	rpm --define "_sourcedir `pwd`" -ba --clean rpmtools.spec
 MAKEMAKEFILE
 }
 
