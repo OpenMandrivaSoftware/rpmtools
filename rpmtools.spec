@@ -15,8 +15,8 @@ Copyright: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= rpm-3.0.5-0.20mdk
-Requires: /usr/bin/perl rpm >= rpm-3.0.5-0.20mdk bzip2 >= 1.0
+BuildRequires: rpm-devel >= 3.0.5-0.20mdk
+Requires: /usr/bin/perl rpm >= 3.0.5-0.20mdk bzip2 >= 1.0
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
