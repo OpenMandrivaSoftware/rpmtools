@@ -87,13 +87,16 @@ foreach (<F>) {
     s/\s*#.*$//;
     /^\s*$/ and next;
     /^(?:askmedia|suppl)/ and next;
-    m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
+    my ($name, $dir, $descr) = m/^\s*(?:noauto:)?(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/
+	or die "invalid hdlist description \"$_\" in hdlists file";
 
+    $descr =~ s/\([^(]+\)\s*$//; #- remove trailing size info
+    $descr =~ s/\s*$//;
     push @hdlists, {
-	synthesis => "$root/media/media_info/synthesis.$1",
-	hdlist => "$root/media/media_info/$1",
-	dir => $2,
-	descr => $3,
+	synthesis => "$root/media/media_info/synthesis.$name",
+	hdlist => "$root/media/media_info/$name",
+	dir => $dir,
+	descr => $descr,
     };
 }
 close F;
