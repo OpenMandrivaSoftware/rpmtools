@@ -1,7 +1,7 @@
-VERSION = 2.0
+VERSION = 2.1
 NAME = rpmtools
 FROMC = parsehdlist rpm2header #rpm-find-leaves
-FROMCC = gendepslist2 #hdlist2names hdlist2files hdlist2prereq hdlist2groups
+FROMCC = #gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups
 FROMC_STATIC  = $(FROMC:%=%_static)
 FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)
@@ -17,16 +17,16 @@ install: $(ALL)
 	install genhdlist_cz2 genhdlists genbasefiles genfilelist packdrake $(PREFIX)/usr/bin
 
 $(FROMCC): %: %.cc 
-	$(CXX) $(CFLAGS) $< $(LIBRPM) -o $@
+	$(CXX) $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
 
 $(FROMCC_STATIC): %_static: %.cc 
-	$(CXX) -s -static $(CFLAGS) $< $(LIBRPM) -o $@
+	$(CXX) -s -static $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
 
 $(FROMC): %: %.c
-	$(CC) $(CFLAGS) $< $(LIBRPM) -o $@
+	$(CC) $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
 
 $(FROMC_STATIC): %_static: %.c
-	$(CC) -s -static $(CFLAGS) $< $(LIBRPM) -o $@
+	$(CC) -s -static $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
 
 clean: 
 	rm -rf *~ $(ALL) $(ALL_STATIC)

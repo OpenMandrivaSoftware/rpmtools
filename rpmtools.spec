@@ -17,17 +17,10 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel
 Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0
+Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
-
-%package devel
-Summary: Contains various rpm command-line tools for development
-Group: Development/Other
-Requires: %{name} = %{version}
-%description devel
-Various devel rpm tools which can be used to build a customized
-Linux-Mandrake distribution.
 
 %prep
 %setup
@@ -35,7 +28,7 @@ Linux-Mandrake distribution.
 %build
 %{__perl} Makefile.PL
 %{make} -f Makefile_core OPTIMIZE="$RPM_OPT_FLAGS"
-%{make} CFLAGS="$RPM_OPT_FLAGS -DVERSION_STRING=\"%{version}\""
+%{make} CFLAGS="$RPM_OPT_FLAGS"
 
 %install
 rm -rf $RPM_BUILD_ROOT
@@ -50,21 +43,19 @@ rm -rf $RPM_BUILD_ROOT
 %{_bindir}/packdrake
 %{_bindir}/parsehdlist
 %{_bindir}/rpm2header
+%{_bindir}/genhdlists
 %{_bindir}/genhdlist_cz2
 %{_bindir}/genbasefiles
 %dir %{perl_sitearch}/auto/rpmtools
 %{perl_sitearch}/auto/rpmtools/rpmtools.so
 %{perl_sitearch}/rpmtools.pm
 
-%files devel
-%defattr(-,root,root)
-%{_bindir}/genhdlists
-%{_bindir}/genfilelist
-
 
 %changelog
 * Mon Nov 20 2000 François Pons <fpons@mandrakesoft.com> 2.1-1mdk
 - removed rpmtools-compat which is now obsoleted.
+- obsoleted genfilelist is removed from rpmtools-devel package.
+- removed rpmtools-devel which will be obsoleted by merge on genhdlist*.
 - add more complete parsehdlist tools, to be used by DrakX
   in interactive mode.
 
