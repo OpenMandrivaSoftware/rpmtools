@@ -24,7 +24,6 @@ BuildRequires: perl-devel
 BuildRequires: perl-Compress-Zlib
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94 perl-base >= 5.8.4
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
-Provides: perl(packdrake)
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -33,6 +32,7 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 Group: %{group}
 Summary: A simple Archive Extractor/Builder
 Conflicts: rpmtools <= 5.0.0
+Provides: perl(packdrake)
 
 %description -n packdrake
 Packdrake is a simple indexed archive builder and extractor using
