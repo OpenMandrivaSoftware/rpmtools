@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 25mdk
+%define release 27mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -15,8 +15,8 @@ Copyright: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
-BuildRequires: rpm-devel >= 3.0.4
-Requires: /usr/bin/perl rpm >= 3.0.4
+BuildRequires: rpm-devel >= rpm-3.0.5-0.20mdk
+Requires: /usr/bin/perl rpm >= rpm-3.0.5-0.20mdk bzip2 >= 1.0
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Wed Jul 12 2000 Pixel <pixel@mandrakesoft.com> 1.1-27mdk
+- add version require for last bzip2 and last rpm
+
 * Tue Jun 13 2000 Pixel <pixel@mandrakesoft.com> 1.1-25mdk
 - fix a bug in gendepslist2 (thanks to diablero)
 
