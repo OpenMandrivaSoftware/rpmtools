@@ -3,7 +3,7 @@
 # use 5.008;
 use ExtUtils::MakeMaker;
 
-my $rpmtools_version = '5.0.0';
+my $rpmtools_version = '5.0.1';
 
 sub MY::postamble {
     <<MAKEMAKEFILE;
@@ -26,7 +26,7 @@ ChangeLog:
 	rm -f *.bak
 
 rpm: dist
-	rpm --define "_sourcedir `pwd`" -ba --clean rpmtools.spec
+	rpm --define "_sourcedir `pwd`" -ba --clean --rmsource rpmtools.spec
 MAKEMAKEFILE
 }
 
