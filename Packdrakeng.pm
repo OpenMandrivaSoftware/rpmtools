@@ -43,9 +43,11 @@ sub tempfile {
 sub mkpath {
     my ($path) = @_;
     $path =~ s:/*$::; # removing leading '/'
-    my $parent = substr($path, 0, rindex($path, '/'));
     -d $path and return 1;
-    -d $parent || mkpath($parent) or return 0;
+    # need parent creation ?
+    if (index($path, '/') > 0) {
+        mkpath(substr($path, 0, rindex($path, '/'))) or return 0;
+    }
     mkdir($path)
 }
 
