@@ -52,6 +52,7 @@ char *get_name(Header header, int_32 tag) {
   return name;
 }
 
+/*
 static
 void print_list(Header header, int_32 tag_name, char *format, char sep, char *name) {
   int_32 type, count;
@@ -70,6 +71,7 @@ void print_list(Header header, int_32 tag_name, char *format, char sep, char *na
   }
   free(list);
 }
+*/
 
 static
 void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag_version, char *format, char sep, char *name) {
@@ -179,9 +181,10 @@ void print_help(void) {
 void
 print_header_flag_interactive(char *in_tag, Header header)
 {
-  if (!strncmp(in_tag, "provides", 8)) print_list(header, RPMTAG_PROVIDENAME, "%2$s", 0, "");
+  if (!strncmp(in_tag, "provides", 8)) print_list_flags(header, RPMTAG_PROVIDENAME, RPMTAG_PROVIDEFLAGS,
+							     RPMTAG_PROVIDEVERSION, "%2$s", 0, "");
   else if (!strncmp(in_tag, "requires", 8)) print_list_flags(header, RPMTAG_REQUIRENAME, RPMTAG_REQUIREFLAGS,
-							     RPMTAG_REQUIREVERSION,"%2$s", 0, "");
+							     RPMTAG_REQUIREVERSION, "%2$s", 0, "");
   else if (!strncmp(in_tag, "conflicts", 9)) print_list_flags(header, RPMTAG_CONFLICTNAME, RPMTAG_CONFLICTFLAGS,
 							      RPMTAG_CONFLICTVERSION, "%2$s", 0, "");
   else if (!strncmp(in_tag, "obsoletes", 9)) print_list_flags(header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS,
