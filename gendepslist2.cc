@@ -283,7 +283,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 
   vector<string> put_first_ = split(' ', put_first);
   vector<string> packages;
-  int hdlist2nbsep[nb_hdlists];
+  int nb2hdlist[packages.size()];
   for (int i = 0; i < nb_hdlists; i++) {
     set<string> list = hdlist2names[i];
     while (list.begin() != list.end()) {
@@ -302,33 +302,31 @@ void printDepslist(ofstream *out1, ofstream *out2) {
     found:
       names.erase(n);
       list.erase(n);
+      nb2hdlist[packages.size()] = i;
       packages.push_back(n);
       for (ITms p = names.begin(); p != names.end(); p++) p->second.erase(n);
     }
-    hdlist2nbsep[i] = packages.size();
   }
 
   int i = 0;
   map<string,int> where;
   for (ITv p = packages.begin(); p != packages.end(); p++, i++) where[*p] = i;
 
-  for (int hdlist = 0; hdlist < nb_hdlists; hdlist++) {
-    i = 0;
-    for (ITv p = packages.begin(); p != packages.end(); p++, i++) {
-      set<string> dep = closed[*p];
-      *out2 << *p << " " << sizes[*p];
-      for (ITs q = dep.begin(); q != dep.end(); q++) {
-	if (q->find('|') != string::npos) {
-	  vector<string> l = split('|', *q);
-	  for (ITv k = l.begin(); k != l.end(); k++) *out2 << " " << verif(where[*k], hdlist2nbsep[hdlist], *p, *k);
-	} else if (q->compare("NOTFOUND_") > 1) {
-	  *out2 << " " << *q;
-	} else {
-	  *out2 << " " << verif(where[*q], hdlist2nbsep[hdlist], *p, *q);
-	}
+  i = 0;
+  for (ITv p = packages.begin(); p != packages.end(); p++, i++) {
+    set<string> dep = closed[*p];
+    *out2 << *p << " " << sizes[*p];
+    for (ITs q = dep.begin(); q != dep.end(); q++) {
+      if (q->find('|') != string::npos) {
+	vector<string> l = split('|', *q);
+	for (ITv k = l.begin(); k != l.end(); k++) *out2 << " " << verif(where[*k], nb2hdlist[i], *p, *k);
+      } else if (q->compare("NOTFOUND_") > 1) {
+	*out2 << " " << *q;
+      } else {
+	*out2 << " " << verif(where[*q], nb2hdlist[i], *p, *q);
       }
-      *out2 << "\n";
     }
+    *out2 << "\n";
   }
 }
 
