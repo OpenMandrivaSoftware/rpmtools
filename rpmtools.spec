@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 1mdk
+%define release 2mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -52,6 +52,11 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Nov 20 2000 François Pons <fpons@mandrakesoft.com> 2.1-2mdk
+- fixed abusive -ldb2 and -ldb1 in Makefile.
+- fixed deadlock with DrakX by using fflush.
+- fixed big bug on execvl (thanks to francis).
+
 * Mon Nov 20 2000 François Pons <fpons@mandrakesoft.com> 2.1-1mdk
 - removed rpmtools-compat which is now obsoleted.
 - obsoleted genfilelist is removed from rpmtools-devel package.
