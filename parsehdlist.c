@@ -245,7 +245,6 @@ int main(int argc, char **argv)
 	    close(fdno[0]);
 	    close(fdno[1]);
 	  } else {
-#if 1
 	    int fda, fdn;
 	    struct {
 	      char header[4];
@@ -256,9 +255,14 @@ int main(int argc, char **argv)
 	      char uncompress[40];
 	      char trailer[4];
 	    } buf;
-	    char *unpacker[21]; /* enough for 40 bytes above to never overbuf */
+	    char *unpacker[22]; /* enough for 40 bytes above to never overbuf */
 	    char *p = buf.uncompress;
 	    int ip = 0;
+	    char *ld_loader = getenv("LD_LOADER");
+
+	    if (ld_loader && *ld_loader) {
+	      unpacker[ip++] = ld_loader;
+	    }
 
 	    dup2(fdno[1], STDOUT_FILENO);
 	    fda = open(argv[i], O_RDONLY);
@@ -285,10 +289,6 @@ int main(int argc, char **argv)
 	    fdn = open("/dev/null", O_WRONLY);
 	    dup2(fdn, STDERR_FILENO);
 	    execvp(unpacker[0], unpacker);
-#else
-	    dup2(fdno[1], STDOUT_FILENO);
-	    execlp("packdrake", "packdrake", "-c", argv[i], NULL);
-#endif
 	    exit(2);
 	  }
 	} else {

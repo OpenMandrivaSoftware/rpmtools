@@ -214,7 +214,8 @@ sub catsksz {
 sub cat_compress {
     my ($packer, $srcdir, @filenames) = @_;
     local *F;
-    open F, "| $packer->{compress} >$packer->{tmpz}" or die "packdrake: cannot start \"$packer->{compress}\"\n";
+    open F, "| $ENV{LD_LOADER} $packer->{compress} >$packer->{tmpz}"
+      or die "packdrake: cannot start \"$packer->{compress}\"\n";
     foreach (@filenames) {
  	my $srcfile = $srcdir ? "$srcdir/$_" : $_;
 	my ($buf, $siz, $sz);
@@ -327,7 +328,7 @@ sub cat_archive {
 	    open STDIN, "<$_" or die "packdrake: unable to open archive $_\n";
 	    open STDERR, ">/dev/null" or die "packdrake: unable to open /dev/null\n";
 
-	    exec split " ", $packer->{uncompress};
+	    exec (($ENV{LD_LOADER} ? ($ENV{LD_LOADER}) : ()), split " ", $packer->{uncompress});
 
 	    die "packdrake: unable to cat the archive with $packer->{uncompress}\n";
 	}
@@ -398,7 +399,7 @@ sub extract_archive {
 	    close FILE;
 	} else {
 	    local *BUNZIP2;
-	    open BUNZIP2, "| $packer->{uncompress}";
+	    open BUNZIP2, "| $ENV{LD_LOADER} $packer->{uncompress}";
 	    local *ARCHIVE;
 	    open ARCHIVE, "<$packer->{archive}" or die "packdrake: cannot open archive $packer->{archive}\n";
 	    catsksz(\*ARCHIVE, $_, $extract_table{$_}[0], \*BUNZIP2);
@@ -448,7 +449,7 @@ sub build_archive {
 		    $packer->{data}{$_} = [ 'f', $off1, $siz1, $packer->{data}{$_}[3], $packer->{data}{$_}[4] ];
 		}
 
-		system "cat '$packer->{tmpz}' >>'$packer->{archive}'";
+		system "$ENV{LD_LOADER} cat '$packer->{tmpz}' >>'$packer->{archive}'";
 		$off1 += $siz1;
 		$off2 = 0; $siz2 = 0;
 		@filelist = ();
@@ -463,7 +464,7 @@ sub build_archive {
 	    $packer->{data}{$_} = [ 'f', $off1, $siz1, $packer->{data}{$_}[3], $packer->{data}{$_}[4] ];
 	}
 
-	system "cat '$packer->{tmpz}' >>'$packer->{archive}'";
+	system "$ENV{LD_LOADER} cat '$packer->{tmpz}' >>'$packer->{archive}'";
 	$off1 += $siz1;
     }
     print STDERR "real archive size of $packer->{archive} is $off1\n";

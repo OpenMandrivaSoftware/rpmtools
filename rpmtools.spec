@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 10mdk
+%define release 12mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.3
@@ -16,7 +16,7 @@ Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0 bzip2 popt-devel zlib-devel
-Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0 db2 db3
+Requires: /usr/bin/perl rpm >= 4.0 bzip2 >= 1.0
 Obsoletes: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
 %description
@@ -51,6 +51,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Mar 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-12mdk
+- added support for LD_LOADER in packdrake module.
+- removed explicit requires of db2 and db3.
+
+* Mon Mar 12 2001 François Pons <fpons@mandrakesoft.com> 2.3-11mdk
+- 
+
 * Thu Mar  8 2001 François Pons <fpons@mandrakesoft.com> 2.3-10mdk
 - fixed duplicate choices in depslist.ordered file.
 - fixed missing choices on some deps.
