@@ -1,7 +1,7 @@
-VERSION = 1.1
+VERSION = 1.2
 NAME = rpmtools
-FROMC = rpm2header #rpm-find-leaves
-FROMCC = gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups
+FROMC = parsehdlist rpm2header #rpm-find-leaves
+FROMCC = gendepslist2 #hdlist2names hdlist2files hdlist2prereq hdlist2groups
 FROMC_STATIC  = $(FROMC:%=%_static)
 FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)
@@ -14,7 +14,7 @@ all: $(ALL)
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
 	install -s $(ALL) $(PREFIX)/usr/bin
-	install genhdlist_cz2 genhdlists genfilelist build_archive extract_archive $(PREFIX)/usr/bin
+	install genhdlist_cz2 genhdlists genfilelist packdrake $(PREFIX)/usr/bin
 
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) $< $(LIBRPM) -o $@

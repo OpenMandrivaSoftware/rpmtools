@@ -73,6 +73,14 @@ int main(int argc, char **argv) {
       headerRemoveEntry(h, RPMTAG_EXCLUSIVE);
       headerRemoveEntry(h, RPMTAG_DISTRIBUTION);
       headerRemoveEntry(h, RPMTAG_VERIFYSCRIPT);
+
+      /* removing that break updates.
+      headerRemoveEntry(h, RPMTAG_OLDFILENAMES);
+      headerRemoveEntry(h, RPMTAG_BASENAMES);
+      headerRemoveEntry(h, RPMTAG_DIRINDEXES);
+      headerRemoveEntry(h, RPMTAG_DIRNAMES);
+      */
+
       headerAddEntry(h, FILENAME_TAG, RPM_STRING_TYPE, name, 1);
       headerAddEntry(h, FILESIZE_TAG, RPM_INT32_TYPE, &size, 1);
       headerWrite(fout, h, HEADER_MAGIC_YES);

@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 29mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 1.1
+%define version 1.2
 
 Summary: contains various rpm command-line tools
 Name: %{name}
@@ -28,6 +28,14 @@ Group: Development/Other
 Various devel rpm tools which can be used to build a customized
 Linux-Mandrake distribution.
 
+%package compat
+Summary: contains various rpm command-line tools for compability
+Group: System/Configuration/Packaging
+Requires: rpmtools
+%description compat
+Various rpm tools for compability issue with previous version of
+rpmtools package.
+
 %prep
 %setup
 
@@ -35,30 +43,59 @@ Linux-Mandrake distribution.
 make CFLAGS="$RPM_OPT_FLAGS"
 
 %install
+rm -rf $RPM_BUILD_ROOT
 make install PREFIX=$RPM_BUILD_ROOT
 
+# compability tools, based upon parsehdlist ones.
+ln -s parsehdlist $RPM_BUILD_ROOT%{_bindir}/hdlist2names
+
+cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2prereq
+#!/bin/sh
+%{_bindir}/parsehdlist --quiet --prereqs $*
+EOF
+chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2prereq
+
+cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2groups
+#!/bin/sh
+%{_bindir}/parsehdlist --quiet --groups $*
+EOF
+chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2groups
+
+cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2files
+#!/bin/sh
+%{_bindir}/parsehdlist --quiet --files $*
+EOF
+chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2files
+
 %clean
-rm -rf $RPM_BUILD_ROOT
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-/usr/bin/gendepslist2
-/usr/bin/hdlist2files
-/usr/bin/hdlist2names
+/usr/bin/packdrake
+/usr/bin/parsehdlist
 /usr/bin/rpm2header
 /usr/bin/genhdlist_cz2
-/usr/bin/extract_archive
-/usr/bin/build_archive
 
 %files devel
 %defattr(-,root,root)
-/usr/bin/hdlist2prereq
-/usr/bin/hdlist2groups
 /usr/bin/genhdlists
 /usr/bin/genfilelist
 
+%files compat
+%defattr(-,root,root)
+/usr/bin/gendepslist2
+/usr/bin/hdlist2prereq
+/usr/bin/hdlist2groups
+/usr/bin/hdlist2files
+/usr/bin/hdlist2names
+
+
 %changelog
+* Wed Aug 23 2000 François Pons <fpons@mandrakesoft.com> 1.2-1mdk
+- 1.2 of rpmtools.
+- new tools packdrake and parsehdlist.
+
 * Thu Aug  3 2000 Pixel <pixel@mandrakesoft.com> 1.1-29mdk
 - skip "rpmlib(..." dependencies
 

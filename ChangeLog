@@ -1,3 +1,13 @@
+2000-08-11 François Pons <fpons@mandrakesoft.com>
+
+	* gendepslist2.cc, genhdlist_cz2: modified to use packdrake -c instead of bzcat.
+	* rpm2header.c: added comment about upgrade and removing tags.
+
+2000-08-11 François Pons <fpons@mandrakesoft.com>
+
+	* packdrake: inserted waiting its proper package, new version
+	obsoleting extract_archive and build_archive.
+
 2000-08-03  Pixel  <pixel@mandrakesoft.com>
 
 	* gendepslist2.cc: skip "rpmlib(..." dependencies

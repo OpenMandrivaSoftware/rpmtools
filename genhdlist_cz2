@@ -57,8 +57,8 @@ if (-e $depslist) {
 }
 @keys = grep { delete $keys{$_} } @keys; 
 
-open B, "| build_archive $hdlist 400000";
+open B, "| packdrake -b9s $hdlist 400000";
 foreach (@keys, keys %keys) { print B "$_\n" }
-close B or die "build_archive failed\n";
+close B or die "packdrake failed\n";
 
 system("rm -rf $work_dir") unless $noclean;

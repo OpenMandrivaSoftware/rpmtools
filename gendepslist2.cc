@@ -373,7 +373,7 @@ void printDepslist(ofstream *out1, ofstream *out2) {
 
 void hdlists(void (*f)(FD_t, int), const char *file, int current_hdlist) {
     bool isfile = strlen(file) > 4 && strncmp(file + strlen(file) - 4, ".rpm", 4) == 0;
-    string cmd = isfile ? "rpm2header " : "bzip2 -d <";
+    string cmd = isfile ? "rpm2header " : "packdrake -c ";
     FILE *pipe = popen((cmd + file + " 2>/dev/null").c_str(), "r");
 
     f(fdDup(fileno(pipe)), current_hdlist);
