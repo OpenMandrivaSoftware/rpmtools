@@ -9,7 +9,7 @@ my $default_ratio = 6;
 
 sub usage {
     die qq(packdrake version $packdrake::VERSION
-Copyright (C) 2000 MandrakeSoft.
+Copyright (C) 2000-2004 Mandrakesoft.
 This is free software and may be redistributed under the terms of the GNU GPL.
 
 usage:
@@ -30,7 +30,7 @@ usage:
   --list <file>          - list contents of archive.
   --cat <file>           - dump archive, only supported with gzip and bzip2,
                            this write the contents of all file in archive.
-  --quiet		 - quiet operation
+  --quiet                - quiet operation
 );
 }
 
