@@ -201,7 +201,7 @@ sub read_depslist {
 
     foreach (<$FILE>) {
 	chomp; /^\s*#/ and next;
-	my ($name, $version, $release, $size, $deps) = /^(\S*)-([^-\s]+)-([^-\s]+)\s+(\d+)\s+(.*)/;
+	my ($name, $version, $release, $size, $deps) = /^(\S*)-([^-\s]+)-([^-\s]+)\s+(\d+)\s*(.*)/;
 
 	#- store values here according to it.
 	push @{$params->{depslist}}, $params->{info}{$name} = {

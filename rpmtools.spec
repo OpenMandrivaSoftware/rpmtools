@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 6mdk
+%define release 7mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -99,6 +99,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Tue Aug 29 2000 François Pons <fpons@mandrakesoft.com> 1.2-7mdk
+- fixed rpmtools.pm depslist.ordered reading code on gendepslist2 produced
+  file.
+
 * Tue Aug 29 2000 François Pons <fpons@mandrakesoft.com> 1.2-6mdk
 - fixed hdlist2groups with wrong invocations of parsehdlist.
 
