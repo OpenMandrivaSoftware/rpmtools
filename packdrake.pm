@@ -3,7 +3,7 @@ package packdrake;
 use strict;
 use vars qw($VERSION);
 
-$VERSION = "0.02";
+$VERSION = "0.03";
 
 =head1 NAME
 
@@ -21,7 +21,7 @@ packdrake - Mandrake Simple Archive Extractor/Builder
     $packer->extract_archive("/tmp", "file1.o", "file2.o");
 
     my $packer = packdrake::build_archive
-        (\*STDIN, "/tmp/modules.cz2",
+        (\*STDIN, "/lib/modules", "/tmp/modules.cz2",
          400000, "bzip2", "bzip2 -d");
     my $packer = packdrake::build_archive
         (\*STDIN, "/export/Mandrake/base/hdlist.cz",
@@ -212,14 +212,15 @@ sub catsksz {
 }
 
 sub cat_compress {
-    my ($packer, @filenames) = @_;
+    my ($packer, $srcdir, @filenames) = @_;
     local *F;
     open F, "| $packer->{compress} >$packer->{tmpz}" or die "packdrake: cannot start \"$packer->{compress}\"\n";
     foreach (@filenames) {
+ 	my $srcfile = $srcdir ? "$srcdir/$_" : $_;
 	my ($buf, $siz, $sz);
 	local *FILE;
-	open FILE, $_ or die "packdrake: cannot open $_: $!\n";
-	$siz = -s $_;
+	open FILE, $srcfile or die "packdrake: cannot open $srcfile: $!\n";
+	$siz = -s $srcfile;
 	while (($sz = sysread(FILE, $buf, $siz > 65536 ? 65536 : $siz))) {
 	    $siz -= $sz;
 	    syswrite(F, $buf);
@@ -407,7 +408,7 @@ sub extract_archive {
 }
 
 sub build_archive {
-    my ($f, $archivename, $maxsiz, $compress, $uncompress, $tmpz) = @_;
+    my ($f, $srcdir, $archivename, $maxsiz, $compress, $uncompress, $tmpz) = @_;
     my ($off1, $siz1, $off2, $siz2) = ('', '', 0, 0, 0, 0);
     my @filelist = ();
     my $packer = new packdrake;
@@ -424,23 +425,24 @@ sub build_archive {
     my $file;
     while ($file = <$f>) {
 	chomp $file;
-	-e $file or die "packdrake: unable to find file $file\n";
+	my $srcfile = $srcdir ? "$srcdir/$file" : $file;
+	-e $srcfile or die "packdrake: unable to find file $srcfile\n";
 
 	push @{$packer->{files}}, $file;
 	#- now symbolic link and directory are supported, extension is
 	#- available with the first field of $data{$file}.
 	if (-l $file) {
-	    $packer->{data}{$file} = [ 'l', readlink $file ];
+	    $packer->{data}{$file} = [ 'l', readlink $srcfile ];
 	} elsif (-d $file) {
 	    $packer->{data}{$file} = [ 'd' ];
 	} else {
-	    $siz2 = -s $file;
+	    $siz2 = -s $srcfile;
 
 	    push @filelist, $file;
 	    $packer->{data}{$file} = [ 'f', -1, -1, $off2, $siz2 ];
 
 	    if ($off2 + $siz2 > $maxsiz) { #- need compression.
-		$siz1 = cat_compress($packer, @filelist);
+		$siz1 = cat_compress($packer, $srcdir, @filelist);
 
 		foreach (@filelist) {
 		    $packer->{data}{$_} = [ 'f', $off1, $siz1, $packer->{data}{$_}[3], $packer->{data}{$_}[4] ];
@@ -455,7 +457,7 @@ sub build_archive {
 	}
     }
     if (scalar @filelist) {
-	$siz1 = cat_compress($packer, @filelist);
+	$siz1 = cat_compress($packer, $srcdir, @filelist);
 
 	foreach (@filelist) {
 	    $packer->{data}{$_} = [ 'f', $off1, $siz1, $packer->{data}{$_}[3], $packer->{data}{$_}[4] ];

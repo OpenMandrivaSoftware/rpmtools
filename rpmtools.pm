@@ -74,10 +74,6 @@ sub new {
 	   info          => {},
 	   depslist      => [],
 	   provides      => {},
-	   options       => {
-			     tmpdir  => $ENV{TMPDIR} || "/tmp",
-			     noclean => 0,
-			    },
 	  }, $class;
 }
 
@@ -108,22 +104,22 @@ sub read_hdlists {
 
 #- build an hdlist from a list of files.
 sub build_hdlist {
-    my ($params, $hdlist, @rpms) = @_;
-    my ($work_dir, %names) = "$params->{options}{tmpdir}/.build_hdlist";
+    my ($params, $noclean, $dir, $hdlist, @rpms) = @_;
+    my %names;
 
     #- build a working directory which will hold rpm headers.
-    -d $work_dir or mkdir $work_dir, 0755 or die "cannot create working directory $work_dir\n";
-    my $cwd = `pwd`; chdir $work_dir;
+    $dir ||= '.';
+    -d $dir or mkdir $dir, 0755 or die "cannot create directory $dir\n";
 
     foreach (@rpms) {
 	my ($key, $name) = /(([^\/]*)-[^-]*-[^-]*\.[^\/\.]*)\.rpm$/ or next;
-	system("rpm2header '$_' > $key") unless -e $key;
-	$? == 0 or unlink($key), die "bad rpm $_\n";
-	-s $key or unlink($key), die "bad rpm $_\n";
+	system("rpm2header '$_' > '$dir/$key'") unless -e "$dir/$key";
+	$? == 0 or unlink("$dir/$key"), die "bad rpm $_\n";
+	-s "$dir/$key" or unlink("$dir/$key"), die "bad rpm $_\n";
 	push @{$names{$name} ||= []}, $key;
     }
 
-    open B, "| packdrake -b9s '$hdlist' 400000";
+    open B, "| packdrake -b9ds '$hdlist' '$dir' 400000";
     foreach (@{$params->{depslist}}) {
 	if (my $keys = delete $names{$_->{name}}) {
 	    print B "$_\n" foreach @$keys;
@@ -134,7 +130,7 @@ sub build_hdlist {
     }
     close B or die "packdrake failed\n";
 
-    chdir $cwd; system("rm", "-rf", $work_dir) unless $params->{options}{noclean};
+    system("rm", "-rf", $dir) unless $dir eq '.' || $noclean;
 }
 
 #- read one or more rpm files.

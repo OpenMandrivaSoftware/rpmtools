@@ -17,6 +17,7 @@ usage:
   --build <file>         - build archive <file> with filenames given on
                            standard input.
     -[1..9]              - select appropriate compression ratio, $default_ratio by default.
+    --dir <srcdir>       - set source directory where to search files, \".\" by default.
     --size <cmd>         - set maximun chunk size, $default_size by default.
     --method <cmd>       - select standard compression command method, default
                            is set according to archive filename, example is
@@ -45,6 +46,7 @@ sub main {
 	/^--extract$/    and do { $mode and die $error_mode; $mode = "extract"; @nextargv = (\$file, \$dir); next };
 	/^--list$/       and do { $mode and die $error_mode; $mode = "list"; @nextargv = (\$file); next };
 	/^--cat$/        and do { $mode and die $error_mode; $mode = "cat"; @nextargv = (\$file); next };
+	/^--dir$/        and do { push @nextargv, \$dir; next };
 	/^--size$/       and do { push @nextargv, \$size; next };
 	/^--method$/     and do { push @nextargv, \$method; next };
 	/^--compress$/   and do { push @nextargv, \$compress; next };
@@ -55,6 +57,7 @@ sub main {
 	    /x/      and do { $mode and die $error_mode; $mode = "extract"; @nextargv = (\$file, \$dir); next };
 	    /l/      and do { $mode and die $error_mode; $mode = "list"; @nextargv = (\$file); next };
 	    /c/      and do { $mode and die $error_mode; $mode = "cat"; @nextargv = (\$file); next };
+	    /d/      and do { push @nextargv, \$dir; next };
 	    /s/      and do { push @nextargv, \$size; next };
 	    /m/      and do { push @nextargv, \$method; next };
 	    die "packdrake: unknown option \"-$1\", check usage with --help\n"; } next };
@@ -78,7 +81,7 @@ sub main {
 
     $mode =~ /extract/ && !$dir && !@list and ($mode, @list) = ('list', $file);
     for ($mode) {
-	/build/   and do { packdrake::build_archive(\*STDIN, $file, $size, $compress, $uncompress); last };
+	/build/   and do { packdrake::build_archive(\*STDIN, $dir, $file, $size, $compress, $uncompress); last };
 	/extract/ and do { my $packer = new packdrake($file); $packer->extract_archive($dir, @list); last };
 	/list/    and do { packdrake::list_archive($file, @list); last };
 	/cat/     and do { packdrake::cat_archive($file, @list); last };
