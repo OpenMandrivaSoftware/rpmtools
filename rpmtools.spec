@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 12mdk
+%define release 13mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -53,9 +53,13 @@ rm -rf $RPM_BUILD_ROOT
 %files devel
 %defattr(-,root,root)
 /usr/bin/hdlist2prereq
+/usr/bin/hdlist2groups
 /usr/bin/genhdlists
 
 %changelog
+* Mon Mar 27 2000 Pixel <pixel@mandrakesoft.com> 1.1-13mdk
+- add hdlist2groups
+
 * Sun Mar 26 2000 Pixel <pixel@mandrakesoft.com> 1.1-12mdk
 - gendepslist2: add ability to handle files (was only hdlist.cz2's), and to
 output only the package dependencies for some hdlist's/packages (use of "--")

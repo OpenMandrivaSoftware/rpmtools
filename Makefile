@@ -1,7 +1,7 @@
 VERSION = 1.1
 NAME = rpmtools
 FROMC = rpm2header #rpm-find-leaves
-FROMCC = gendepslist2 hdlist2names hdlist2files hdlist2prereq
+FROMCC = gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups
 FROMC_STATIC  = $(FROMC:%=%_static)
 FROMCC_STATIC = $(FROMCC:%=%_static)
 ALL = $(FROMC) $(FROMCC)

@@ -30,7 +30,7 @@ int main(int argc, char **argv)
   }
   for (int i = 1; i < argc; i++) {
     FD_t fd = strcmp(argv[i], "-") == 0 ? fdDup(STDIN_FILENO) : fdOpen(argv[i], O_RDONLY, 0);
-    if (fdFileno(fd) < 0) cerr << "rpmpackdeps: cannot open file " << argv[i] << "\n";
+    if (fdFileno(fd) < 0) cerr << "hdlist2names: cannot open file " << argv[i] << "\n";
     else  {
       Header header;
       while ((header=headerRead(fd, HEADER_MAGIC_YES))) {
