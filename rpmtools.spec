@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 0.1mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0
+%define version 5.0.0
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -56,6 +56,10 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Mon Dec 06 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.0-1mdk
+- 5.0.0
+- Packdrakeng, new code
+
 * Thu Sep 02 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 4.5-25mdk
 - Make rpm tools handle new keywords in hdlists file.
 

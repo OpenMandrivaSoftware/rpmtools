@@ -38,7 +38,6 @@ sub new {
 
 sub extract_archive {
     my ($pack, $dir, @files) = @_;
-    print @files;
     if (! scalar(@files)) {
         my ($d, $f, $l) = $pack->getcontent();
         push(@files, @$d, @$f, @$l);
@@ -57,18 +56,18 @@ sub build_archive {
     my ($listh, $dir, $archive, $size, $compress, $uncompress) = @_;
     my ($comp_level) = $compress =~ m/ -(\d)(?:\s|$)/;
     $compress =~ s/ -\d(\s|$)/$1/;
-    $uncompress =~ s/ -d(\s|$)/$1/;
     my $pack = Packdrakeng->new(
         archive => $archive,
         compress => $compress,
         uncompress => $uncompress,
-        bloc_size => $size,
+        block_size => $size,
         comp_level => $comp_level,
     ) or return;
     while (my $line = <$listh>) {
         chomp($line);
         $pack->add($dir, $line) or return;
     }
+    1
 }
 
 sub cat_archive {
@@ -134,13 +133,13 @@ Extract files list into the specified directory.
 
 List files packed into achives given.
 
-=item B<packdrake::build_archive($input, $dir, $archive, $blocsize, $compress, $uncompress)>
+=item B<packdrake::build_archive($input, $dir, $archive, $blocksize, $compress, $uncompress)>
 
 Build a new archive:
 - $input is a file handle to find file list to pack
 - $dir is the directory based where file are located
 - $archive is the archive filename to create
-- $blocsize is the size of compressed bloc
+- $blocksize is the size of compressed block
 - $compress is the program to use to compress data
 - $uncompress is the program to use to uncompress data
 

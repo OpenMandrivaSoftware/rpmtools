@@ -3,7 +3,7 @@
 # use 5.008;
 use ExtUtils::MakeMaker;
 
-my $rpmtools_version = '5.0';
+my $rpmtools_version = '5.0.0';
 
 sub MY::postamble {
     <<MAKEMAKEFILE;
@@ -12,19 +12,13 @@ sub MY::postamble {
 \$(FROMCC): %: %.cc 
 	\$(CXX) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
 
-\$(FROMCC_STATIC): %_static: %.cc 
-	\$(CXX) -s -static \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
-
 \$(FROMC): %: %.c
 	\$(CC) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
 
-\$(FROMC_STATIC): %_static: %.c
-	\$(CC) -g -s -static \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(LIBRPM_STATIC) \$(INCRPM) \$(DEFRPM) -o \$@
-
-buildc: \$(FROMC) \$(FROMCC) # \$(FROMC_STATIC) \$(FROMCC_STATIC)
+buildc: \$(FROMC) \$(FROMCC)
     
 cleanc:
-	rm -f \$(FROMC) \$(FROMCC) \$(FROMC_STATIC) \$(FROMCC_STATIC)
+	rm -f \$(FROMC) \$(FROMCC)
 
 ChangeLog:
 	cvs2cl -W 400 -I ChangeLog --accum -U ../common/username
@@ -42,8 +36,6 @@ WriteMakefile(
         RPMTOOLSVERSION => $rpmtools_version,
         FROMC => 'parsehdlist rpm2header #rpm-find-leaves',
         FROMCC => '#gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups',
-        FROMC_STATIC  => '$(FROMC:%=%_static)',
-        FROMCC_STATIC => '$(FROMCC:%=%_static)',
         LIBRPM => '-lrpm -lrpmio -lrpmdb -lrpmbuild -lz -lbz2 -lpopt',
         INCRPM => '-I/usr/include/rpm',
         DEFRPM => '-DRPM_42', 

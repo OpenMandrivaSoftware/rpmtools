@@ -51,7 +51,7 @@ sub _new {
         
         level => $options{comp_level} || 6, # compression level, aka -X gzip or bzip option
 
-        bloc_size => $options{bloc_size} || 400 * 1024, # A compressed bloc will contain 400k of compressed data
+        block_size => $options{block_size} || 400 * 1024, # A compressed block will contain 400k of compressed data
         bufsize => $options{bufsize} || 65536, # Arbitrary buffer size to read files
 
         # Internal data
@@ -70,10 +70,10 @@ sub _new {
         direct_write => 0, # Define if wrapper write directly in archive and not into temp file
 
         # Data we need keep in memory to achieve the storage
-        current_bloc_files => {}, # Files in pending compressed bloc
-        current_bloc_csize => 0,  # Actual size in pending compressed bloc
-        current_bloc_coff => 0,   # The bloc bloc location (offset)
-        current_bloc_off => 0,    # Actual uncompressed file offset within the pending bloc
+        current_block_files => {}, # Files in pending compressed block
+        current_block_csize => 0,  # Actual size in pending compressed block
+        current_block_coff => 0,   # The block block location (offset)
+        current_block_off => 0,    # Actual uncompressed file offset within the pending block
         
         cstream_data => undef,     # Wrapper data we need to keep in memory (compression)
         ustream_data => undef,     # Wrapper data we need to keep in memory (uncompression)
@@ -92,7 +92,7 @@ sub new {
     sysopen($pack->{handle}, $pack->{filename}, O_WRONLY | O_TRUNC | O_CREAT) or return undef;
     $pack->choose_compression_method();
     $pack->{need_build_toc} = 1;
-    $pack->{log}->("Creating new archive with '%s' / '%s'%s.",
+    $pack->{debug}->("Creating new archive with '%s' / '%s'%s.",
         $pack->{compress_method}, $pack->{uncompress_method},
         $pack->{use_extern} ? "" : " (internal compression)");
     $pack
@@ -103,7 +103,7 @@ sub open {
     my $pack = _new($class, %options);
     sysopen($pack->{handle}, $pack->{filename}, O_RDONLY) or return undef;
     $pack->read_toc() or return undef;
-    $pack->{log}->("Opening archive with '%s' / '%s'%s.",
+    $pack->{debug}->("Opening archive with '%s' / '%s'%s.",
         $pack->{compress_method}, $pack->{uncompress_method},
         $pack->{use_extern} ? "" : " (internal compression)");
     $pack
@@ -142,39 +142,58 @@ sub DESTROY {
     close($pack->{handle}) if ($pack->{handle});
 }
 
-# Flush current compressed bloc
+# Flush current compressed block
 # Write 
 sub build_toc {
     my ($pack) = @_;
     $pack->{need_build_toc} or return 1;
-    $pack->end_bloc();
-    $pack->end_seek();
+    $pack->end_block();
+    $pack->end_seek() or do {
+		warn "Can't seek into archive";
+		return 0;
+	};
     my ($toc_length, $cf, $cd, $cl) = (0, 0, 0, 0);
-
-    sysseek($pack->{handle}, $pack->{coff}, 0) == $pack->{coff} or return 0;
 
     foreach my $entry (keys %{$pack->{'dir'}}) {
         $cd++;
-        $toc_length += syswrite($pack->{handle}, $entry . "\n");
+		my $w = syswrite($pack->{handle}, $entry . "\n") or do {
+			warn "Can't write toc into archive";
+			return 0;
+		};
+        $toc_length += $w; 
     }
     foreach my $entry (keys %{$pack->{'symlink'}}) {
         $cl++;
-         $toc_length += syswrite($pack->{handle}, sprintf("%s\n%s\n", $entry, $pack->{'symlink'}{$entry}));
-    }
+		my $w = syswrite($pack->{handle}, sprintf("%s\n%s\n", $entry, $pack->{'symlink'}{$entry})) or do {
+			warn "Can't write toc into archive";
+			return 0;
+		};
+        $toc_length += $w
+	}
     foreach my $entry (sort keys %{$pack->{files}}) {
         $cf++;
-        $toc_length += syswrite($pack->{handle}, $entry ."\n");
+		my $w = syswrite($pack->{handle}, $entry ."\n") or do {
+			warn "Can't write toc into archive";
+			return 0;
+		};
+        $toc_length += $w;
     }
     foreach my $file (sort keys %{$pack->{files}}) {
         my $entry = $pack->{files}{$file};
-        syswrite($pack->{handle}, pack('NNNN', $entry->{coff}, $entry->{csize}, $entry->{off}, $entry->{size})) or return 0;
+        syswrite($pack->{handle}, pack('NNNN', $entry->{coff}, $entry->{csize}, $entry->{off}, $entry->{size})) or do {
+			warn "Can't write toc into archive";
+			return 0;
+		};
     }
     syswrite($pack->{handle}, pack("a4NNNNa40a4",
         $toc_header,
         $cd, $cl, $cf,
         $toc_length,
         $pack->{uncompress_method},
-        $toc_footer)) or return 0;
+        $toc_footer)) or do {
+		warn "Can't write toc into archive";
+		return 0;
+	};
    1
 }
 
@@ -222,27 +241,27 @@ sub read_toc {
 # Goto to the end of written compressed data
 sub end_seek {
     my ($pack) = @_;
-    my $seekvalue = $pack->{direct_write} ? $pack->{coff} + $pack->{current_bloc_csize} : $pack->{coff};
+    my $seekvalue = $pack->{direct_write} ? $pack->{coff} + $pack->{current_block_csize} : $pack->{coff};
     sysseek($pack->{handle}, $seekvalue, 0) == $seekvalue
 }
 
-#- To terminate a compressed bloc, flush the pending compressed data,
+#- To terminate a compressed block, flush the pending compressed data,
 #- fill toc data still unknown
-sub end_bloc {
+sub end_block {
     my ($pack) = @_;
     $pack->end_seek() or return 0;
     my $m = $pack->{subcompress};
     my (undef, $csize) = $pack->$m(undef);
-    $pack->{current_bloc_csize} += $csize;
-    foreach (keys %{$pack->{current_bloc_files}}) {
-        $pack->{files}{$_} = $pack->{current_bloc_files}{$_};
-        $pack->{files}{$_}{csize} = $pack->{current_bloc_csize};
+    $pack->{current_block_csize} += $csize;
+    foreach (keys %{$pack->{current_block_files}}) {
+        $pack->{files}{$_} = $pack->{current_block_files}{$_};
+        $pack->{files}{$_}{csize} = $pack->{current_block_csize};
     }
-    $pack->{coff} += $pack->{current_bloc_csize};
-    $pack->{current_bloc_coff} += $pack->{current_bloc_csize};
-    $pack->{current_bloc_csize} = 0;
-    $pack->{current_bloc_files} = {};
-    $pack->{current_bloc_off} = 0;
+    $pack->{coff} += $pack->{current_block_csize};
+    $pack->{current_block_coff} += $pack->{current_block_csize};
+    $pack->{current_block_csize} = 0;
+    $pack->{current_block_files} = {};
+    $pack->{current_block_off} = 0;
 }
 
 #######################
@@ -256,15 +275,15 @@ sub extern_compress {
     
     if (defined($pack->{cstream_data})) {
         $hout = $pack->{cstream_data}{hout};
-        $filesize = (stat($pack->{cstream_data}{file_bloc}))[7];
+        $filesize = (stat($pack->{cstream_data}{file_block}))[7];
     }
     if (defined($sourcefh)) {
         if (!defined($pack->{cstream_data})) {
             my $hin;
-            ($hin, $pack->{cstream_data}{file_bloc}) = tempfile();
+            ($hin, $pack->{cstream_data}{file_block}) = tempfile();
             close($hin); # ensure the flush
             $pack->{cstream_data}{pid} = CORE::open($hout, 
-                "|$pack->{compress_method} > $pack->{cstream_data}{file_bloc}") or do {
+                "|$pack->{compress_method} > $pack->{cstream_data}{file_block}") or do {
                 warn "Unable to start $pack->{compress_method}";
                 return 0, 0;
             };
@@ -278,18 +297,18 @@ sub extern_compress {
                 warn "can't push all data to compressor";
             };
             $insize += $l;
-            $outsize = (stat($pack->{cstream_data}{file_bloc}))[7];
+            $outsize = (stat($pack->{cstream_data}{file_block}))[7];
         }
     } elsif (defined($pack->{cstream_data})) {
-        # If $sourcefh is not set, this mean we want a flush(), for end_bloc()
+        # If $sourcefh is not set, this mean we want a flush(), for end_block()
         close($hout);
         waitpid $pack->{cstream_data}{pid}, 0;
-        sysopen(my $hin, $pack->{cstream_data}{file_bloc}, O_RDONLY) or do {
-            warn "Can't open temp bloc file";
+        sysopen(my $hin, $pack->{cstream_data}{file_block}, O_RDONLY) or do {
+            warn "Can't open temp block file";
             return 0, 0;
         };
-        $outsize = (stat($pack->{cstream_data}{file_bloc}))[7];
-        unlink($pack->{cstream_data}{file_bloc});
+        $outsize = (stat($pack->{cstream_data}{file_block}))[7];
+        unlink($pack->{cstream_data}{file_block});
         while (my $lenght = sysread($hin, my $data, $pack->{bufsize})) {
             (my $l = syswrite($pack->{handle}, $data)) == $lenght or do {
                 warn "Can't write all data in archive";
@@ -298,13 +317,13 @@ sub extern_compress {
         close($hin);
         $pack->{cstream_data} = undef;
     }
-    ($insize, $outsize - $pack->{current_bloc_csize})
+    ($insize, $outsize - $pack->{current_block_csize})
 }
 
 sub extern_uncompress {
     my ($pack, $destfh, $fileinfo) = @_;
     
-    # We have to first extract the bloc to a temp file, burk !
+    # We have to first extract the block to a temp file, burk !
     my ($tempfh, $tempname) = tempfile();
 
     my $cread = 0;
@@ -371,7 +390,7 @@ sub gzip_compress {
     my ($pack, $sourcefh) = @_;
     my ($insize, $outsize) = (0, 0); # aka uncompressed / compressed data length
 
-    # If $sourcefh is not set, this mean we want a flush(), for end_bloc()
+    # If $sourcefh is not set, this mean we want a flush(), for end_block()
     # EOF, flush compress stream, adding crc
     if (!defined($sourcefh)) {
         if (defined($pack->{cstream_data}{object})) {
@@ -490,8 +509,8 @@ sub gzip_uncompress {
 # Debug functions #
 ###################
 
-# This function extract in $dest the whole bloc containing $file, can be usefull for debugging
-sub extract_bloc {
+# This function extract in $dest the whole block containing $file, can be usefull for debugging
+sub extract_block {
     my ($pack, $dest, $file) = @_;
 
     sysopen(my $handle, $dest, O_WRONLY | O_TRUNC | O_CREAT) or do {
@@ -549,19 +568,19 @@ sub add_virtual {
         
         my $m = $pack->{subcompress};
         my ($size, $csize) = $pack->$m($data);
-        $pack->{current_bloc_files}{$filename} = {
+        $pack->{current_block_files}{$filename} = {
             size => $size,
-            off => $pack->{current_bloc_off},
-            coff => $pack->{current_bloc_coff},
-            csize => -1, # Still unknown, will be fill by end_bloc
+            off => $pack->{current_block_off},
+            coff => $pack->{current_block_coff},
+            csize => -1, # Still unknown, will be fill by end_block
         }; # Storing in toc structure availlable info
             
-        # Updating internal info about current bloc
-        $pack->{current_bloc_off} += $size;
-        $pack->{current_bloc_csize} += $csize;
+        # Updating internal info about current block
+        $pack->{current_block_off} += $size;
+        $pack->{current_block_csize} += $csize;
         $pack->{need_build_toc} = 1;
-        if ($pack->{bloc_size} > 0 && $pack->{current_bloc_csize} >= $pack->{bloc_size}) {
-            $pack->end_bloc();
+        if ($pack->{block_size} > 0 && $pack->{current_block_csize} >= $pack->{block_size}) {
+            $pack->end_block();
         }
         return 1;
     };
@@ -570,25 +589,30 @@ sub add_virtual {
 
 sub add {
     my ($pack, $prefix, @files) = @_;
-    $prefix ||= ""; $prefix =~ s://+:/:;
+    $prefix ||= "";
     foreach my $file (@files) {
         $file =~ s://+:/:;
         my $srcfile = $prefix ? "$prefix/$file" : $file;
+        $pack->{debug}->("Adding '%s' as '%s' into archive", $srcfile, $file);
         
-        -l $file and do {
+        -l $srcfile and do {
             $pack->add_virtual('l', $file, readlink($srcfile));
             next;
         };
-        -d $file and do { # dir simple case
+        -d $srcfile and do { # dir simple case
             $pack->add_virtual('d', $file);
             next;
         };
-        -f $file and do {
-            sysopen(my $htocompress, $srcfile, O_RDONLY) or next;
+        -f $srcfile and do {
+            sysopen(my $htocompress, $srcfile, O_RDONLY) or do {
+                warn "Can't add $srcfile: $!";
+                next;
+            };
             $pack->add_virtual('f', $file, $htocompress);
             close($htocompress);
             next;
         };
+        warn "Can't pack $srcfile"; 
     }
     1
 }
@@ -731,7 +755,7 @@ fully compatible with old packdrake.
 
 =head1 IMPLEMENTATION
 
-Compressed data are stored by bloc:
+Compressed data are stored by block:
 
  UncompresseddatA1UncompresseddatA2 UncompresseddatA3UncompresseddatA4
  |--- size  1 ---||--- size  2 ---| |--- size  3 ---||--- size  4 ---|
@@ -743,7 +767,7 @@ give:
  |--- c. size 1, 2 ---| |--- c. size 3, 4 ---|
  |<-c. offset 1, 2      |<-c. offset 3, 4
 
-A new bloc is started when its size exceed the C<bloc_size> value.
+A new block is started when its size exceed the C<block_size> value.
 
 Compressed data are followed by the toc, ie a simple list of packed files.
 Each file name is terminated by the "\n" character:
@@ -766,8 +790,8 @@ file2
 fileN
 
 Follow the files sizes, 4 values for each files are stored:
-offset into archive of compressed bloc, size of compressed bloc,
-offset into bloc of the file and the file's size.
+offset into archive of compressed block, size of compressed block,
+offset into block of the file and the file's size.
 
 Finally the archive contain a 64 bytes length trailer, about the
 toc and the archive itself:
@@ -817,11 +841,11 @@ yet.
 The compression level passed as an argument to the compression program. By default,
 this is set to 6.
 
-=item bloc_size
+=item block_size
 
-The limit size after which we start a new compressed bloc. The default value is
-400KB. Set it to 0 to be sure a new bloc will be started for each packed
-files, and -1 to never start a new bloc. Be aware a big size of bloc will slow
+The limit size after which we start a new compressed block. The default value is
+400KB. Set it to 0 to be sure a new block will be started for each packed
+files, and -1 to never start a new block. Be aware a big size of block will slow
 the file extraction.
 
 =item quiet
@@ -841,8 +865,8 @@ Open an existing archive for extracting or adding files.
 The uncompression command is found into the archive, and the compression command is
 deduced from it.
 
-If you add files, a new compressed bloc will be started even if the
-last bloc is smaller than C<bloc_size>. If some compression options can't be
+If you add files, a new compressed block will be started even if the
+last block is smaller than C<block_size>. If some compression options can't be
 found in the archive, the new preference will be applied.
 
 Options are same than the C<new()> function.
