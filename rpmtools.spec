@@ -52,7 +52,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Wed Feb 14 2001 François Pons <fpons@mandrakesoft.com> 2.3-1mdk
-- changed db_traverse_name to more generic db_traverse_tag.
+- changed db_traverse_name to more generic db_traverse_tag
+  with support of name, whatprovides, whatrequires, triggeredby,
+  group and path.
+- added conffiles tag.
 - rpmtools.pm to 2.3 to match package version.
 
 * Sat Feb 10 2001 François Pons <fpons@mandrakesoft.com> 2.2-1mdk

@@ -547,7 +547,7 @@ sub version_compare {
 sub get_packages_installed {
     my ($prefix, $packages, $names, $flags) = @_; $flags ||= [ qw(name version release)];
     my $db = db_open($prefix);
-    my $count = db_traverse_names($db, $flags, $names, sub { my ($p) = @_; push @$packages, $p; });
+    my $count = db_traverse_tag($db, "name", $names, $flags, sub { my ($p) = @_; push @$packages, $p; });
     db_close($db);
     $count;
 }
