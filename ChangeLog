@@ -1,3 +1,33 @@
+2004-12-30 17:00  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* rpmtools.spec: - 5.0.7
+
+2004-12-30 16:55  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm, Packdrakeng/zlib.pm: - speedup uncompress
+	  function - factorize code
+
+2004-12-22 00:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng/zlib.pm: -really fix syswrite
+
+2004-12-21 23:29  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng/zlib.pm: - check data are really writen
+
+2004-12-20 13:25  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm, t/01packdrakeng.t: - add infofile() function -
+	  more doc
+
+2004-12-17 17:04  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* packdrake: perl_checker fixes
+
+2004-12-17 14:32  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.6-1mdk
+
 2004-12-17 14:24  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
 
 	* Packdrakeng.pm, Packdrakeng/zlib.pm: Ensure Packdrakeng::zlib
