@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.5
+%define version 5.0.6
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -21,7 +21,6 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
 BuildRequires: perl-devel
-BuildRequires: perl-Compress-Zlib
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94 perl-base >= 5.8.4
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 
@@ -75,6 +74,12 @@ is fully compatible with old packdrake.
 %{_mandir}/*/*
 
 %changelog
+* Fri Dec 17 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.6-1mdk
+- Ensure Packdrakeng::zlib loads properly, and is not used if Compress::Zlib
+  is not available. Remove Compress::Zlib from BuildRequires
+- packdrake: show a warning when an archive can't be found
+- more docs
+
 * Tue Dec 14 2004 Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> 5.0.5-1mdk
 - Fix the "quiet" option of packdrake (so urpmq and other tools don't produce
   warnings)

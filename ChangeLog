@@ -1,3 +1,39 @@
+2004-12-17 14:24  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm, Packdrakeng/zlib.pm: Ensure Packdrakeng::zlib
+	  loads properly, and is not used if Compress::Zlib is not
+	  available
+
+2004-12-17 14:13  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* t/: 01packdrakeng.t, 02packdrake.t: Neatier test labels
+
+2004-12-17 11:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: Simplify optional module loading
+
+2004-12-16 16:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* packdrake.pm: At least show a warning when an archive can't be
+	  found
+
+2004-12-16 16:03  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* Packdrakeng.pm: Don't invoke compression/decompression
+	  subroutines as methods
+
+2004-12-16 13:50  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Makefile.PL: - add tag command
+
+2004-12-15 20:52  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm: - more docs
+
+2004-12-14 20:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.5-1mdk
+
 2004-12-14 20:16  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
 
 	* Packdrakeng.pm: Fix indentation and capitalize some warning
