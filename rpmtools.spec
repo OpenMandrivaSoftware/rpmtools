@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 13mdk
+%define release 14mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -55,8 +55,12 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/hdlist2prereq
 /usr/bin/hdlist2groups
 /usr/bin/genhdlists
+/usr/bin/genfilelist
 
 %changelog
+* Fri Mar 31 2000 François PONS <fpons@mandrakesoft.com> 1.1-14mdk
+- add genfilelist
+
 * Mon Mar 27 2000 Pixel <pixel@mandrakesoft.com> 1.1-13mdk
 - add hdlist2groups
 

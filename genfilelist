@@ -1,0 +1,105 @@
+#!/usr/bin/perl
+
+#- Generate filelist with obseletes packages.
+#- Copyright (C) 2000 MandrakeSoft (fpons@mandrakesoft.com)
+#-
+#- This program is free software; you can redistribute it and/or modify
+#- it under the terms of the GNU General Public License as published by
+#- the Free Software Foundation; either version 2, or (at your option)
+#- any later version.
+#-
+#- This program is distributed in the hope that it will be useful,
+#- but WITHOUT ANY WARRANTY; without even the implied warranty of
+#- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#- GNU General Public License for more details.
+#-
+#- You should have received a copy of the GNU General Public License
+#- along with this program; if not, write to the Free Software
+#- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+#- usage is:
+#-   genfilelist <rpms_dir>
+
+
+use strict qw(subs vars refs);
+
+sub packfilelist {
+    my %countdir = ();
+    my @commonparts;
+
+    #- search for common parts of name.
+    foreach (@_) {
+	my $filename = $_;
+	foreach (0..length($filename)) {
+	    ++$countdir{substr($filename, 0, $_)};
+	}
+    }
+
+    #- pass 1: recompute counter.
+    foreach (sort { $countdir{$b} <=> $countdir{$a} || ($countdir{$b} == $countdir{$a} && length($b) <=> length($a)) }
+	     keys %countdir) {
+	my $filepart = $_;
+	if (length($filepart) > 4 && $countdir{$filepart} > 1) {
+	    foreach (0..length($filepart)-1) {
+		my $subpart = substr($filepart, 0, $_);
+		if (length($subpart) * $countdir{$subpart} < length($filepart) * $countdir{$filepart}) {
+		    $countdir{$subpart} -= $countdir{$filepart} if $countdir{$filepart} > 0;
+		} else {
+		    $countdir{$filepart} -= $countdir{$subpart} if $countdir{$subpart} > 0;
+		}
+	    }
+	} else {
+	    delete $countdir{$filepart};
+	}
+    }
+
+    #- pass 2: filter out overstring.
+    foreach (sort { $countdir{$a} <=> $countdir{$b} || ($countdir{$a} == $countdir{$b} && length($a) <=> length($b)) }
+	     keys %countdir) {
+	my $filepart = $_;
+	if ($countdir{$filepart} > 1) {
+	    foreach (0..length($filepart)-1) {
+		delete $countdir{substr($filepart, 0, $_)};
+	    }
+	}
+    }
+    
+    #- pass 3: get result.
+    foreach (sort { $countdir{$b} <=> $countdir{$a} || ($countdir{$b} == $countdir{$a} && length($b) <=> length($a)) }
+	     keys %countdir) {
+	push @commonparts, $_ if $countdir{$_} > 1 && @commonparts < 10;
+    }
+
+    @commonparts;
+}
+
+#- main program.
+sub main {
+    my ($rpms_dir) = @_;
+
+    local *DIR;
+    opendir DIR, $rpms_dir or die "unable to parse directory: $!";
+    foreach (readdir DIR) {
+	if (/(.*)-[^-]*-[^-]*$/) {
+	    print "#$1\n";
+
+	    my @filelist = split '\n', `rpm -qpl $rpms_dir/$_`;
+	    my @obsoletes = split '\n', `rpm -qp --obsoletes $rpms_dir/$_`;
+	    my @commonparts = packfilelist(@filelist);
+
+	    foreach (@obsoletes) { print "*$_\n" }
+	    foreach (0..$#commonparts) { print "=$commonparts[$_]\n" } #- commonparts are printed in from 0 to n-1.
+	    foreach my $filename (@filelist) {
+		map {
+		    if (substr($filename, 0, length($commonparts[$_])) eq $commonparts[$_]) {
+			print $_ . substr($filename, length($commonparts[$_])) . "\n"; next;
+		    }
+		} (0..$#commonparts);
+		print " $filename\n";
+	    }
+	}
+    }
+    closedir DIR;
+}
+
+main(@ARGV);
