@@ -315,8 +315,6 @@ sub new {
 }
 
 sub cat_archive {
-    my $pid;
-
     foreach (@_) {
 	my $packer = new packdrake;
 
@@ -330,7 +328,7 @@ sub cat_archive {
 	    open STDIN, "<$_" or die "packdrake: unable to open archive $_\n";
 	    open STDERR, ">/dev/null" or die "packdrake: unable to open /dev/null\n";
 
-	    exec (($ENV{LD_LOADER} ? $ENV{LD_LOADER} : ()), split " ", $packer->{uncompress});
+	    exec(($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}), split " ", $packer->{uncompress});
 
 	    die "packdrake: unable to cat the archive with $packer->{uncompress}\n";
 	}

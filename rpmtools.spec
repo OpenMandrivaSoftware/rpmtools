@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Wed Dec  4 2002 Pixel <pixel@mandrakesoft.com> 4.5-6mdk
+- packdrake.pm is now perl_checker compliant
+
 * Thu Nov 28 2002 Pixel <pixel@mandrakesoft.com> 4.5-5mdk
 - packdrake.pm is now perl_checker compliant
 
