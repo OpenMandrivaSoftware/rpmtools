@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 4.4
+%define version 4.5
 
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
 
@@ -55,6 +55,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/packdrake*
 
 %changelog
+* Mon Aug  5 2002 Guillaume Cottenceau <gc@mandrakesoft.com> 4.5-1mdk
+- add --fileswinfo query to parsehdlist so that we can know more
+  informations on the package for which we print the files (needed by
+  upcoming rpmdrake supporting searching in files)
+
 * Tue Jul 23 2002 François Pons <fpons@mandrakesoft.com> 4.4-1mdk
 - removed rpmtools perl module obsoleted.
 

@@ -43,6 +43,7 @@ static int print_requires = 0;
 static int print_conflicts = 0;
 static int print_obsoletes = 0;
 static int print_files = 0;
+static int print_files_more_info = 0;
 static int print_prereqs = 0;
 static char print_sep = 0;
 
@@ -132,7 +133,7 @@ void print_list_prereqs(Header header, char *format, char *name) {
 }
 
 static
-void print_list_files(Header header, char *format, char *name) {
+void print_list_files(Header header, char *format, char *name, int moreinfo) {
   int_32 type, count;
   char **list;
   char ** baseNames, ** dirNames;
@@ -148,7 +149,10 @@ void print_list_files(Header header, char *format, char *name) {
   headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, &count);
   headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, NULL);
   headerGetEntry(header, RPMTAG_DIRNAMES, &type, (void **) &dirNames, NULL);
-
+  if (moreinfo)
+    printf("NAME<%s> VERSION<%s> RELEASE<%s> ARCH<%s> EPOCH<%d> SIZE<%d> GROUP<%s>\n",
+	   get_name(header, RPMTAG_NAME), get_name(header, RPMTAG_VERSION), get_name(header, RPMTAG_RELEASE),
+	   get_name(header, RPMTAG_ARCH), (int)get_name(header, RPMTAG_EPOCH), (int)get_name(header, RPMTAG_SIZE), get_name(header, RPMTAG_GROUP));
   if (baseNames && dirNames && dirIndexes) {
     char buff[4096];
     for(i = 0; i < count; i++) {
@@ -235,6 +239,7 @@ void print_help(void) {
 	  "  --provides     - print tag provides: all provides (mutliple lines).\n"
 	  "  --requires     - print tag requires: all requires (multiple lines).\n"
 	  "  --files        - print tag files: all files (multiple lines).\n"
+	  "  --fileswinfo   - print tag files: all files (multiple lines) with more informations on each package.\n"
 	  "  --conflicts    - print tag conflicts: all conflicts (multiple lines).\n"
 	  "  --obsoletes    - print tag obsoletes: all obsoletes (multiple lines).\n"
 	  "  --prereqs      - print tag prereqs: all prereqs (multiple lines).\n"
@@ -253,7 +258,7 @@ print_header_flag_interactive(char *in_tag, Header header)
 							      RPMTAG_CONFLICTVERSION, "%2$s", 0, "");
   else if (!strncmp(in_tag, "obsoletes", 9)) print_list_flags(header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS,
 							      RPMTAG_OBSOLETEVERSION,"%2$s", 0, "");
-  else if (!strncmp(in_tag, "files", 5)) print_list_files(header, "%2$s\n", "");
+  else if (!strncmp(in_tag, "files", 5)) print_list_files(header, "%2$s\n", "", 0);
   else if (!strncmp(in_tag, "prereqs", 7)) print_list_prereqs(header, "%2$s\n", "");
   else if (!strncmp(in_tag, "name", 4)) print_list_name(header, "%2$s", 0, 0);
   else if (!strncmp(in_tag, "info", 4)) print_list_name(header, "%2$s", 0, 1);
@@ -292,6 +297,7 @@ int main(int argc, char **argv)
       else if (strcmp(argv[i], "--provides") == 0)    print_provides = 1;
       else if (strcmp(argv[i], "--requires") == 0)    print_requires = 1;
       else if (strcmp(argv[i], "--files") == 0)       print_files = 1;
+      else if (strcmp(argv[i], "--fileswinfo") == 0)       print_files_more_info = 1;
       else if (strcmp(argv[i], "--conflicts") == 0)   print_conflicts = 1;
       else if (strcmp(argv[i], "--obsoletes") == 0)   print_obsoletes = 1;
       else if (strcmp(argv[i], "--prereqs") == 0)     print_prereqs = 1;
@@ -433,7 +439,8 @@ int main(int argc, char **argv)
 						  printable_header(print_quiet, "conflicts", print_sep, 0), print_sep, name);
 	    if (print_obsoletes) print_list_flags(header, RPMTAG_OBSOLETENAME, RPMTAG_OBSOLETEFLAGS, RPMTAG_OBSOLETEVERSION,
 						  printable_header(print_quiet, "obsoletes", print_sep, 0), print_sep, name);
-	    if (print_files) print_list_files(header, printable_header(print_quiet, "files", print_sep, "\n"), name);
+	    if (print_files) print_list_files(header, printable_header(print_quiet, "files", print_sep, "\n"), name, 0);
+	    if (print_files_more_info) print_list_files(header, printable_header(print_quiet, "files", print_sep, "\n"), name, 1);
 	    if (print_prereqs) print_list_prereqs(header, printable_header(print_quiet, "prereqs", print_sep, "\n"), name);
 	    if (print_group) printf(printable_header(print_quiet, "group", print_sep, "\n"), name, get_name(header, RPMTAG_GROUP));
 	    if (print_size) printf(printable_header(print_quiet, "size", print_sep, "\n"), name, get_int(header, RPMTAG_SIZE));
@@ -446,7 +453,7 @@ int main(int argc, char **argv)
 	    if (print_name) print_list_name(header, printable_header(print_quiet, "name", print_sep, 0), print_sep, 0);
 	    if (print_info) print_list_name(header, printable_header(print_quiet, "info", print_sep, 0), print_sep, 1);
 	    if ((print_name | print_info | print_group | print_size | print_serial | print_summary | print_description |
-		 print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs) == 0) {
+		 print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs | print_files_more_info) == 0) {
 	      printf("%s\n", get_name(header, FILENAME_TAG));
 	    }
 	    headerFree(header);
