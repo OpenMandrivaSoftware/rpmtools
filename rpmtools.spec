@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 12mdk
+%define release 13mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -57,6 +57,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Aug 28 2003 François Pons <fpons@mandrakesoft.com> 4.5-13mdk
+- added support for %%{ARCH} in gendistrib.
+- removing remaining MD5SUM files when running gendistrib.
+
 * Fri Aug  1 2003 François Pons <fpons@mandrakesoft.com> 4.5-12mdk
 - rebuild for new perl (DrakX need it).
 
