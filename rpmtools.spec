@@ -58,6 +58,7 @@ rm -rf $RPM_BUILD_ROOT
 * Wed Oct 16 2002 François Pons <fpons@mandrakesoft.com> 4.5-3mdk
 - fixed bad error message for packdrake.
 - fixed gendistrib with multiple directory given.
+- changed obsoletes of very old package by conflicts.
 
 * Mon Aug  5 2002 Pixel <pixel@mandrakesoft.com> 4.5-2mdk
 - have packdrake.pm in non-arch dependent directory
