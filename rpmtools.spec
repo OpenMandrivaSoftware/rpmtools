@@ -2,7 +2,7 @@
 %define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 5.0.12
+%define version 5.0.13
 
 %define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -23,6 +23,7 @@ BuildRequires: perl-devel
 BuildRequires: perl-Compress-Zlib
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
+Conflicts: packdrake < 5.0.10
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -78,6 +79,11 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Mon Feb 21 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.13-1mdk
+- Distribconf manage pubkey
+- use lowercase name to generate filename (hdlist,synthesis,pubkey)
+- rpmtools conflict packdrake < 5.0.10 (man page, thx Warly)
+
 * Mon Feb 21 2005 Olivier Thauvin <thauvin@aerov.jussieu.fr> 5.0.12-1mdk
 - gendistrib skip media if suppl or askmedia is set
 
