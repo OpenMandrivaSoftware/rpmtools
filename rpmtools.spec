@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 9mdk
+%define release 10mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.0
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Sat Jul 21 2001 Warly <warly@mandrakesoft.com> 3.0-10mdk
+- add sourcerpm tag.
+
 * Wed Jul 18 2001 François Pons <fpons@mandrakesoft.com> 3.0-9mdk
 - changed rpm requires by including release with test.
 - allow bootstrap with current version and not installed one.

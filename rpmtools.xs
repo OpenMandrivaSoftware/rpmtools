@@ -29,6 +29,7 @@
 #define HDFLAGS_CONFLICTS     0x00800000
 #define HDFLAGS_FILES         0x01000000
 #define HDFLAGS_CONFFILES     0x02000000
+#define HDFLAGS_SOURCERPM     0x04000000
 
 
 char *get_name(Header header, int_32 tag) {
@@ -87,6 +88,7 @@ int get_bflag(AV* flag) {
       if (!strncmp(str, "obsoletes", 9))      bflag |= HDFLAGS_OBSOLETES;
       else if (!strncmp(str, "conflicts", 9)) bflag |= HDFLAGS_CONFLICTS;
       else if (!strncmp(str, "conffiles", 9)) bflag |= HDFLAGS_CONFFILES;
+      else if (!strncmp(str, "sourcerpm", 9)) bflag |= HDFLAGS_SOURCERPM;
       break;
     case 11:
       if (!strncmp(str, "description", 11))      bflag |= HDFLAGS_DESCRIPTION;
@@ -206,6 +208,8 @@ HV* get_info(Header header, int bflag, HV* provides) {
     hv_store(header_info, "conflicts", 9, get_table_sense(header,                 RPMTAG_CONFLICTNAME,
 							  bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTFLAGS : 0,
 							  bflag & HDFLAGS_SENSE ? RPMTAG_CONFLICTVERSION : 0, 0), 0);
+  if (bflag & HDFLAGS_SOURCERPM)
+    hv_store(header_info, "sourcerpm", 9, newSVpv(get_name(header, RPMTAG_SOURCERPM), 0), 0);
   if (provides || (bflag & (HDFLAGS_FILES | HDFLAGS_CONFFILES))) {
     /* at this point, there is a need to parse all files to update provides of needed files,
        or to store them. */

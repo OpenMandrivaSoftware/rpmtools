@@ -101,7 +101,7 @@ sub new {
     my %tags; @tags{@_} = ();
     bless {
 	   flags         => [ qw(name version release size arch serial group requires provides),
-			      grep { exists $tags{$_} } qw(sense files obsoletes conflicts conffiles) ],
+			      grep { exists $tags{$_} } qw(sense files obsoletes conflicts conffiles sourcerpm) ],
 	   info          => {},
 	   depslist      => [],
 	   provides      => {},
