@@ -253,7 +253,7 @@ sub compute_depslist {
     }
     #- setup, filesystem and basesystem should be at the beginning.
     @ordered{qw(ldconfig readline termcap libtermcap bash sash glibc setup filesystem basesystem)} =
-	(100000, 90000, 80000, 70000, 60000, 50000, 40000, 30000, 20000, 10000);
+      (100000, 90000, 80000, 70000, 60000, 50000, 40000, 30000, 20000, 10000);
 
     #- compute base flag, consists of packages which are required without
     #- choices of basesystem and are ALWAYS installed. these packages can
@@ -276,8 +276,7 @@ sub compute_depslist {
     #- recompute requires to use packages id, drop any base packages or
     #- reference of a package to itself.
     foreach my $pkg (sort { $a->{id} <=> $b->{id} } @info) {
-	my %requires_id;
-	my @requires_id;
+	my ($id, $base, %requires_id, @requires_id);
 	foreach (@{$pkg->{requires}}) {
 	    if (ref $_) {
 		#- all choices are grouped together at the end of requires,
@@ -296,15 +295,16 @@ sub compute_depslist {
 
 		#- if a base package is in a list, keep it instead of the choice.
 		if (@choices_base_id) {
-		    $_ = $choices_base_id[0];
+		    ($id, $base) = ($choices_base_id[0], 1);
 		} else {
 		    push @requires_id, \@choices_id;
 		    next;
 		}
+	    } else {
+		($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id}, exists $params->{info}{$_}{base}) : ($_, 0);
 	    }
 
 	    #- select individual package.
-	    my ($id, $base) = $params->{info}{$_} ? ($params->{info}{$_}{id}, exists $params->{info}{$_}{base}) : ($_, 0);
 	    $base &&= $params->{use_base_flag} && $pkg->{name} ne 'basesystem';
 	    $requires_id{$id} = $_;
 	    $id == $pkg->{id} || $base or push @requires_id, $id;
@@ -367,8 +367,9 @@ sub relocate_depslist {
 	    #- is multiply defined and this should be fixed.
 	    #- first correct info hash, then a second pass on depslist
 	    #- is required to relocate its entries.
-	    my $cmp_version = version_compare($_->{version}, $params->{info}{$_->{name}});
-	    if ($cmp_version > 0 || $cmp_version == 0 && version_compare($_->{release}, $params->{info}{$_->{name}}) > 0) {
+	    my $cmp_version = version_compare($_->{version}, $params->{info}{$_->{name}}{version});
+	    if ($cmp_version > 0 ||
+		$cmp_version == 0 && version_compare($_->{release}, $params->{info}{$_->{name}}{release}) > 0) {
 		$params->{info}{$_->{name}} = $_;
 		++$relocated_entries;
 	    }

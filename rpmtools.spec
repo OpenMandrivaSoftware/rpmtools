@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 9mdk
+%define release 10mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.1
@@ -51,6 +51,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Tue Jan 30 2001 François Pons <fpons@ackbar.mandrakesoft.com> 2.1-10mdk
+- fixed bug of NOTFOUND_6 in depslist computation.
+- fixed depslist relocation bug.
+
 * Tue Jan 23 2001 François Pons <fpons@ackbar.mandrakesoft.com> 2.1-9mdk
 - packdrake.pm to 0.03, added source directory for building an archive.
 - changed build_archive to use a specific directory.
