@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 5mdk
+%define release 6mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 2.0
@@ -11,7 +11,7 @@ Release: %{release}
 # get the source from our cvs repository (see
 # http://www.linuxmandrake.com/en/cvs.php3)
 Source0: %{name}-%{version}.tar.bz2
-Copyright: GPL
+License: GPL
 Group: System/Configuration/Packaging
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
@@ -104,6 +104,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Thu Nov 16 2000 François Pons <fpons@mandrakesoft.com> 2.0-6mdk
+- updated order of 9 first package to be installed.
+- removed memory consuming code in perl.
+
 * Tue Nov  7 2000 Pixel <pixel@mandrakesoft.com> 2.0-5mdk
 - add requires for -devel
 

@@ -154,7 +154,9 @@ sub compute_depslist {
 	}
     }
     #- setup, filesystem and basesystem should be at the beginning.
-    @ordered{qw(setup filesystem basesystem)} = (30000, 20000, 10000);
+    @ordered{qw(ld.so readline termcap libtermcap bash sash glibc
+		setup filesystem basesystem)} =
+	(100000, 90000, 80000, 70000, 60000, 50000, 40000, 30000, 20000, 10000);
 
     #- compute base flag, consists of packages which are required without
     #- choices of basesystem and are ALWAYS installed. these packages can
@@ -208,7 +210,8 @@ sub read_depslist {
     my ($params, $FILE) = @_;
     my $global_id = scalar @{$params->{depslist}};
 
-    foreach (<$FILE>) {
+    local $_;
+    while (<$FILE>) {
 	chomp; /^\s*#/ and next;
 	my ($name, $version, $release, $size, $deps) = /^(\S*)-([^-\s]+)-([^-\s]+)\s+(\d+)\s*(.*)/;
 
@@ -290,7 +293,8 @@ sub write_depslist {
 sub read_provides_files {
     my ($params, $FILE) = @_;
 
-    foreach (<$FILE>) {
+    local $_;
+    while (<$FILE>) {
 	chomp;
 	my ($k, @v) = split ':';
 	$k =~ /^\// and $params->{provides}{$k} ||= undef;
@@ -332,7 +336,8 @@ sub keep_only_cleaned_provides_files {
 sub read_provides {
     my ($params, $FILE) = @_;
 
-    foreach (<$FILE>) {
+    local $_;
+    while (<$FILE>) {
 	chomp;
 	my ($k, @v) = split ':';
 	$params->{provides}{$k} = @v > 0 ? \@v : undef;
@@ -354,7 +359,8 @@ sub read_compss {
     my ($params, $FILE) = @_;
     my $p;
 
-    foreach (<$FILE>) {
+    local $_;
+    while (<$FILE>) {
 	/^\s*$/ || /^#/ and next;
 	s/#.*//;
 
