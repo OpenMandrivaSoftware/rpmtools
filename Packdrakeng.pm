@@ -721,11 +721,11 @@ Packdrakeng - Simple Archive Extractor/Builder
 
 =head1 SYNOPSIS
 
-    use packdrakeng;
+    use Packdrakeng;
     
     # creating an archive
-    $pack = packdrakeng->new(archive => "myarchive.cz");
-    # Adding few files
+    $pack = Packdrakeng->new(archive => "myarchive.cz");
+    # Adding a few files
     $pack->add("/path/", "file1", "file2");
     # Adding an unamed file
     open($handle, "file");
@@ -735,7 +735,7 @@ Packdrakeng - Simple Archive Extractor/Builder
     $pack = undef;
     
     # extracting an archive
-    $pack = packdrakeng->open(archive => "myarchive.cz");
+    $pack = Packdrakeng->open(archive => "myarchive.cz");
     # listing files
     $pack->list();
     # extracting few files
@@ -748,60 +748,61 @@ Packdrakeng - Simple Archive Extractor/Builder
 =head1 DESCRIPTION
 
 C<Packdrakeng> is a simple indexed archive builder and extractor using
-standard compression method.
+standard compression methods.
 
-This module is a rewrite from scratch of the original packdrake, his format is
+This module is a from scratch rewrite of the original packdrake. Its format is
 fully compatible with old packdrake.
 
 =head1 IMPLEMENTATION
 
-Compressed data are stored by block:
+Compressed data are stored by block. For example,
 
  UncompresseddatA1UncompresseddatA2 UncompresseddatA3UncompresseddatA4
  |--- size  1 ---||--- size  2 ---| |--- size  3 ---||--- size  4 ---|
  |<-offset1       |<-offset2        |<-offset3       |<-offset4
 
-give:
+gives:
 
  CompresseD1CompresseD2 CompresseD3CompresseD4
  |--- c. size 1, 2 ---| |--- c. size 3, 4 ---|
  |<-c. offset 1, 2      |<-c. offset 3, 4
 
-A new block is started when its size exceed the C<block_size> value.
+A new block is started when its size exceeds the C<block_size> value.
 
 Compressed data are followed by the toc, ie a simple list of packed files.
 Each file name is terminated by the "\n" character:
 
-dir1
-dir2
-...
-dirN
-symlink1
-point_file1
-symlink2
-point_file2
-...
-...
-symlinkN
-point_fileN
-file1
-file2
-...
-fileN
+    dir1
+    dir2
+    ...
+    dirN
+    symlink1
+    point_file1
+    symlink2
+    point_file2
+    ...
+    ...
+    symlinkN
+    point_fileN
+    file1
+    file2
+    ...
+    fileN
 
-Follow the files sizes, 4 values for each files are stored:
+The file sizes follows, 4 values are stored for each file:
 offset into archive of compressed block, size of compressed block,
 offset into block of the file and the file's size.
 
-Finally the archive contain a 64 bytes length trailer, about the
+Finally the archive contains a 64-byte trailer, about the
 toc and the archive itself:
-'cz[0', strings 4 bytes
-number of directory, 4 bytes
-number of symlinks, 4 bytes
-number of files, 4 bytes
-the toc size, 4 bytes
-the uncompression command, string of 40 bytes length
-'0]cz', string 4 bytes
+
+    'cz[0', strings 4 bytes
+    number of directory, 4 bytes
+    number of symlinks, 4 bytes
+    number of files, 4 bytes
+    the toc size, 4 bytes
+    the uncompression command, string of 40 bytes length
+    '0]cz', string 4 bytes
 
 =head1 FUNCTIONS
 
@@ -809,15 +810,15 @@ the uncompression command, string of 40 bytes length
 
 =item B<new(%options)>
 
-Create a new archive.
+Creates a new archive.
 Options:
 
 =over 4 
 
 =item archive
 
-The file name of the archive. If the file doesn't exist, it will be created, else it will be owerwritten.
-see C<open>.
+The file name of the archive. If the file doesn't exist, it will be created,
+else it will be owerwritten. See C<open>.
 
 =item compress
 
@@ -831,8 +832,8 @@ If unset, this value is based on compress command followed by '-d' argument.
 
 =item extern
 
-If you're using gzip, by default packdrakeng will use perl-zlib to save system
-ressources. This option force packdrakeng to use the external gzip command. This
+If you're using gzip, by default Packdrakeng will use perl-zlib to save system
+ressources. This option forces Packdrakeng to use the external gzip command. This
 has no meaning with other compress programs as internal functions are not implemented
 yet.
 
@@ -843,14 +844,14 @@ this is set to 6.
 
 =item block_size
 
-The limit size after which we start a new compressed block. The default value is
-400KB. Set it to 0 to be sure a new block will be started for each packed
-files, and -1 to never start a new block. Be aware a big size of block will slow
-the file extraction.
+The limit size after which we start a new compressed block. The default value
+is 400KB. Set it to 0 to be sure a new block will be started for each packed
+files, and -1 to never start a new block. Be aware that a big block size will
+slow down the file extraction.
 
 =item quiet
 
-Do not ouput anything, shut up.
+Do not output anything, shut up.
 
 =item debug
 
@@ -860,10 +861,10 @@ Print debug messages.
 
 =item B<open(%options)>
 
-Open an existing archive for extracting or adding files.
+Opens an existing archive for extracting or adding files.
 
-The uncompression command is found into the archive, and the compression command is
-deduced from it.
+The uncompression command is found into the archive, and the compression
+command is deduced from it.
 
 If you add files, a new compressed block will be started even if the
 last block is smaller than C<block_size>. If some compression options can't be
