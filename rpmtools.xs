@@ -99,6 +99,31 @@ int get_bflag(AV* flag) {
   return bflag;
 }
 
+SV *get_fullname_sv(Header header) {
+  char *name = get_name(header, RPMTAG_NAME);
+  char *version = get_name(header, RPMTAG_VERSION);
+  char *release = get_name(header, RPMTAG_RELEASE);
+  char *arch = get_name(header, RPMTAG_ARCH);
+  char *fullname = (char*)alloca(strlen(name)+strlen(version)+strlen(release)+strlen(arch)+4);
+  STRLEN fullname_len = sprintf(fullname, "%s-%s-%s.%s", name, version, release, arch);
+  return newSVpv(fullname, fullname_len);
+}
+
+void update_provides(int force, HV* provides, char *name, STRLEN len, Header header) {
+  SV** isv;
+
+  if (!len) len = strlen(name);
+
+  if (force && (isv = hv_fetch(provides, name, len, 1)) || provides && (isv = hv_fetch(provides, name, len, 0)) != 0) {
+    if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
+      SV* choice_table = (SV*)newAV();
+      SvREFCNT_dec(*isv); /* drop the old as we are changing it */
+      *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
+    }
+    if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), get_fullname_sv(header));
+  }
+}
+
 SV *get_table_sense(Header header, int_32 tag_name, int_32 tag_flags, int_32 tag_version, HV* iprovides) {
   AV* table_sense;
   int_32 type, count;
@@ -223,20 +248,10 @@ HV* get_info(Header header, int bflag, HV* provides) {
     headerGetEntry(header, RPMTAG_OLDFILENAMES, &type, (void **) &list, &count);
     if (list) {
       for (i = 0; i < count; i++) {
-	SV** isv;
-
 	len = strlen(list[i]);
 
-	if (provides && (isv = hv_fetch(provides, list[i], len, 0)) != 0) {
-	  if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
-	    SV* choice_table = (SV*)newAV();
-	    SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-	    *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
-	  }
-	  if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
-	}
-	/* if (provides && hv_exists(provides, list[i], len))
-	   hv_store(provides, list[i], len, newSVpv(name, 0), 0); */
+	update_provides(0, provides, list[i], len, header);
+
 	if (table_files)
 	  av_push(table_files, newSVpv(list[i], len));
 	if (table_conffiles && flags && flags[i] & RPMFILE_CONFIG)
@@ -261,14 +276,8 @@ HV* get_info(Header header, int bflag, HV* provides) {
 	if (p - buff + len >= sizeof(buff)) continue;
 	memcpy(p, baseNames[i], len + 1); p += len;
 
-	if (provides && (isv = hv_fetch(provides, buff, p - buff, 0)) != 0) {
-	  if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
-	    SV* choice_table = (SV*)newAV();
-	    SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-	    *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
-	  }
-	  if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
-	}
+	update_provides(0, provides, buff, p - buff, header);
+
 	if (table_files)
 	  av_push(table_files, newSVpv(buff, p - buff));
 	if (table_conffiles && flags && flags[i] & RPMFILE_CONFIG)
@@ -287,17 +296,7 @@ HV* get_info(Header header, int bflag, HV* provides) {
 
     if (list) {
       for (i = 0; i < count; i++) {
-	SV** isv;
-
-	len = strlen(list[i]);
-
-	isv = hv_fetch(provides, list[i], len, 1);
-	if (!SvROK(*isv) || SvTYPE(SvRV(*isv)) != SVt_PVAV) {
-	  SV* choice_table = (SV*)newAV();
-	  SvREFCNT_dec(*isv); /* drop the old as we are changing it */
-	  *isv = choice_table ? newRV_noinc(choice_table) : &PL_sv_undef;
-	}
-	if (*isv != &PL_sv_undef) av_push((AV*)SvRV(*isv), SvREFCNT_inc(sv_name));
+	update_provides(1, provides, list[i], 0, header); /* force extraction of provides */
       }
     }
   }
@@ -500,6 +499,15 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
     while (fd_is_hdlist >= 0 ? (fd_is_hdlist > 0 ?
 				((header=headerRead(fd, HEADER_MAGIC_YES)) != 0) :
 				((fd_is_hdlist = -1), rpmReadPackageHeader(fd, &header, &i, NULL, NULL) == 0)) : 0) {
+      SV *fullname_sv = get_fullname_sv(header);
+      HV* header_info = get_info(header, bflag, iprovides);
+
+      hv_store_ent(iinfo, fullname_sv, newRV_noinc((SV*)header_info), 0);
+
+      /* return fullname on stack */
+      EXTEND(SP, 1);
+      PUSHs(sv_2mortal(fullname_sv));
+#if 0
       char *name = get_name(header, RPMTAG_NAME);
       char *version = get_name(header, RPMTAG_VERSION);
       char *release = get_name(header, RPMTAG_RELEASE);
@@ -511,11 +519,13 @@ _parse_(fileno_or_rpmfile, flag, info, ...)
       /* once the hash header_info is built, store a reference to it
 	 in iinfo.
 	 note sv_name is not incremented here, it has the default value of before. */
-      hv_store(iinfo, name, strlen(name), newRV_noinc((SV*)header_info), 0);
+      /* hv_store(iinfo, name, strlen(name), newRV_noinc((SV*)header_info), 0); */
+      hv_store(iinfo, fullname, fullname_len, newRV_noinc((SV*)header_info), 0);
 
       /* return fullname on stack */
       EXTEND(SP, 1);
       PUSHs(sv_2mortal(newSVpv(fullname, fullname_len)));
+#endif
 
       /* dispose of some memory */
       headerFree(header);

@@ -200,6 +200,19 @@ sub compute_id {
     #- existing entries, as the array here is used instead of values of infos.
     my @info = grep { ! exists $_->{id} } values %{$params->{info}};
 
+    #- speed up the search by giving a provide from all packages.
+    #- and remove all dobles for each one !
+    foreach (@info) {
+	push @{$params->{provides}{$_->{name}} ||= []}, "$_->{name}-$_->{version}-$_->{release}.$_->{arch}";
+    }
+
+    #- remove all dobles for each provides.
+    foreach (keys %{$params->{provides}}) {
+	$params->{provides}{$_} or next;
+	my %provides; @provides{@{$params->{provides}{$_}}} = ();
+	$params->{provides}{$_} = [ keys %provides ];
+    }
+
     #- give an id to each packages, start from number of package already
     #- registered in depslist.
     my $global_id = scalar @{$params->{depslist}};
@@ -223,7 +236,7 @@ sub compute_depslist {
     #- speed up the search by giving a provide from all packages.
     #- and remove all dobles for each one !
     foreach (@info) {
-	push @{$params->{provides}{$_->{name}} ||= []}, $_->{name};
+	push @{$params->{provides}{$_->{name}} ||= []}, "$_->{name}-$_->{version}-$_->{release}.$_->{arch}";
     }
 
     #- remove all dobles for each provides.
@@ -244,9 +257,10 @@ sub compute_depslist {
 	my @requires = keys %requires;
 
 	while (my $req = shift @requires) {
-	    $req eq 'basesystem' and next; #- never need to requires basesystem directly as always required! what a speed up!
-	    ref $req or $req = $params->{provides}{$req} || ($req =~ /rpmlib\(/ ? [] :
-							     [ ($req !~ /NOTFOUND_/ && "NOTFOUND_") . $req ]);
+	    $req =~ /^basesystem/ and next; #- never need to requires basesystem directly as always required! what a speed up!
+	    ref $req or $req = ($params->{info}{$req} && [ $req ] ||
+				$params->{provides}{$req} ||
+				($req =~ /rpmlib\(/ ? [] : [ ($req !~ /NOTFOUND_/ && "NOTFOUND_") . $req ]));
 	    if (@$req > 1) {
 		#- this is a choice, no closure need to be done here.
 		exists $requires{$req} or push @required_packages, $req;
@@ -289,7 +303,7 @@ sub compute_depslist {
     my %ordered;
     foreach (@info) {
 	my %requires;
-	my @requires = ($_->{name});
+	my @requires = ("$_->{name}-$_->{version}-$_->{release}.$_->{arch}");
 	while (my $dep = shift @requires) {
 	    foreach (@{$params->{info}{$dep} && $params->{info}{$dep}{requires} || []}) {
 		if (ref $_) {
@@ -318,25 +332,38 @@ sub compute_depslist {
 	    }
 	}
     }
-    #- setup, filesystem and basesystem should be at the beginning.
-    @ordered{qw(ldconfig readline termcap libtermcap2 bash sash glibc setup filesystem basesystem)} =
-      (100000, 90000, 80000, 70000, 60000, 50000, 40000, 30000, 20000, 10000);
+
+    #- some package should be sorted at the beginning.
+    my $fixed_weight = 10000;
+    foreach (qw(basesystem filesystem setup glibc sash bash libtermcap2 termcap readline ldconfig)) {
+	foreach (@{$params->{provides}{$_} || []}) {
+	    $ordered{$_} = $fixed_weight;
+	}
+	$fixed_weight += 10000;
+    }
 
     #- compute base flag, consists of packages which are required without
     #- choices of basesystem and are ALWAYS installed. these packages can
     #- safely be removed from requires of others packages.
-    foreach (@{$params->{info}{basesystem}{requires}}) {
-	ref $_ or $params->{info}{$_} and $params->{info}{$_}{base} = undef;
+    foreach (@{$params->{provides}{basesystem} || []}) {
+	foreach (@{$params->{info}{$_}{requires}}) {
+	    ref $_ or $params->{info}{$_} and $params->{info}{$_}{base} = undef;
+	}
     }
+
     #- some package are always installed as base and can safely be marked as such.
-    foreach (qw(basesystem glibc)) {
-	$params->{info}{$_} and $params->{info}{$_}{base} = undef;
+    foreach (qw(basesystem glibc kernel)) {
+	foreach (@{$params->{provides}{$_} || []}) {
+	    $params->{info}{$_} and $params->{info}{$_}{base} = undef;
+	}
     }
 
     #- give an id to each packages, start from number of package already
     #- registered in depslist.
     my $global_id = scalar @{$params->{depslist}};
-    foreach (sort { $ordered{$b->{name}} <=> $ordered{$a->{name}} || package_name_compare($a->{name}, $b->{name}) } @info) {
+    foreach (sort { ($ordered{"$b->{name}-$b->{version}-$b->{release}.$b->{arch}"} <=>
+		     $ordered{"$a->{name}-$a->{version}-$a->{release}.$a->{arch}"}) ||
+		       package_name_compare($a->{name}, $b->{name}) } @info) {
 	$_->{id} = $global_id++;
     }
 
@@ -362,7 +389,11 @@ sub compute_depslist {
 
 		#- if a base package is in a list, keep it instead of the choice.
 		if (@choices_base_id) {
-		    ($id, $base) = ($choices_base_id[0], 1);
+		    @choices_id = @choices_base_id;
+		    $base = 1;
+		}
+		if (@choices_id == 1) {
+		    $id = $choices_id[0];
 		} else {
 		    my $choices_key = join '|', @choices_id;
 		    exists $requires_id{$choices_key} or push @requires_id, \@choices_id;
@@ -397,28 +428,34 @@ sub read_depslist {
 	  /^([^:\s]*)-([^:\-\s]+)-([^:\-\s]+)\.([^:\.\-\s]*)(?::(\d+)\S*)?\s+(\d+)\s*(.*)/;
 
 	#- store values here according to it.
-	push @{$params->{depslist}}, $params->{info}{$name} = {
-							       name        => $name,
-							       version     => $version,
-							       release     => $release,
-							       arch        => $arch,
-							       $serial ? (serial      => $serial) : (),
-							       size        => $size,
-							       deps        => $deps,
-							       id          => $global_id++,
-							      };
+	push @{$params->{depslist}},
+	  $params->{info}{"$name-$version-$release.$arch"} = {
+							      name        => $name,
+							      version     => $version,
+							      release     => $release,
+							      arch        => $arch,
+							      $serial ? (serial      => $serial) : (),
+							      size        => $size,
+							      deps        => $deps,
+							      id          => $global_id++,
+							     };
+	#- this can be really usefull as there are no more hash on name directly,
+	#- but provides gives something quite interesting here.
+	push @{$params->{provides}{$name}}, "$name-$version-$release.$arch";
     }
 
     #- compute base flag, consists of packages which are required without
     #- choices of basesystem and are ALWAYS installed. these packages can
     #- safely be removed from requires of others packages.
-    if ($params->{info}{basesystem} && ! exists $params->{info}{basesystem}{base}) {
-	my @requires_id;
-	foreach (split ' ', $params->{info}{basesystem}{deps}) {
-	    /\|/ or push @requires_id, $_;
-	}
-	foreach ($params->{info}{basesystem}{id}, @requires_id) {
-	    $params->{depslist}[$_] and $params->{depslist}[$_]{base} = undef;
+    foreach (@{$params->{provides}{basesystem} || []}) {
+	if ($params->{info}{$_} && ! exists $params->{info}{$_}{base}) {
+	    my @requires_id;
+	    foreach (split ' ', $params->{info}{$_}{deps}) {
+		/\|/ or push @requires_id, $_;
+	    }
+	    foreach ($params->{info}{$_}{id}, @requires_id) {
+		$params->{depslist}[$_] and $params->{depslist}[$_]{base} = undef;
+	    }
 	}
     }
     1;

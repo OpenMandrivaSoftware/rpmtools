@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release 10mdk
+%define release 1mdk
 
 # do not modify here, see Makefile in the CVS
-%define version 3.0
+%define version 3.1
 
 %{expand:%%define perlbase_version %(rpm -q --queryformat '%{VERSION}' perl-base)}
 %{expand:%%define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)}
@@ -54,6 +54,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Jul 23 2001 François Pons <fpons@mandrakesoft.com> 3.1-1mdk
+- allow provides on full package name.
+- fixed multiple version, release or arch of the same
+  package in the same hdlist.
+
 * Sat Jul 21 2001 Warly <warly@mandrakesoft.com> 3.0-10mdk
 - add sourcerpm tag.
 
