@@ -363,7 +363,7 @@ sub extract_archive {
 
 	my $newfile = "$dir/$file";
 
-	print "extracting $file\n";
+	print STDERR "extracting $file\n";
 	for ($packer->{data}{$file}[0]) {
 	    /l/ && do { symlink_ $packer->{data}{$file}[1], $newfile; last; };
 	    /d/ && do { mkdir_ $newfile; last; };
