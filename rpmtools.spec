@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 4mdk
+%define release 5mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -60,7 +60,7 @@ chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2prereq
 
 cat <<EOF >$RPM_BUILD_ROOT%{_bindir}/hdlist2groups
 #!/bin/sh
-%{_bindir}/parsehdlist --quiet --groups $*
+%{_bindir}/parsehdlist --quiet --group $*
 EOF
 chmod a+x $RPM_BUILD_ROOT%{_bindir}/hdlist2groups
 
@@ -99,6 +99,10 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Mon Aug 28 2000 François Pons <fpons@mandrakesoft.com> 1.2-5mdk
+- fixed packdrake to not use absolute pathname by default for uncompression
+  method, else this breaks DrakX as software are not in same place.
+
 * Mon Aug 28 2000 François Pons <fpons@mandrakesoft.com> 1.2-4mdk
 - moved genbasefiles to rpmtools as it is used by urpmi.
 
