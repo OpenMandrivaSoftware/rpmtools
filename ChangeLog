@@ -1,3 +1,7 @@
+2000-06-13  Pixel  <pixel@mandrakesoft.com>
+
+	* gendepslist2.cc: change fclose to pclose (thanks to diablero)
+
 2000-04-04 François Pons <fpons@mandrakesoft.com>
 
 	* extract_archive: allow bad file in filelist, print error but continue.

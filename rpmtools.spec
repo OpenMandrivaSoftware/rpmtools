@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 24mdk
+%define release 25mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.1
@@ -59,6 +59,9 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/genfilelist
 
 %changelog
+* Tue Jun 13 2000 Pixel <pixel@mandrakesoft.com> 1.1-25mdk
+- fix a bug in gendepslist2 (thanks to diablero)
+
 * Thu Jun 08 2000 François Pons <fpons@mandrakesoft.com> 1.1-24mdk
 - fixed bug in genhdlist_cz2 for multi arch management.
 

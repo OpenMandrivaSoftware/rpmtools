@@ -382,7 +382,7 @@ void hdlists(void (*f)(FD_t, int), const char *file, int current_hdlist) {
 
     f(fdDup(fileno(pipe)), current_hdlist);
 
-    if (fclose(pipe) != 0) {
+    if (pclose(pipe) != 0) {
       cerr << "bad hdlist " << file << "\n";
       exit(1);
     }
