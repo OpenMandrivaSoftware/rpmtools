@@ -11,5 +11,6 @@ rpm2header.c
 Makefile.PL
 rpmtools.spec
 MANIFEST
+ChangeLog
 
 META.yml                                 Module meta-data (added by MakeMaker)

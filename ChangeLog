@@ -1,3 +1,87 @@
+2004-12-07 00:27  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* MANIFEST, Makefile, Makefile.PL, Packdrakeng.pm, packdrake.pm,
+	  rpmtools.spec, t/02packdrake.t: - 5.0.0 - more test and fix
+
+2004-12-06 17:42  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm, t/01packdrakeng.t: - fix dir / symlink creation -
+	  add test
+
+2004-12-06 16:40  Michael Scherer <mscherer@mandrake.org>
+
+	* Packdrakeng.pm: - fix small typos in docs
+
+2004-12-06 12:15  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* distriblint: - removing this ugly script
+
+2004-12-06 12:11  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* MANIFEST, Makefile, Makefile.PL, packdrake.pm, rpmtools.spec,
+	  packdrake-pm/Makefile.PL, packdrake-pm/packdrake.pm: - bump to
+	  packdrakeng
+
+2004-12-05 22:05  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm, t/01packdrakeng.t: - fix data length detection in
+	  extern_compress - add test
+
+2004-12-05 17:36  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Packdrakeng.pm, packdrakeng.pm: - rename packdrakeng.pm to
+	  Packdrakeng.pm to follow perl policy
+
+2004-12-05 08:13  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* packdrakeng.pm, t/01packdrakeng.t: - fix data length to write -
+	  test: use strict ;) then fix it !!
+
+2004-12-04 05:32  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* packdrakeng.pm, t/01packdrakeng.t: - add external call to
+	  compress programs - clean code - fix bugs...	- start doc - add
+	  test
+
+2004-11-29 11:11  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* t/01packdrakeng.t: - first commit
+
+2004-11-29 09:45  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* packdrakeng.pm: - managed more than one file by bloc - add few
+	  comment
+
+2004-11-29 01:30  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* packdrake-pm/packdrake.pm: - cosmectic fix
+
+2004-11-27 15:08  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* packdrakeng.pm: - fix compressed size read - some return on error
+	  add
+
+2004-11-26 01:34  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* packdrakeng.pm: - Update errors
+
+2004-11-25 23:27  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* packdrakeng.pm: - first commit for this wonderfull packdrake ng
+	  pm file
+
+2004-11-18 13:48  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* gendistrib: Logging nits
+
+2004-11-17 18:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* gendistrib: Fix usage notes
+
+2004-09-02 07:19  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 4.5-25mdk
+
 2004-09-02 07:03  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
 
 	* distriblint, gendistrib: Make rpm tools handle new keywords in
