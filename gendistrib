@@ -198,6 +198,7 @@ foreach (0..$#hdlists) {
 
     unless ($nomediainfo) {
 	print STDERR qq(link alternate locations of synthesis and hdlists\n) unless $nooutput;
+	unlink $e->{hdlist2}, $e->{synthesis2};
 	link $e->{hdlist}, $e->{hdlist2}
 	    or print STDERR qq(link failed for "$e->{hdlist2}": $!\n);
 	link $e->{synthesis}, $e->{synthesis2}
