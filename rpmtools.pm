@@ -251,9 +251,8 @@ sub relocate_depslist {
 	    #- is multiply defined and this should be fixed.
 	    #- first correct info hash, then a second pass on depslist
 	    #- is required to relocate its entries.
-	    my $cmp_version = compare_version($_->{version}, $params->{info}{$_->{name}});
-	    if ($cmp_version > 0 || $cmp_version == 0 &&
-		compare_version($_->{release}, $params->{info}{$_->{name}}) > 0) {
+	    my $cmp_version = version_compare($_->{version}, $params->{info}{$_->{name}});
+	    if ($cmp_version > 0 || $cmp_version == 0 && version_compare($_->{release}, $params->{info}{$_->{name}}) > 0) {
 		$params->{info}{$_->{name}} = $_;
 		++$relocated_entries;
 	    }
@@ -261,8 +260,7 @@ sub relocate_depslist {
     }
 
     if ($relocated_entries) {
-	my $n = scalar(@{$params->{depslist}}) - 1;
-	for (0..$n) {
+	for (0 .. scalar(@{$params->{depslist}}) - 1) {
 	    my $pkg = $params->{depslist}[$_];
 	    $params->{depslist}[$_] = $params->{info}{$pkg->{name}};
 	}
@@ -386,6 +384,17 @@ sub write_compss {
 	print $FILE "\n";
     }
     1;
+}
+
+#- compare a version string.
+sub version_compare {
+    my ($a, $b) = @_;
+    local $_;
+
+    while ($a || $b) {
+	my ($sb, $sa) =  map { $1 if $a =~ /^\W*\d/ ? s/^\W*0*(\d+)// : s/^\W*(\D+)// } ($b, $a);
+	$_ = length($sa) cmp length($sb) || $sa cmp $sb and return $_;
+    }
 }
 
 1;
