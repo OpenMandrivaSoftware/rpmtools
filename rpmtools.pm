@@ -146,8 +146,10 @@ sub build_hdlist {
     foreach (@rpms) {
 	my ($key) = /([^\/]*)\.rpm$/ or next; #- get rpm filename.
 
-	system("rpm2header '$_' > '$dir/$key'") unless -s "$dir/$key";
-	$? == 0 or unlink("$dir/$key"), die "bad rpm $_\n";
+	unless (-s "$dir/$key") {
+	    system("rpm2header '$_' > '$dir/$key'");
+	    $? == 0 or unlink("$dir/$key"), die "bad rpm $_\n";
+	}
 	-s "$dir/$key" or unlink("$dir/$key"), die "bad rpm $_\n";
 
 	my ($name, $version, $release, $arch) = $key =~ /(.*)-([^-]*)-([^-]*)\.([^\.]*)$/;

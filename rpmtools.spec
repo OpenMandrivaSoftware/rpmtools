@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 8mdk
+%define release 9mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 3.1
@@ -54,6 +54,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_libdir}/perl5/man/*/*
 
 %changelog
+* Mon Nov 26 2001 François Pons <fpons@mandrakesoft.com> 3.1-9mdk
+- fixed bad rpm2header error analysis (especially under alpha).
+
 * Mon Nov 26 2001 François Pons <fpons@mandrakesoft.com> 3.1-8mdk
 - fixed compss file reading.
 
