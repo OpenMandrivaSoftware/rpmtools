@@ -205,6 +205,7 @@ void print_help(void) {
 	  "                   line, incompatible with interactive mode).\n"
 	  "  --compact      - print compact provides, requires, conflicts, obsoletes flags.\n"
 	  "  --all          - print all tags (incompatible with interactive mode).\n"
+	  "  --synthesis    - print synthesis tags (incompatible with interactive mode).\n"
 	  "  --name         - print tag name and rpm filename if needed.\n"
 	  "  --info         - print tag name, serial and rpm filename if needed\n"
 	  "  --group        - print tag group: group.\n"
@@ -294,6 +295,13 @@ int main(int argc, char **argv)
 	print_conflicts = 1;
 	print_obsoletes = 1;
 	print_prereqs = 1;
+      } else if (strcmp(argv[i], "--synthesis") == 0) {
+	print_sep = '@';
+	print_info = 1;
+	print_provides = 1;
+	print_requires = 1;
+	print_conflicts = 1;
+	print_obsoletes = 1;
       } else {
 	fprintf(stderr, "parsehdlist: unknown option %s\n", argv[i]);
       }

@@ -602,7 +602,7 @@ sub compat_arch { better_arch(arch(), $_[0]) }
 #- compare a version string, make sure no deadlock can occur.
 #- try to return always a numerical value.
 sub version_compare {
-    return rpmvercmp(@_);
+    goto &rpmvercmp;
 }
 #- historical perl version (still breaks on "4m" with "4.1m"...
 #-    my ($a, $b) = @_;
