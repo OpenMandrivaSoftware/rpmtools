@@ -268,9 +268,9 @@ int sql_print_int(Header header, int tag, int state) {
 
 static
 void print_help(void) {
-  fprintf(stderr,
+  printf(
 	  "parsehdlist version " VERSION_STRING "\n"
-	  "Copyright (C) 2000-2004 Mandrakesoft.\n"
+	  "Copyright (C) 2000-2005 Mandrakesoft.\n"
 	  "This is free software and may be redistributed under the terms of the GNU GPL.\n"
 	  "\n"
 	  "usage:\n"
