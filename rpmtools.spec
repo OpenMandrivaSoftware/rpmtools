@@ -18,7 +18,6 @@ License: GPL
 Group: %{group}
 URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 BuildRoot: %{_tmppath}/%{name}-buildroot
-Prefix: %{_prefix}
 BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
 BuildRequires: perl-devel
 BuildRequires: perl-Compress-Zlib
