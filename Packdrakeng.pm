@@ -160,7 +160,8 @@ sub DESTROY {
     my ($pack) = @_;
     $pack->{subuncompress}($pack, undef, undef);
     $pack->build_toc();
-    close($pack->{handle}) if ($pack->{handle});
+    close($pack->{handle}) if $pack->{handle};
+    close($pack->{ustream_data}{handle}) if $pack->{ustream_data}{handle};
 }
 
 # Flush current compressed block
