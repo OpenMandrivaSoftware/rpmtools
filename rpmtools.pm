@@ -413,7 +413,7 @@ sub compute_depslist {
 		if (@choices_id == 1) {
 		    $id = $choices_id[0];
 		} else {
-		    my $choices_key = join '|', @choices_id;
+		    my $choices_key = join '|', sort { $a <=> $b } @choices_id;
 		    exists $requires_id{$choices_key} or push @requires_id, \@choices_id;
 		    $requires_id{$choices_key} = undef;
 		    next;
