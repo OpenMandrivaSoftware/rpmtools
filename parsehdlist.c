@@ -61,6 +61,7 @@ void print_list(Header header, int_32 tag_name, char *format, char *name) {
   if (list)
     for(i = 0; i < count; i++)
       printf(format, name, list[i]);
+  free(list);
 }
 
 static
@@ -87,6 +88,7 @@ void print_list_flags(Header header, int_32 tag_name, int_32 tag_flags, int_32 t
       }
       printf("\n");
     }
+  free(list);
 }
 
 static
@@ -102,6 +104,7 @@ void print_list_prereqs(Header header, char *format, char *name) {
   if (flags && list)
     for(i = 0; i < count; i++)
       if (flags[i] & RPMSENSE_PREREQ) printf(format, name, list[i]);
+  free(list);
 }
 
 static
@@ -114,9 +117,9 @@ void print_list_files(Header header, char *format, char *name) {
 
   headerGetEntry(header, RPMTAG_OLDFILENAMES, &type, (void **) &list, &count);
 
-  if (list) {
+  if (list)
     for (i = 0; i < count; i++) printf(format, name, list[i]);
-  }
+  free(list);
 
   headerGetEntry(header, RPMTAG_BASENAMES, &type, (void **) &baseNames, &count);
   headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, NULL);
@@ -129,6 +132,8 @@ void print_list_files(Header header, char *format, char *name) {
       printf(format, name, buff);
     }
   }
+  free(baseNames);
+  free(dirNames);
 }
 
 static
