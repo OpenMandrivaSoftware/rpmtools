@@ -30,44 +30,39 @@ sub packfilelist {
     #- search for common parts of name.
     foreach (@_) {
 	my $filename = $_;
-	foreach (0..length($filename)) {
+	foreach (4..length($filename)) {
 	    ++$countdir{substr($filename, 0, $_)};
 	}
     }
 
+    my @costlysort = (sort { $countdir{$b} <=> $countdir{$a} || ($countdir{$b} == $countdir{$a} && length($b) <=> length($a)) }
+		      grep { $countdir{$_} > 2 }
+		      keys %countdir);
+
     #- pass 1: recompute counter.
-    foreach (sort { $countdir{$b} <=> $countdir{$a} || ($countdir{$b} == $countdir{$a} && length($b) <=> length($a)) }
-	     keys %countdir) {
+    foreach (grep { length($_) > 4 } @costlysort) {
 	my $filepart = $_;
-	if (length($filepart) > 4 && $countdir{$filepart} > 1) {
-	    foreach (0..length($filepart)-1) {
-		my $subpart = substr($filepart, 0, $_);
-		if (length($subpart) * $countdir{$subpart} < length($filepart) * $countdir{$filepart}) {
-		    $countdir{$subpart} -= $countdir{$filepart} if $countdir{$filepart} > 0;
-		} else {
-		    $countdir{$filepart} -= $countdir{$subpart} if $countdir{$subpart} > 0;
-		}
+	foreach (4..length($filepart)-1) {
+	    my $subpart = substr($filepart, 0, $_);
+	    if (length($subpart) * $countdir{$subpart} < length($filepart) * $countdir{$filepart}) {
+		$countdir{$subpart} -= $countdir{$filepart} if $countdir{$filepart} > 0;
+	    } else {
+		$countdir{$filepart} -= $countdir{$subpart} if $countdir{$subpart} > 0;
 	    }
-	} else {
-	    delete $countdir{$filepart};
 	}
     }
 
     #- pass 2: filter out overstring.
-    foreach (sort { $countdir{$a} <=> $countdir{$b} || ($countdir{$a} == $countdir{$b} && length($a) <=> length($b)) }
-	     keys %countdir) {
+    foreach (grep { length($_) > 4 && $countdir{$_} > 2 } reverse @costlysort) {
 	my $filepart = $_;
-	if ($countdir{$filepart} > 1) {
-	    foreach (0..length($filepart)-1) {
-		delete $countdir{substr($filepart, 0, $_)};
-	    }
+	foreach (4..length($filepart)-1) {
+	    delete $countdir{substr($filepart, 0, $_)};
 	}
     }
     
     #- pass 3: get result.
-    foreach (sort { $countdir{$b} <=> $countdir{$a} || ($countdir{$b} == $countdir{$a} && length($b) <=> length($a)) }
-	     keys %countdir) {
-	push @commonparts, $_ if $countdir{$_} > 1 && @commonparts < 10;
+    foreach (grep { $countdir{$_} > 2 } @costlysort) {
+	push @commonparts, $_ if @commonparts < 10;
     }
 
     @commonparts;
@@ -76,30 +71,40 @@ sub packfilelist {
 #- main program.
 sub main {
     my ($rpms_dir) = @_;
+    my (@filelist, @obsoletes) = ();
 
-    local *DIR;
-    opendir DIR, $rpms_dir or die "unable to parse directory: $!";
-    foreach (readdir DIR) {
-	if (/(.*)-[^-]*-[^-]*$/) {
-	    print "#$1\n";
+    local *RPM_QA;
+    open RPM_QA, "rpm -qp --queryformat \"#\%{NAME}\\n\" --obsoletes -l $rpms_dir/*.rpm |";
+    foreach (<RPM_QA>) {
+	if (/^\#/) {
+	    #- work on previous obsoletes and filelist.
+	    genfilelist(\@filelist, \@obsoletes);
 
-	    my @filelist = split '\n', `rpm -qpl $rpms_dir/$_`;
-	    my @obsoletes = split '\n', `rpm -qp --obsoletes $rpms_dir/$_`;
-	    my @commonparts = packfilelist(@filelist);
+	    (@filelist, @obsoletes) = ();
 
-	    foreach (@obsoletes) { print "*$_\n" }
-	    foreach (0..$#commonparts) { print "=$commonparts[$_]\n" } #- commonparts are printed in from 0 to n-1.
-	    foreach my $filename (@filelist) {
-		map {
-		    if (substr($filename, 0, length($commonparts[$_])) eq $commonparts[$_]) {
-			print $_ . substr($filename, length($commonparts[$_])) . "\n"; next;
-		    }
-		} (0..$#commonparts);
-		print " $filename\n";
-	    }
+	    print $_;
+	} else {
+	    chomp;
+	    m|^/| ? push(@filelist, $_) : push(@obsoletes, $_);
 	}
     }
-    closedir DIR;
+    genfilelist(\@filelist, \@obsoletes);
+}
+
+sub genfilelist {
+    my ($filelist, $obsoletes) = @_;
+    my @commonparts = packfilelist(@$filelist);
+
+    foreach (@$obsoletes) { print "*$_\n" }
+    foreach (@commonparts) { print "=$_\n" } #- commonparts are printed in from 0 to n-1.
+    foreach my $filename (@$filelist) {
+	map {
+	    if (substr($filename, 0, length($commonparts[$_])) eq $commonparts[$_]) {
+		print $_ . substr($filename, length($commonparts[$_])) . "\n"; next;
+	    }
+	} (0..$#commonparts);
+	print " $filename\n";
+    }
 }
 
 foreach (@ARGV) {
