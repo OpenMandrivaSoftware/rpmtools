@@ -16,7 +16,7 @@
 
 ##- $Id$
 
-package packdrakeng;
+package Packdrakeng;
 
 use strict;
 use warnings;
@@ -27,7 +27,7 @@ use Compress::Zlib;
 use vars qw($VERSION);
 
 my $debug = 1;
-$VERSION = 0.10;
+$VERSION = "0.10";
 
 my  ($toc_header, $toc_footer) = 
     ('cz[0',      '0]cz');
@@ -47,6 +47,7 @@ sub _new {
         uncompress_method => $options{uncompress},
         force_extern => $options{extern} || 0, # Don't use perl-zlib
         use_extern => 1, # default behaviour, informative only
+        noargs => $options{noargs},
         
         level => $options{comp_level} || 6, # compression level, aka -X gzip or bzip option
 
@@ -101,7 +102,7 @@ sub open {
     my ($class, %options) = @_;
     my $pack = _new($class, %options);
     sysopen($pack->{handle}, $pack->{filename}, O_RDONLY) or return undef;
-    $pack->read_toc();
+    $pack->read_toc() or return undef;
     $pack->{log}->("Opening archive with '%s' / '%s'%s.",
         $pack->{compress_method}, $pack->{uncompress_method},
         $pack->{use_extern} ? "" : " (internal compression)");
@@ -129,8 +130,10 @@ sub choose_compression_method {
             $pack->{direct_write} = 1;
         }
     };
-    $pack->{uncompress_method} ||= "$pack->{compress_method} -d";
-    $pack->{compress_method} = "$pack->{compress_method} -$pack->{level}";
+    if (!$pack->{noargs}) {
+        $pack->{uncompress_method} ||= "$pack->{compress_method} -d";
+        $pack->{compress_method} = $pack->{compress_method} ? "$pack->{compress_method} -$pack->{level}" : "";
+    }
 }
 
 sub DESTROY {
@@ -145,6 +148,7 @@ sub build_toc {
     my ($pack) = @_;
     $pack->{need_build_toc} or return 1;
     $pack->end_bloc();
+    $pack->end_seek();
     my ($toc_length, $cf, $cd, $cl) = (0, 0, 0, 0);
 
     sysseek($pack->{handle}, $pack->{coff}, 0) == $pack->{coff} or return 0;
@@ -188,7 +192,6 @@ sub read_toc {
     $pack->{uncompress_method} ||= $uncompress;
     $pack->choose_compression_method();
 
-    #printf STDERR "Toc size: %d + 16 * %d\n", $toc_str_size, $toc_f_count;
     sysseek($pack->{handle}, -64 - ($toc_str_size + 16 * $toc_f_count) ,2); 
     sysread($pack->{handle}, my $fileslist, $toc_str_size);
     my @filenames = split("\n", $fileslist);
@@ -240,7 +243,6 @@ sub end_bloc {
     $pack->{current_bloc_csize} = 0;
     $pack->{current_bloc_files} = {};
     $pack->{current_bloc_off} = 0;
-    
 }
 
 #######################
@@ -250,22 +252,24 @@ sub end_bloc {
 sub extern_compress {
     my ($pack, $sourcefh) = @_;
     my ($insize, $outsize, $filesize) = (0, 0, 0); # aka uncompressed / compressed data length
-    my ($hin, $hout); # handle for open2
+    my $hout; # handle for gzip
     
     if (defined($pack->{cstream_data})) {
-        ($hin, $hout) = ($pack->{cstream_data}{hin}, $pack->{cstream_data}{hout});
+        $hout = $pack->{cstream_data}{hout};
         $filesize = (stat($pack->{cstream_data}{file_bloc}))[7];
     }
     if (defined($sourcefh)) {
         if (!defined($pack->{cstream_data})) {
+            my $hin;
             ($hin, $pack->{cstream_data}{file_bloc}) = tempfile();
-            CORE::open($hout, "|$pack->{compress_method} > $pack->{cstream_data}{file_bloc}") or do {
+            close($hin); # ensure the flush
+            $pack->{cstream_data}{pid} = CORE::open($hout, 
+                "|$pack->{compress_method} > $pack->{cstream_data}{file_bloc}") or do {
                 warn "Unable to start $pack->{compress_method}";
                 return 0, 0;
             };
-            ($pack->{cstream_data}{hin}, $pack->{cstream_data}{hout}) = ($hin, $hout);
-            binmode $hin; binmode $hout;
-            $| =1;
+            $pack->{cstream_data}{hout} = $hout;
+            binmode $hout;
         }
         # until we have data to push or data to read
         while (my $length = sysread($sourcefh, my $data, $pack->{bufsize})) {
@@ -279,17 +283,22 @@ sub extern_compress {
     } elsif (defined($pack->{cstream_data})) {
         # If $sourcefh is not set, this mean we want a flush(), for end_bloc()
         close($hout);
+        waitpid $pack->{cstream_data}{pid}, 0;
+        sysopen(my $hin, $pack->{cstream_data}{file_bloc}, O_RDONLY) or do {
+            warn "Can't open temp bloc file";
+            return 0, 0;
+        };
+        $outsize = (stat($pack->{cstream_data}{file_bloc}))[7];
         unlink($pack->{cstream_data}{file_bloc});
         while (my $lenght = sysread($hin, my $data, $pack->{bufsize})) {
             (my $l = syswrite($pack->{handle}, $data)) == $lenght or do {
                 warn "Can't write all data in archive";
             };
-            $outsize += $l;
         }
         close($hin);
         $pack->{cstream_data} = undef;
     }
-    ($insize, $outsize - $filesize)
+    ($insize, $outsize - $pack->{current_bloc_csize})
 }
 
 sub extern_uncompress {
@@ -319,18 +328,20 @@ sub extern_uncompress {
     }
     close($tempfh);
 
-    CORE::open(my $hc, "$pack->{uncompress_method} < '$tempname' |") or do {
+    CORE::open(my $hc, "cat '$tempname' | $pack->{uncompress_method} |") or do {
         warn "Can't start $pack->{uncompress_method} to uncompress data";
         unlink($tempname);
         return -1;
     };
+    binmode($hc);
 
     my $byteswritten = 0;
     my $read = 0;
 
     while ($byteswritten < $fileinfo->{size}) {
         my $length = sysread($hc, my $data, $pack->{bufsize}) or do {
-            warn "unexpected end of stream";
+            warn "unexpected end of stream $tempname";
+            #unlink($tempname);
             close($hc);
             return -1;
         };
@@ -676,7 +687,7 @@ __END__
 
 =head1 NAME
 
-packdrakeng - Simple Archive Extractor/Builder
+Packdrakeng - Simple Archive Extractor/Builder
 
 =head1 SYNOPSIS
 
@@ -706,7 +717,7 @@ packdrakeng - Simple Archive Extractor/Builder
 
 =head1 DESCRIPTION
 
-C<packdrakeng> is a simple indexed archive builder and extractor using
+C<Packdrakeng> is a simple indexed archive builder and extractor using
 standard compression method.
 
 This module is a rewrite from scratch of original packdrake, used format is

@@ -3,10 +3,10 @@
 # $Id$
 
 use strict;
-use Test::More tests => 16;
+use Test::More tests => 21;
 use Digest::MD5;
 
-use_ok('packdrakeng');
+use_ok('Packdrakeng');
 
 sub clean_test_files {
     -d "test" or return;
@@ -29,7 +29,7 @@ sub create_test_files {
     %created 
 }
 
-sub create_know_file {
+sub create_know_files {
     my %created;
     foreach my $letter ('a' .. 'z') {
     open(my $h, "> test/$letter");
@@ -67,34 +67,37 @@ sub check_files {
 sub test_packing {
     my ($pack_param, $listfiles) = @_;
 
-    ok(my $pack = packdrakeng->new(%$pack_param), "Creating an archive");
+    ok(my $pack = Packdrakeng->new(%$pack_param), "Creating an archive");
+    $pack or return;
     ok($pack->add(undef, keys %$listfiles), "packing files");
     $pack = undef; # closing the archive.
     
     clean_test_files();
     
-    ok($pack = packdrakeng->open(%$pack_param), "Re-opening the archive");
+    ok($pack = Packdrakeng->open(%$pack_param), "Re-opening the archive");
+    $pack or die;
     ok($pack->extract(undef, keys(%$listfiles)), "extracting files");
     ok(check_files(%$listfiles), "Checking md5sum for extracted files");
 
     $pack = undef;
 }
 
+print "Test: using external cat function:\n";
+    clean_test_files();
+    test_packing({ archive => "packtest-cat.cz", compress => 'cat', uncompress => 'cat', noargs => 1 }, { create_test_files(30) });
+    clean_test_files();
+
 print "Test: using internal gzip function:\n";
     clean_test_files();
-    test_packing({ archive => "packtest.cz" }, { create_test_files(30) });
+    test_packing({ archive => "packtest-gzipi.cz" }, { create_test_files(30) });
     clean_test_files();
-    unlink("packtest.cz");
 
 print "Test: using external gzip function:\n";
     clean_test_files();
-    test_packing({ archive => "packtest.cz", compress => "gzip", extern => 1}, { create_test_files(30) });
+    test_packing({ archive => "packtest-gzip.cz", compress => "gzip", extern => 1}, { create_test_files(30) });
     clean_test_files();
-    unlink("packtest.cz");
-    
+   
 print "Test: using external bzip function:\n";
     clean_test_files();
-    test_packing({ archive => "packtest.cz", compress => "bzip2", extern => 1}, { create_test_files(30) });
+    test_packing({ archive => "packtest-bzip2.cz", compress => "bzip2", extern => 1}, { create_test_files(30) });
     clean_test_files();
-    unlink("packtest.cz");
-
