@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 15mdk
+%define release 16mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -28,6 +28,7 @@ Prefix: %{_prefix}
 BuildRequires:	%{buildreq_perl_devel} rpm-devel >= 4.0.3 bzip2-devel
 Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
+Provides: perl(packdrake)
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -64,6 +65,9 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %{_mandir}/*/*
 
 %changelog
+* Fri Jan 09 2004 Warly <warly@mandrakesoft.com> 4.5-16mdk
+- add provides perl(packdrake)
+
 * Mon Jan 05 2004 Olivier Thauvin <thauvin@aerov.jussieu.fr> 4.5-15mdk
 - add some options to gendistrib/genhdlist
 
