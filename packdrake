@@ -52,7 +52,6 @@
 #- general information.
 my $VERSION = "0.1";
 my $default_size = 400000;
-my $default_tmpdir = "/tmp";
 my $default_ratio = 6;
 
 #- used for uncompressing archive and listing.
@@ -459,8 +458,6 @@ usage:
                            /bin/gzip or /usr/bin/bzip2.
     --compress <cmd>     - select compression command.
     --uncompress <cmd>   - select uncompression command.
-    --tmpdir             - select a specific tempory directory for operation,
-                           default to $default_tmpdir.
   --extract <file> <dir> - extract archive <file> contents to directory <dir>,
                            specific file to extract are given on command line.
     --uncompress <cmd>   - override uncompression method in archive <file>.
@@ -471,7 +468,7 @@ usage:
 }
 
 sub main {
-    my ($file, $mode, $dir, $size, $method, $compress, $uncompress, $tmpdir, $ratio);
+    my ($file, $mode, $dir, $size, $method, $compress, $uncompress, $ratio);
     my @nextargv = (\$file);
     my @list = ();
 
@@ -487,7 +484,6 @@ sub main {
 	/^--method$/     and do { push @nextargv, \$method; next };
 	/^--compress$/   and do { push @nextargv, \$compress; next };
 	/^--uncompress$/ and do { push @nextargv, \$uncompress; next };
-	/^--tmpdir$/     and do { push @nextargv, \$tmpdir; next };
 	/^-(.*)$/ and do { foreach (split //, $1) {
 	    /[1-9]/  and do { $ratio = $_; next };
 	    /b/      and do { $mode and die $error_mode; $mode = "build"; @nextargv = (\$file); next };
@@ -505,9 +501,9 @@ sub main {
     #- examine and lauch.
     $mode =~ /cat/ or $file or die "packdrake: no archive filename given, check usage with --help\n";
     $size ||= 400000;
-    $tmpdir ||= "/tmp";
     $ratio ||= 6;
 
+    $tmpdir = $ENV{TMPDIR} || "/tmp";
     $tmpz = "$tmpdir/packdrake-tmp.$$";
     unless ($method) {
 	$file =~ /\.cz$/  and $method = "gzip";

@@ -49,7 +49,8 @@
 #+use strict qw(subs vars refs);
 
 #- tempory file used for building.
-my $tmpz = "/tmp/tmp.z.$$";
+my $tmpdir = $ENV{TMPDIR} || "/tmp";
+my $tmpz = "$tmpdir/tmp.z.$$";
 
 sub toc_line {
     my ($file, $data) = @_;

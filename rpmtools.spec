@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 10mdk
+%define release 11mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 1.2
@@ -103,6 +103,9 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Fri Sep 15 2000 Pixel <pixel@mandrakesoft.com> 1.2-11mdk
+- genhdlist_cz2, packdrake, build_archive: use TMPDIR if exists
+
 * Mon Sep 04 2000 François Pons <fpons@mandrakesoft.com> 1.2-10mdk
 - fixed management of basesystem, so that it always keeps all
   its dependancies in order to keep ability to update base packages

@@ -1,3 +1,7 @@
+2000-09-15  Pixel  <pixel@mandrakesoft.com>
+
+	* genhdlist_cz2, packdrake, build_archive: use TMPDIR if exists
+
 2000-08-11 François Pons <fpons@mandrakesoft.com>
 
 	* gendepslist2.cc, genhdlist_cz2: modified to use packdrake -c instead of bzcat.

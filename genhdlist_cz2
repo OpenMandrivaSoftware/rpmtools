@@ -26,7 +26,8 @@ $depslist = "$pwd/$depslist" if $depslist !~ m|^/|;
 $hdlist   = "$pwd/$hdlist"   if $hdlist   !~ m|^/|;
 $dir      = "$pwd/$dir"      if $dir      !~ m|^/|;
 
-$work_dir = "/tmp/.build_hdlist";
+$tmpdir = $ENV{TMPDIR} || "/tmp";
+$work_dir = "$tmpdir/.build_hdlist";
 
 
 -e $work_dir && !-d $work_dir and unlink($work_dir) || die "cannot use $work_dir as a working directory";
