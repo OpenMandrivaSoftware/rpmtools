@@ -1,7 +1,11 @@
 #!/usr/bin/perl
 
-($noclean,         @ARGV) = @ARGV if $ARGV[0] eq "--noclean";
-(undef, $root,     @ARGV) = @ARGV if $ARGV[0] eq "--distrib";
+use rpmtools;
+
+$params = new rpmtools;
+
+($params->{options}{noclean}, @ARGV) = @ARGV if $ARGV[0] eq "--noclean";
+(undef, $root,                @ARGV) = @ARGV if $ARGV[0] eq "--distrib";
 
 $root && @ARGV == 0 or die 
 "usage: genhdlists [--noclean] --distrib <root distrib>
@@ -9,6 +13,10 @@ $root && @ARGV == 0 or die
 
 $depslist = "$root/Mandrake/base/depslist.ordered";
 $hdlists = "$root/Mandrake/base/hdlists";
+
+open F, $depslist;
+$params->read_depslist(\*F);
+close F;
 
 open F, $hdlists or die "unable to open $hdlists";
 foreach (<F>) {
@@ -18,12 +26,7 @@ foreach (<F>) {
     m/^\s*(hdlist\S*\.cz2?)\s+(\S+)\s*(.*)$/ or die "invalid hdlist description \"$_\" in hdlists file";
 
     my ($hdlist, $dir, $descr) = ($1, $2, $3);
-    my $command = "genhdlist_cz2";
-    $noclean and $command .= " --noclean";
-    -e $depslist and $command .= " --ordered-depslist $depslist";
-    $command .= " -o $root/Mandrake/base/$hdlist $root/$dir";
 
-    system($command);
-    system("touch $root/Mandrake/base/$hdlist");
+    $params->build_hdlist("$root/Mandrake/base/$hdlist", glob("$root/$dir/*.rpm"));
 }
 close F;
