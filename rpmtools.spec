@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release 7mdk
+%define release 8mdk
 
 # do not modify here, see Makefile in the CVS
 %define version 4.5
@@ -55,6 +55,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/*/*
 
 %changelog
+* Thu Feb 20 2003 François Pons <fpons@mandrakesoft.com> 4.5-8mdk
+- fixed bug 414.
+
 * Fri Dec  6 2002 Pixel <pixel@mandrakesoft.com> 4.5-7mdk
 - fix a bug in an error message (as detected by perl_checker)
 

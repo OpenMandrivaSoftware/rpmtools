@@ -229,7 +229,7 @@ sub cat_compress {
 	}
 	close FILE;
     }
-    close F;
+    close F or die "packdrake: unable to compress data using \"$packer->{compress}\"\n";
     -s $packer->{tmpz};
 }
 
@@ -505,7 +505,7 @@ sub build_archive {
     print OUTPUT $toc_str;
     print OUTPUT $toc_data;
     print OUTPUT build_toc_trailer($packer);
-    close OUTPUT;
+    close OUTPUT or die "packdrake: unable to build toc trailer of $packer->{archive}\n";
 
     unlink $packer->{tmpz};
 
