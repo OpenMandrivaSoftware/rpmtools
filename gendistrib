@@ -212,9 +212,11 @@ foreach (0..$#hdlists) {
 			   synthesis => $e->{synthesis});
 
     unless ($nomediainfo && $nomd5sum) {
-	if (! -d $e->{mediainfo}) {
-	    mkdir $e->{mediainfo}, 0755
-		or print STDERR qq(Can't create directory "$e->{mediainfo}": $!\n);
+	for my $d (qw(mediainfo thismediainfo)) {
+	    if (! -d $e->{$d}) {
+		mkdir $e->{$d}, 0755
+		    or print STDERR qq(Can't create directory "$e->{$d}": $!\n);
+	    }
 	}
     }
 
