@@ -18,7 +18,7 @@ all: $(ALL)
 install: $(ALL)
 	install -d $(PREFIX)/usr/bin
 	install -s $(ALL) $(PREFIX)/usr/bin
-	install gendistrib distriblint genhdlist packdrake $(PREFIX)/usr/bin
+	install gendistrib distriblint genhdlist packdrake rpm2cpio.pl $(PREFIX)/usr/bin
 
 $(FROMCC): %: %.cc 
 	$(CXX) $(CFLAGS) -DVERSION_STRING=\"$(VERSION)\" $< $(LIBRPM) -o $@
