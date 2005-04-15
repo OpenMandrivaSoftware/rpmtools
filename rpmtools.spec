@@ -4,19 +4,17 @@
 # do not modify here, see spec file in the CVS
 %define version 5.0.20
 
-%define group %(perl -e 'printf "%%s\\n", "%_vendor" =~ /mandrake/i ? "System/Configuration/Packaging" : "System Environment/Base"')
+%define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
 
 Summary: Contains various rpm command-line tools
 Name: %{name}
 Version: %{version}
 Release: %{release}
-# get the source from our cvs repository (see
-# http://www.linuxmandrake.com/en/cvs.php3)
 Source0: %{name}-%{version}.tar.bz2
 License: GPL
 Group: %{group}
-URL: http://cvs.mandrakesoft.com/cgi-bin/cvsweb.cgi/soft/rpmtools
+URL: http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 BuildRoot: %{_tmppath}/%{name}-buildroot
 BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
 BuildRequires: perl-devel
