@@ -1,4 +1,17 @@
-2005-03-29 17:37  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-04-15 17:48  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: Be less dependant on distribution name
+
+2005-04-04 17:31  Pixel <pixel at mandriva.com>
+
+	* Packdrakeng.pm, rpmtools.spec: packdrake: remove dirty message
+	  when decompressing without Compress::Zlib
+
+2005-03-29 17:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 5.0.19-1mdk
+
+2005-03-29 17:37  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Remove redundant code
 

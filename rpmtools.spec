@@ -1,5 +1,5 @@
 %define name rpmtools
-%define release %mkrel 1
+%define release %mkrel 2
 
 # do not modify here, see spec file in the CVS
 %define version 5.0.20
@@ -77,6 +77,9 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Tue May 10 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.20-2mdk
+- Rebuild for rpm 4.4
+
 * Mon Apr  4 2005 Pixel <pixel@mandrakesoft.com> 5.0.20-1mdk
 - packdrake: remove dirty message when decompressing without Compress::Zlib
 
