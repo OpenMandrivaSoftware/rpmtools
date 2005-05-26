@@ -98,7 +98,7 @@ sub write_hdlists {
             $distrib->getvalue($media, 'size') ? '('.$distrib->getvalue($media, 'size'). ')' : "",
         ) or return 0;
     }
-    
+
     if (ref($hdlists) ne 'GLOB') {
         close($h_hdlists);
     }
@@ -136,7 +136,7 @@ sub write_version {
     }
 
     my @gmt = gmtime(time);
-    
+
     printf($h_version "Mandrakelinux %s %s-%s-%s%s %s\n",
         $distrib->getvalue(undef, 'version') || 'cooker',
         $distrib->getvalue(undef, 'branch') || 'cooker',
@@ -171,7 +171,7 @@ sub check {
         $l eq 'E' and $error++;
         printf $out "$l: $f\n", @msg;
     };
-    
+
     $distrib->listmedia or $report_err->('W', "No media found in this config");
 
     # Checking no overlap
@@ -192,17 +192,17 @@ sub check {
             }
         }
     }
-    
+
     foreach my $media ($distrib->listmedia) {
         -d $distrib->getfullpath($media, 'path') or
-            $report_err->('E', "dir %s don't exist for media '%s'", 
+            $report_err->('E', "dir %s does't exist for media '%s'",
                 $distrib->getpath($media, 'path'),
                 $media
             );
 
         foreach (qw/hdlist synthesis pubkey/) {
-            -f $distrib->getfullpath($media, $_) or 
-                $report_err->('E', "$_ %s don't exist for media '%s'", 
+            -f $distrib->getfullpath($media, $_) or
+                $report_err->('E', "$_ %s doesn't exist for media '%s'",
                     $distrib->getpath($media, $_),
                     $media
                 );
@@ -228,11 +228,14 @@ The media.cfg has been improved by Warly <warly@mandrakesoft.com>.
 Special thanks to Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> for
 suggesting to use Config::IniFiles.
 
-Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking. 
+Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
 
 =head1 ChangeLog
 
     $Log$
+    Revision 1.2  2005/05/26 09:32:40  rgarciasuarez
+    Fix error messages
+
     Revision 1.1  2005/02/22 20:12:31  othauvin
     - split Distribconf with Build
     - add write_VERSION
