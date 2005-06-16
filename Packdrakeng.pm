@@ -29,14 +29,17 @@ my  ($toc_header, $toc_footer) =
 sub tempfile {
     my ($count, $fname, $handle) = (0, undef, undef);
     do {
-        ++$count > 10 and return (undef, undef);
+        ++$count > 10 and do {
+	    warn "Can't create temporary file";
+	    return (undef, undef);
+	};
         $fname = sprintf("%s/packdrakeng.%s.%s",
-            $ENV{TMP} || '/tmp',
+            $ENV{TMPDIR} || '/tmp',
             $$,
             # Generating an random name
             join("", map { $_=rand(51); $_ += $_ > 25 && $_ < 32 ? 91 : 65 ; chr($_) } (0 .. 4)));
-    } while ( ! sysopen($handle, $fname, O_WRONLY | O_APPEND | O_CREAT));
-    ($handle, $fname)
+    } while !sysopen($handle, $fname, O_WRONLY | O_APPEND | O_CREAT);
+    return ($handle, $fname);
 }
 
 # File::Path hack to not require it
