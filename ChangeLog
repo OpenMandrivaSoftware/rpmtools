@@ -1,3 +1,16 @@
+2005-06-16 03:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Packdrakeng.pm: Create temp file in $TMPDIR instead of $TMP, and
+	  warn when creation failed
+
+2005-05-26 11:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf/Build.pm: Fix error messages
+
+2005-05-10 11:24  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 5.0.20-2mdk
+
 2005-04-15 17:48  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Be less dependant on distribution name

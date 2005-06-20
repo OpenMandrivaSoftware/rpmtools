@@ -1,8 +1,8 @@
 %define name rpmtools
-%define release %mkrel 2
+%define release %mkrel 1
 
 # do not modify here, see spec file in the CVS
-%define version 5.0.20
+%define version 5.0.21
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -77,6 +77,10 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Mon Jun 20 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.21-1mdk
+- Create tempfiles in $TMPDIR instead of $TMP
+- Nits in error message reporting
+
 * Tue May 10 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.20-2mdk
 - Rebuild for rpm 4.4
 
