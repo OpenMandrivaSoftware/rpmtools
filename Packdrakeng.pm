@@ -30,7 +30,7 @@ sub tempfile {
     my ($count, $fname, $handle) = (0, undef, undef);
     do {
         ++$count > 10 and do {
-	    warn "Can't create temporary file";
+	    warn "Can't create temporary file ($fname)";
 	    return (undef, undef);
 	};
         $fname = sprintf("%s/packdrakeng.%s.%s",
