@@ -20,7 +20,7 @@ use strict;
 use warnings;
 use POSIX qw(O_WRONLY O_TRUNC O_CREAT O_RDONLY O_APPEND);
 
-(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
+(our $VERSION) = q($Id$) =~ /(\d+\.\d+)/;
 
 my  ($toc_header, $toc_footer) =
     ('cz[0',      '0]cz');
