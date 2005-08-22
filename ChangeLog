@@ -1,3 +1,25 @@
+2005-08-22 18:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Packdrakeng.pm: Use destdir = "." if not specified.  Don't use
+	  warnings.
+
+2005-08-19 17:33  Thierry Vignaud <tvignaud at mandriva.com>
+
+	* Packdrakeng.pm: let it pass perl_checker
+
+2005-08-19 17:33  Thierry Vignaud <tvignaud at mandriva.com>
+
+	* .perl_checker: blacklist a few packages in order to be able to
+	  run perl_checker over Packadrake
+
+2005-08-19 17:30  Thierry Vignaud <tvignaud at mandriva.com>
+
+	* Packdrakeng.pm: (tempfile) display which file we failed to create
+
+2005-06-20 12:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 4.0.21
+
 2005-06-16 03:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Create temp file in $TMPDIR instead of $TMP, and
