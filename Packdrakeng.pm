@@ -17,7 +17,6 @@
 package Packdrakeng;
 
 use strict;
-use warnings;
 use POSIX qw(O_WRONLY O_TRUNC O_CREAT O_RDONLY O_APPEND);
 
 (our $VERSION) = q($Id$) =~ /(\d+\.\d+)/;
@@ -581,6 +580,7 @@ sub extract {
     foreach my $f ($pack->sort_files_by_packing(@files)) {
         my $dest = $destdir ? "$destdir/$f" : "$f";
         my ($dir) = $dest =~ m!(.*)/.*!;
+	$dir ||= ".";
         if (exists($pack->{dir}{$f})) {
             -d $dest || mkpath($dest)
             or $pack->{log}("Unable to create dir $dest: $!");
@@ -593,23 +593,23 @@ sub extract {
             or $pack->{log}("Unable to extract symlink $f: $!");
             next;
         } elsif (exists($pack->{files}{$f})) {
-	        -d $dir || mkpath($dir) or do {
-		        $pack->{log}("Unable to create dir $dir");
-	        };
-	        if (-l $dest) {
-		        unlink($dest) or do {
-		            $pack->{log}("Can't remove link $dest: $!");
-		            next; # Don't overwrite a file because where the symlink point to
-		        };
-	        }
-	        sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY) or do {
-    		    $pack->{log}("Unable to extract $dest");
-	        	next;
-	        };
-	        my $written = $pack->extract_virtual($destfh, $f);
-	        $written == -1 and $pack->{log}("Unable to extract file $f");
-	        close($destfh);
-	        next;
+	    -d $dir || mkpath($dir) or do {
+		$pack->{log}("Unable to create dir $dir");
+	    };
+	    if (-l $dest) {
+		unlink($dest) or do {
+		    $pack->{log}("Can't remove link $dest: $!");
+		    next; # Don't overwrite a file because where the symlink point to
+		};
+	    }
+	    sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY) or do {
+		$pack->{log}("Unable to extract $dest");
+		next;
+	    };
+	    my $written = $pack->extract_virtual($destfh, $f);
+	    $written == -1 and $pack->{log}("Unable to extract file $f");
+	    close($destfh);
+	    next;
         } else {
             $pack->{log}("Can't find $f in archive");
         }
