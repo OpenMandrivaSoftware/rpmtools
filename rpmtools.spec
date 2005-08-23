@@ -2,7 +2,7 @@
 %define release %mkrel 1
 
 # do not modify here, see spec file in the CVS
-%define version 5.0.22
+%define version 5.0.23
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -77,6 +77,9 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Tue Aug 23 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.23-1mdk
+- packdrake: fix bug in urpmq --headers (17245)
+
 * Mon Aug 22 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.22-1mdk
 - Minor code fixes and better error messages
 

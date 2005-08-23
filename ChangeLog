@@ -1,3 +1,12 @@
+2005-08-23 14:47  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Packdrakeng.pm: If extracting an archive to an undefined
+	  directory, output to stdout.	(used by urpmq)
+
+2005-08-22 19:59  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 5.0.22
+
 2005-08-22 18:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Use destdir = "." if not specified.  Don't use
