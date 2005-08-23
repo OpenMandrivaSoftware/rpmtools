@@ -45,9 +45,9 @@ sub check_files {
     my %files = @_;
     my $ok = 1;
     foreach my $f (keys %files) {
-        open(my $h, $f);
+        open(my $h, $f) or die "Can't read $f: $!";
         Digest::MD5->new->addfile($h)->hexdigest ne $files{$f} and do {
-            print STDERR "$f differ\n";
+            diag "$f differ";
             $ok = 0;
         };
         close $h;
@@ -73,7 +73,7 @@ sub test_packing {
     
     ok($pack = Packdrakeng->open(%$pack_param), "Re-opening the archive");
     $pack or die;
-    ok($pack->extract(undef, keys(%$listfiles)), "extracting files");
+    ok($pack->extract('.', keys(%$listfiles)), "extracting files");
     ok(check_files(%$listfiles), "Checking md5sum for extracted files");
 
     $pack = undef;
@@ -134,22 +134,22 @@ ok($data eq $coin, "Data is correct");
 
 } 
 
-print "Test: using external cat function:\n";
+diag "Test: using external cat function:";
     clean_test_files();
     test_packing({ archive => "packtest-cat.cz", compress => 'cat', uncompress => 'cat', noargs => 1 }, { create_test_files(30) });
     clean_test_files();
 
-print "Test: using internal gzip function:\n";
+diag "Test: using internal gzip function:";
     clean_test_files();
     test_packing({ archive => "packtest-gzipi.cz" }, { create_test_files(30) });
     clean_test_files();
 
-print "Test: using external gzip function:\n";
+diag "Test: using external gzip function:";
     clean_test_files();
     test_packing({ archive => "packtest-gzip.cz", compress => "gzip", extern => 1}, { create_test_files(30) });
     clean_test_files();
    
-print "Test: using external bzip function:\n";
+diag "Test: using external bzip function:";
     clean_test_files();
     test_packing({ archive => "packtest-bzip2.cz", compress => "bzip2", extern => 1}, { create_test_files(30) });
     clean_test_files();
