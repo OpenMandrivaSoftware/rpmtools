@@ -602,10 +602,15 @@ sub extract {
 		    next; # Don't overwrite a file because where the symlink point to
 		};
 	    }
-	    sysopen(my $destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY) or do {
-		$pack->{log}("Unable to extract $dest");
-		next;
-	    };
+	    my $destfh;
+	    if (defined $destdir) {
+		sysopen($destfh, $dest, O_CREAT | O_TRUNC | O_WRONLY) or do {
+		    $pack->{log}("Unable to extract $dest");
+		    next;
+		};
+	    } else {
+		$destfh = \*STDOUT;
+	    }
 	    my $written = $pack->extract_virtual($destfh, $f);
 	    $written == -1 and $pack->{log}("Unable to extract file $f");
 	    close($destfh);
