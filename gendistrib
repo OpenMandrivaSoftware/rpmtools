@@ -26,6 +26,7 @@ use URPM;
 use URPM::Build;
 use Getopt::Long;
 use Distribconf::Build;
+use Packdrakeng;
 
 my $urpm = new URPM;
 my $tempdir = -d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp";
@@ -40,10 +41,13 @@ Options:
   --compss file       path of compss file (default media/media_info/compss)
   --depslist file     path of depslist file
                       (default media/media_info/depslist.ordered)
+  --mediacfg file     use this media.cfg file
+                      (default media/media_info/media.cfg)
   --hdlists file      path of hdlists file (default media/media_info/hdlists)
   --headersdir dir    put temporary files in this dir (default \$TMPDIR)
   --nobadrpm          don't stop on bad rpms
   --skipmissingdir    if a media dir is missing, ignore instead stoping
+  --noemptymedia      stop if an media is found
   --nochkdep          don't search for missing dependencies
   --noclean           keep cache files
   --provides file     path of provides file (default media/media_info/provides)
@@ -71,6 +75,7 @@ GetOptions(
     'provides=s' => \$urpmfiles{provides},
     'nomediainfo' => \my $nomediainfo,
     'nomd5sum' => \my $nomd5sum,
+    'noemptymedia' => \my $noemptymedia,
 );
 
 my @root = grep { $_ } ($rootdistrib, @ARGV);
@@ -151,7 +156,7 @@ sub clean_cache {
     unless ($noclean) {
 	system($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}, "rm", "-rf", $headers_dir);
 	mkdir $headers_dir
-	    or print STDERR qq(Can't create directory "$headers_dir": $!\n);
+	    or die qq(Can't create directory "$headers_dir": $!\n);
     }
 }
 
@@ -186,7 +191,10 @@ foreach (0..$#hdlists) {
     } else {
 	push @files, glob("$r/$e->{dir}/*.rpm");
     }
-    @files or die "unable to find rpm files in $e->{dir}\n";
+    @files or do { 
+        print STDERR "unable to find rpm files in $e->{dir}\n";
+        next;
+    };
 
     print STDERR "parsing rpm files in directory $r/$e->{dir}\n" unless $nooutput;
     my @headers = $urpm->parse_rpms_build_headers(
@@ -198,6 +206,12 @@ foreach (0..$#hdlists) {
     $e->{headers} = \@headers;
 }
 
+if ($noemptymedia) {
+    foreach my $e (@hdlists) {
+        $e->{headers} or die "Empty media were found, stopping\n";
+    }
+}
+
 #- clean everything to start second pass.
 print STDERR "clean data for second pass\n" unless $nooutput;
 $urpm->unresolved_provides_clean;
@@ -207,6 +221,8 @@ my $temp_hdlist = $tempdir . '/hdlist' . $$;
 foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
 
+    if ($e->{headers}) { # We have rpms in this media
+    
     print STDERR qq(parsing headers for "$e->{descr}"\n) unless $nooutput;
     my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
 					     headers => $e->{headers},
@@ -215,7 +231,7 @@ foreach (0..$#hdlists) {
 
     print STDERR "computing deps\n" unless $nooutput;
     $urpm->compute_deps;
-
+    
     print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
     unlink $temp_hdlist;
     $urpm->build_hdlist(start  => $start,
@@ -230,6 +246,15 @@ foreach (0..$#hdlists) {
 			   end       => $end,
 			   synthesis => $e->{synthesis});
 
+    } else { # no rpm, creating empty but valid index
+        my $pack = Packdrakeng->new(archive =>  $temp_hdlist);
+        $pack = undef; # closing archive
+
+        system('/bin/mv', $temp_hdlist, $e->{hdlist});
+        open(my $hsynth, "| gzip > $e->{synthesis}");
+        close($hsynth);
+    }
+        
     unless ($nomediainfo && $nomd5sum) {
 	for my $d (qw(mediainfo thismediainfo)) {
 	    if (! -d $e->{$d}) {
