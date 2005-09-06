@@ -104,15 +104,22 @@ while (my ($k, $v) = each(%default_urpmfiles)) {
 $distrib->check(\*STDERR) unless $nooutput;
 
 my @hdlists;
+my @media_mising_dirs;
 foreach ($distrib->listmedia) {
     $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
+
+    
     if (! -d ($distrib->getfullpath($_, 'path'))) {
         if ($skipmissingdir) {
-            printf STDERR "Skipping missing media %s\n", $distrib->getpath($_, 'path') unless $nooutput;
-            next;
+            printf(STDERR
+                "Skipping missing media %s\n",
+                $distrib->getpath($_, 'path')
+            ) unless $nooutput;
         } else {
-            die sprintf("Missing dir '%s' for media '%s'", $distrib->getpath($_, 'path'), $distrib->getvalue($_, 'name'));
+            # delaying error report to report all errors, not the only first
+            push(@media_mising_dirs, $_);
         }
+        next;
     }
 
     push @hdlists, {
@@ -126,6 +133,18 @@ foreach ($distrib->listmedia) {
         hdlist2 => $distrib->getfullpath($_, 'path') . "/media_info/hdlist.cz",
         md5sum => $distrib->getfullpath($_, 'path') . "/media_info/MD5SUM",
     };
+}
+
+# if there is result here, $skipmissingdir is not set and there is errors:
+if (@media_mising_dirs) {
+    foreach my $media (@media_mising_dirs) {
+        printf(STDERR  
+            "Missing dir '%s' for media '%s'\n", 
+            $distrib->getpath($media, 'path'), 
+            $distrib->getvalue($media, 'name')
+        );
+    }
+    die "Stopping because dirs are missing, specify --skipmissingdir to ignore\n";
 }
 
 sub clean_cache {
