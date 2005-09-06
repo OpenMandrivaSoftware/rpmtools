@@ -44,6 +44,9 @@ Options:
   --mediacfg file     use this media.cfg file
                       (default media/media_info/media.cfg)
   --hdlists file      path of hdlists file (default media/media_info/hdlists)
+  --destdir dir       create all new files in the dir, all subdirectory should
+                      exists this is usefull for testing, or while using
+                      read-only repository
   --headersdir dir    put temporary files in this dir (default \$TMPDIR)
   --nobadrpm          don't stop on bad rpms
   --skipmissingdir    if a media dir is missing, ignore instead stoping
@@ -76,6 +79,7 @@ GetOptions(
     'nomediainfo' => \my $nomediainfo,
     'nomd5sum' => \my $nomd5sum,
     'noemptymedia' => \my $noemptymedia,
+    'destdir=s' => \my $destdir,
 );
 
 my @root = grep { $_ } ($rootdistrib, @ARGV);
@@ -94,12 +98,18 @@ if (defined($urpmfiles{mediacfg})) {
     $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the dsitrib config";
 }
 
+my $destinfodir = $destdir ? 
+    $destdir . '/' . $distrib->getpath(undef, "infodir") :
+    $distrib->getfullpath(undef, "infodir");
+
 my %default_urpmfiles = (
-    depslist => $distrib->getfullpath(undef, "infodir") . "/depslist.ordered",
-    provides => $distrib->getfullpath(undef, "infodir") . "/provides",
-    compss =>   $distrib->getfullpath(undef, "infodir") . "/compss",
-    version =>  $distrib->getfullpath(undef, "VERSION"),
-    md5sum =>   $distrib->getfullpath(undef, "infodir") . "/MD5SUM",
+    depslist => $destinfodir . "/depslist.ordered",
+    provides => $destinfodir . "/provides",
+    compss =>   $destinfodir . "/compss",
+    version =>  $destdir ?
+        $destdir . $distrib->getpath(undef, "VERSION") : 
+        $distrib->getfullpath(undef, "VERSION"),
+    md5sum =>   $destinfodir . "/MD5SUM",
 );
 
 while (my ($k, $v) = each(%default_urpmfiles)) {
@@ -128,15 +138,29 @@ foreach ($distrib->listmedia) {
     }
 
     push @hdlists, {
-        synthesis => $distrib->getfullpath($_, 'synthesis'),
-        hdlist => $distrib->getfullpath($_, 'hdlist'),
+        synthesis => $destdir ?
+            $destdir . '/' . $distrib->getpath($_, 'synthesis') :
+            $distrib->getfullpath($_, 'synthesis'),
+        hdlist => $destdir ?
+            $destdir . '/' .$distrib->getpath($_, 'hdlist') :
+            $distrib->getfullpath($_, 'hdlist'),
         dir => $distrib->getpath($_, 'path'),
         descr => $distrib->getvalue($_, 'name'),
-        mediainfo => $distrib->getfullpath(undef, 'infodir'),
-        thismediainfo => $distrib->getfullpath($_, 'path') . "/media_info",
-        synthesis2 => $distrib->getfullpath($_, 'path') . "/media_info/synthesis.hdlist.cz",
-        hdlist2 => $distrib->getfullpath($_, 'path') . "/media_info/hdlist.cz",
-        md5sum => $distrib->getfullpath($_, 'path') . "/media_info/MD5SUM",
+        mediainfo => $destdir ?
+            $destdir . '/' . $distrib->getpath(undef, 'infodir') :
+            $distrib->getfullpath(undef, 'infodir'),
+        thismediainfo => ($destdir ?
+            $destdir . '/' . $distrib->getpath($_, 'path') :
+            $distrib->getfullpath($_, 'path')) . "/media_info",
+        synthesis2 => ($destdir ?
+            $destdir . '/' . $distrib->getpath($_, 'path') :
+            $distrib->getfullpath($_, 'path')) . "/media_info/synthesis.hdlist.cz",
+        hdlist2 => ($destdir ?
+            $destdir . '/' . $distrib->getpath($_, 'path') :
+            $distrib->getfullpath($_, 'path')) . "/media_info/hdlist.cz",
+        md5sum => ($destdir ?
+            $destdir . '/' . $distrib->getpath($_, 'path') :
+            $distrib->getfullpath($_, 'path')) . "/media_info/MD5SUM",
     };
 }
 
@@ -150,6 +174,22 @@ if (@media_mising_dirs) {
         );
     }
     die "Stopping because dirs are missing, specify --skipmissingdir to ignore\n";
+}
+
+# Creating destination directory, doing it early,
+# don't die after 30 minutes of rpm parsing
+if (!-d $destinfodir) {
+    mkdir $destinfodir, 0755
+        or die qq(Can't create directory "$destinfodir": $!\n);
+}
+
+foreach my $e (@hdlists) {
+	for my $d (qw(mediainfo thismediainfo)) {
+	    if (! -d $e->{$d}) {
+		mkdir $e->{$d}, 0755
+		    or die qq(Can't create directory "$e->{$d}": $!\n);
+	    }
+	}
 }
 
 sub clean_cache {
@@ -253,15 +293,6 @@ foreach (0..$#hdlists) {
         system('/bin/mv', $temp_hdlist, $e->{hdlist});
         open(my $hsynth, "| gzip > $e->{synthesis}");
         close($hsynth);
-    }
-        
-    unless ($nomediainfo && $nomd5sum) {
-	for my $d (qw(mediainfo thismediainfo)) {
-	    if (! -d $e->{$d}) {
-		mkdir $e->{$d}, 0755
-		    or print STDERR qq(Can't create directory "$e->{$d}": $!\n);
-	    }
-	}
     }
 
     unless ($nomediainfo) {
