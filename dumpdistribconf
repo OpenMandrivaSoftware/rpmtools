@@ -9,7 +9,7 @@ use Distribconf;
 sub usage {
     print STDERR <<EOF
 $0 -h|-m [options] path1 [path2 ...]
-Dump mandrakelinux distrib configuration.
+Dump Mandriva Linux distrib configuration.
 
 -h      output an hdlists file
 -m      output an media.cfg file

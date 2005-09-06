@@ -1,4 +1,4 @@
-##- Nanar <nanardon@mandrake.org>
+##- Nanar <nanardon@mandriva.org>
 ##-
 ##- This program is free software; you can redistribute it and/or modify
 ##- it under the terms of the GNU General Public License as published by
@@ -888,7 +888,7 @@ Print to $handle (STDOUT if not specified) the table of content of the archive.
 
 =head1 AUTHOR
 
-Olivier Thauvin <nanardon@mandrake.org>
+Olivier Thauvin <nanardon@mandriva.org>
 
 =head1 LICENSE
 

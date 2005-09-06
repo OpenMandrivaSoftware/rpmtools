@@ -1,4 +1,4 @@
-##- Nanar <nanardon@mandrake.org>
+##- Nanar <nanardon@mandriva.org>
 ##-
 ##- This program is free software; you can redistribute it and/or modify
 ##- it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ package Distribconf;
 
 =head1 NAME
 
-Distribconf - perl module to get config from a mandrakelinux distribution tree
+Distribconf - perl module to get config from a Mandriva Linux distribution tree
 
 =head1 SYNOPSIS
 
@@ -37,7 +37,7 @@ Distribconf - perl module to get config from a mandrakelinux distribution tree
 =head1 DESCRIPTION
 
 Distribconf is a little module to get/write the configuration of a
-mandrakelinux distribution tree.
+Mandriva Linux distribution tree.
 
 The goal is to manage both configuration of old-style trees
 (C<Mandrake/base/> ie 10.0 and older) and of new-style ones
@@ -297,7 +297,7 @@ sub parse_version {
     open(my $h_ver, "<", $fversion) or return 0;
     my $l = <$h_ver>;
     chomp($l);
-    my ($version, $branch, $product, $arch) = $l =~ /^mandrake ?linux\s+(\w+)\s+([^- ]*)-([^- ]*)-([^- ]*)/i;
+    my ($version, $branch, $product, $arch) = $l =~ /^(?:mandrake|mandriva) ?linux\s+(\w+)\s+([^- ]*)-([^- ]*)-([^- ]*)/i;
     $distrib->{cfg}->newval('media_info', 'version', $version);
     $distrib->{cfg}->newval('media_info', 'branch', $branch);
     $distrib->{cfg}->newval('media_info', 'product', $product);
@@ -408,18 +408,21 @@ __END__
 
 =head1 AUTHOR
 
-The code has been written by Olivier Thauvin <nanardon@mandrake.org>.
+The code has been written by Olivier Thauvin <nanardon@mandriva.org>.
 
-The media.cfg has been improved by Warly <warly@mandrakesoft.com>.
+The media.cfg has been improved by Warly <warly@mandriva.com>.
 
-Special thanks to Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> for
+Special thanks to Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> for
 suggesting to use Config::IniFiles.
 
-Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
+Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 
 =head1 ChangeLog
 
     $Log$
+    Revision 1.10  2005/09/06 19:46:16  othauvin
+    - s/mandrake/mandriva/
+
     Revision 1.9  2005/03/07 13:45:09  rgarciasuarez
     Doc and POD fixes
 

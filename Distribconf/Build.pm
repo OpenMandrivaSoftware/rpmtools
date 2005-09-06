@@ -1,4 +1,4 @@
-##- Nanar <nanardon@mandrake.org>
+##- Nanar <nanardon@mandriva.org>
 ##-
 ##- This program is free software; you can redistribute it and/or modify
 ##- it under the terms of the GNU General Public License as published by
@@ -137,7 +137,7 @@ sub write_version {
 
     my @gmt = gmtime(time);
 
-    printf($h_version "Mandrakelinux %s %s-%s-%s%s %s\n",
+    printf($h_version "Mandriva Linux %s %s-%s-%s%s %s\n",
         $distrib->getvalue(undef, 'version') || 'cooker',
         $distrib->getvalue(undef, 'branch') || 'cooker',
         $distrib->getvalue(undef, 'arch') || 'noarch',
@@ -221,18 +221,21 @@ L<Distribconf>
 
 =head1 AUTHOR
 
-The code has been written by Olivier Thauvin <nanardon@mandrake.org>.
+The code has been written by Olivier Thauvin <nanardon@mandriva.org>.
 
-The media.cfg has been improved by Warly <warly@mandrakesoft.com>.
+The media.cfg has been improved by Warly <warly@mandriva.com>.
 
-Special thanks to Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com> for
+Special thanks to Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> for
 suggesting to use Config::IniFiles.
 
-Thanks to Sylvie Terjan <erinmargault@mandrake.org> for the spell checking.
+Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 
 =head1 ChangeLog
 
     $Log$
+    Revision 1.3  2005/09/06 19:46:17  othauvin
+    - s/mandrake/mandriva/
+
     Revision 1.2  2005/05/26 09:32:40  rgarciasuarez
     Fix error messages
 

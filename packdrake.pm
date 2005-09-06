@@ -1,4 +1,4 @@
-##- Nanar <nanardon@mandrake.org>
+##- Nanar <nanardon@mandriva.org>
 ##-
 ##- This program is free software; you can redistribute it and/or modify
 ##- it under the terms of the GNU General Public License as published by
@@ -163,7 +163,7 @@ L<Packdrakeng>.
 
 =head1 COPYRIGHT
 
-Copyright (C) 2000-2004 Mandrakesoft <nanardon@mandrake.org>
+Copyright (C) 2000-2004 Mandrakesoft <nanardon@mandriva.org>
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
