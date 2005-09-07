@@ -41,6 +41,7 @@ Options:
   --compss file       path of compss file (default media/media_info/compss)
   --depslist file     path of depslist file
                       (default media/media_info/depslist.ordered)
+  --provides file     path of provides file (default media/media_info/provides)
   --mediacfg file     use this media.cfg file
                       (default media/media_info/media.cfg)
   --hdlists file      path of hdlists file (default media/media_info/hdlists)
@@ -52,8 +53,8 @@ Options:
   --skipmissingdir    if a media dir is missing, ignore instead stoping
   --noemptymedia      stop if an media is found
   --nochkdep          don't search for missing dependencies
+  --blind             allways rebuild index, don't check if build is need
   --noclean           keep cache files
-  --provides file     path of provides file (default media/media_info/provides)
   --nomediainfo       don't create per-media media_info subdirectories
   --nomd5sum          don't generate MD5SUM files
   -s                  silent mode
@@ -80,6 +81,7 @@ GetOptions(
     'nomd5sum' => \my $nomd5sum,
     'noemptymedia' => \my $noemptymedia,
     'destdir=s' => \my $destdir,
+    'blind' => \my $blind,
 );
 
 my @root = grep { $_ } ($rootdistrib, @ARGV);
@@ -245,14 +247,16 @@ foreach (0..$#hdlists) {
     );
     # TODO if @headers is empty ?
     $e->{headers} = \@headers;
-
-    # checking if hdlist rebuild is need
-    print STDERR "Checking if hdlist need to be rebuild for media $e->{descr}\n" unless $nooutput;
-    if(!compare_headers_with_hdlist($e->{hdlist}, @headers)) {
-        $e->{noneedrebuild} = 1;
-        print "No\n" unless $nooutput;
-    } else {
-        print "Yes\n" unless $nooutput;
+    
+    if (!$blind) {
+        # checking if hdlist rebuild is need
+        print STDERR "Checking if hdlist need to be rebuild for media $e->{descr}\n" unless $nooutput;
+        if(!compare_headers_with_hdlist($e->{hdlist}, @headers)) {
+            $e->{noneedrebuild} = 1;
+            print "No\n" unless $nooutput;
+        } else {
+            print "Yes\n" unless $nooutput;
+        }
     }
 }
 
