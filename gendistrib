@@ -171,7 +171,7 @@ if (@media_mising_dirs) {
             "Missing dir '%s' for media '%s'\n", 
             $distrib->getpath($media, 'path'), 
             $distrib->getvalue($media, 'name')
-        );
+        ) unless $nooutput;
     }
     die "Stopping because dirs are missing, specify --skipmissingdir to ignore\n";
 }
@@ -232,7 +232,7 @@ foreach (0..$#hdlists) {
 	push @files, glob("$r/$e->{dir}/*.rpm");
     }
     @files or do { 
-        print STDERR "unable to find rpm files in $e->{dir}\n";
+        print STDERR "unable to find rpm files in $e->{dir}\n" unless $nooutput;
         next;
     };
 
@@ -243,7 +243,45 @@ foreach (0..$#hdlists) {
 	dontdie => $dontdie,
 	silent => $nooutput,
     );
+    # TODO if @headers is empty ?
     $e->{headers} = \@headers;
+
+    # checking if hdlist rebuild is need
+    print STDERR "Checking if hdlist need to be rebuild for media $e->{descr}\n" unless $nooutput;
+    if(!compare_headers_with_hdlist($e->{hdlist}, @headers)) {
+        $e->{noneedrebuild} = 1;
+        print "No\n" unless $nooutput;
+    } else {
+        print "Yes\n" unless $nooutput;
+    }
+}
+
+# return 1 if differ, 0 otherwise
+sub compare_headers_with_hdlist {
+    my ($hdlist, @headers) = @_;
+    if (my $pack = Packdrakeng->open(archive => $hdlist)) {
+        my %exists_headers;
+        $exists_headers{$_} = 0 foreach(@headers);
+        my (undef, $files, undef) = $pack->getcontent();
+        foreach my $file (@{$files || []}) {
+            if (exists($exists_headers{$file})) {
+                # TODO checking somethings else that name
+                delete($exists_headers{$file});
+            } else {
+                # one file is in hdlist, not in our headers => differ
+                return 1;
+            }
+        }
+        # if the same files are in hdlist, and headers list,
+        # nothing left
+        if (keys %exists_headers) {
+            return 1;
+        }
+    } else {
+        # no valid hdlist, it differ for sure !
+        return 1;
+    }
+    return 0; # no diff
 }
 
 if ($noemptymedia) {
@@ -271,6 +309,11 @@ foreach (0..$#hdlists) {
 
     print STDERR "computing deps\n" unless $nooutput;
     $urpm->compute_deps;
+
+    if (!grep { ! $_->{noneedrebuild} } @hdlists) {
+        # No media change, nothing to write
+        next;
+    }
     
     print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
     unlink $temp_hdlist;
@@ -305,7 +348,7 @@ foreach (0..$#hdlists) {
     }
 
     unless ($nomd5sum) {
-	print STDERR qq(generate media-specific MD5SUM in $e->{thismediainfo}\n);
+	print STDERR qq(generate media-specific MD5SUM in $e->{thismediainfo}\n) unless $nooutput;
 	my $here = getcwd();
 	chdir $e->{thismediainfo};
 	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
@@ -321,6 +364,8 @@ foreach (0..$#hdlists) {
 
 clean_cache();
 
+if (grep { ! $_->{noneedrebuild} } @hdlists) {
+    
 print STDERR "building base files\n" unless $nooutput;
 $urpm->build_base_files(
     depslist => $urpmfiles{depslist},
@@ -328,11 +373,14 @@ $urpm->build_base_files(
     compss   => $urpmfiles{compss},
 );
 
-my $infodir = $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir');
-if (-f $infodir . '/media.cfg') {
-    if (! -f $infodir . '/hdlists' || ((stat($infodir . '/media.cfg'))[9] > (stat($infodir . '/hdlists'))[9])) {
+#my $infodir = $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir');
+if (-f $destinfodir . '/media.cfg') {
+    if (! -f $destinfodir . '/hdlists' ||
+        ((stat($distrib->getfullpath(undef, 'infodir') . '/media.cfg'))[9] >
+        (stat($destinfodir . '/hdlists'))[9])) {
 	print STDERR "Write hdlists file\n" unless $nooutput;
-	$distrib->write_hdlists;
+	$distrib->write_hdlists($destinfodir . '/hdlists')
+        or print STDERR "Can't write $destinfodir/hdlists file\n";
     }
 }
 
@@ -340,7 +388,7 @@ if (-f $infodir . '/media.cfg') {
 unlink $urpmfiles{md5sum};
 unless ($nomd5sum) {
     my $here = getcwd();
-    chdir $distrib->getpath(undef, 'root') . "/" . $distrib->getpath(undef, 'infodir');
+    chdir $destinfodir;
     my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
     if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {
 	print $md5sumfh $md5sum;
@@ -353,6 +401,7 @@ unless ($nomd5sum) {
 
 print STDERR "Building version file\n" unless $nooutput;
 $distrib->write_version($urpmfiles{version});
+}
 
 #- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
 if ($nooutput || !$nochkdep) {
