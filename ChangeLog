@@ -1,4 +1,45 @@
-2005-08-23 14:47  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-14 03:02  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - skip hdlist rebuild per media when not need
+
+2005-09-07 11:33  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - add --blind option / rebuild even it is not need
+
+2005-09-07 08:41  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - do not rebuild hdlist if not need
+
+2005-09-07 01:48  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: add --destdir option
+
+2005-09-06 21:46  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* Distribconf.pm, Packdrakeng.pm, dumpdistribconf, packdrake.pm,
+	  Distribconf/Build.pm: - s/mandrake/mandriva/
+
+2005-09-06 18:58  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - make empty media non fatal, use --noemptymedia to
+	  back old behaviour - add --mediacfg in --help - die if header dir
+	  can't be recreate
+
+2005-09-06 17:56  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+
+	* gendistrib: - show all missing directory before dying when
+	  --skipmissingdir is not specified
+
+2005-08-23 14:57  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* t/01packdrakeng.t: Test fix to go along with the previous change.
+	  Be more TAP compliant.  Die early of errors.
+
+2005-08-23 14:50  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+
+	* rpmtools.spec: 5.0.23-1mdk
+
+2005-08-23 14:47  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
 
 	* Packdrakeng.pm: If extracting an archive to an undefined
 	  directory, output to stdout.	(used by urpmq)
