@@ -314,7 +314,7 @@ foreach (0..$#hdlists) {
     print STDERR "computing deps\n" unless $nooutput;
     $urpm->compute_deps;
 
-    if (!grep { ! $_->{noneedrebuild} } @hdlists) {
+    if ($e->{noneedrebuild}) {
         # No media change, nothing to write
         next;
     }
