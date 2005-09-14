@@ -47,6 +47,8 @@ is fully compatible with old packdrake.
 %build
 %{__perl} Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%optflags"
+
+%check
 %make test
 
 %install
