@@ -1,39 +1,39 @@
 %define name rpmtools
-%define release %mkrel 1
-
 # do not modify here, see spec file in the CVS
 %define version 5.0.24
+%define release %mkrel 1
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
 
-Summary: Contains various rpm command-line tools
-Name: %{name}
-Version: %{version}
-Release: %{release}
-Source0: %{name}-%{version}.tar.bz2
-License: GPL
-Group: %{group}
-URL: http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
-BuildRoot: %{_tmppath}/%{name}-buildroot
-BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
-BuildRequires: perl-devel
-BuildRequires: perl-Compress-Zlib
-Requires: rpm >= %{rpm_version}
-Requires: bzip2 >= 1.0
-Requires: perl-URPM >= 0.94
-Requires: perl
-Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
-Conflicts: packdrake < 5.0.10
+Summary:	Various RPM command-line tools
+Name:		%{name}
+Version:	%{version}
+Release:	%{release}
+Source0:	%{name}-%{version}.tar.bz2
+License:	GPL
+Group:		%{group}
+URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
+BuildRoot:	%{_tmppath}/%{name}-buildroot
+BuildRequires:	rpm-devel >= 4.0.3 bzip2-devel
+BuildRequires:	perl-devel
+BuildRequires:	perl-Compress-Zlib
+Requires:	rpm >= %{rpm_version}
+Requires:	bzip2 >= 1.0
+Requires:	perl-URPM >= 0.94
+Requires:	perl
+Conflicts:	rpmtools-compat <= 2.0
+Conflicts:	rpmtools-devel <= 2.0
+Conflicts:	packdrake < 5.0.10
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
 
 %package -n packdrake
-Group: %{group}
-Summary: A simple Archive Extractor/Builder
-Conflicts: rpmtools <= 5.0.0
-Provides: perl(packdrake)
+Group:		%{group}
+Summary:	A simple Archive Extractor/Builder
+Conflicts:	rpmtools <= 5.0.0
+Provides:	perl(packdrake)
 # perl-Compress-Zlib is only "suggested"
 %define _requires_exceptions perl(Compress::Zlib)
 
@@ -778,8 +778,4 @@ output only the package dependencies for some hdlist's/packages (use of "--")
 (why is this needed?)
 
 * Mon Nov 15 1999 Pixel <pixel@mandrakesoft.com>
-
 - first version
-
-
-# end of file
