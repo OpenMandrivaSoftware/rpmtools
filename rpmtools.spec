@@ -19,7 +19,10 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 BuildRequires: rpm-devel >= 4.0.3 bzip2-devel
 BuildRequires: perl-devel
 BuildRequires: perl-Compress-Zlib
-Requires: rpm >= %{rpm_version} bzip2 >= 1.0 perl-URPM >= 0.94
+Requires: rpm >= %{rpm_version}
+Requires: bzip2 >= 1.0
+Requires: perl-URPM >= 0.94
+Requires: perl
 Conflicts: rpmtools-compat <= 2.0 rpmtools-devel <= 2.0
 Conflicts: packdrake < 5.0.10
 

@@ -25,38 +25,14 @@ use URPM::Build;
 use Getopt::Long;
 use Distribconf::Build;
 use Packdrakeng;
+use Pod::Usage;
 
 my $urpm = new URPM;
 my $tempdir = -d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp";
 my $headers_dir = $tempdir . "/.build_hdlist";
 
 sub usage () {
-	print STDERR <<EOF;
-Usage: $0 [options] dir
-dir should be the top level of distro
-Options:
-  --help              print this message and exit
-  --compss file       path of compss file (default media/media_info/compss)
-  --depslist file     path of depslist file
-                      (default media/media_info/depslist.ordered)
-  --provides file     path of provides file (default media/media_info/provides)
-  --mediacfg file     use this media.cfg file
-                      (default media/media_info/media.cfg)
-  --hdlists file      path of hdlists file (default media/media_info/hdlists)
-  --destdir dir       create all new files in the dir, all subdirectory should
-                      exists this is usefull for testing, or while using
-                      read-only repository
-  --headersdir dir    put temporary files in this dir (default \$TMPDIR)
-  --nobadrpm          don't stop on bad rpms
-  --skipmissingdir    if a media dir is missing, ignore instead stoping
-  --noemptymedia      stop if an media is found
-  --nochkdep          don't search for missing dependencies
-  --blind             allways rebuild index, don't check if build is need
-  --noclean           keep cache files
-  --nomediainfo       don't create per-media media_info subdirectories
-  --nomd5sum          don't generate MD5SUM files
-  -s                  silent mode
-EOF
+    pod2usage({ -verbose => 1 });
 }
 
 my %urpmfiles;
@@ -449,31 +425,33 @@ gendistrib - generates a mirror tree for a distribution
 
 =over 4
 
-=item --compss I<file>
+=item --compss file
 
-Path of compss file (defaults to F<media/media_info/compss>).
+Path of F<compss> file (defaults to F<media/media_info/compss>).
 
-=item --depslist I<file>
+=item --depslist file
 
-Path of depslist file (defaults to F<media/media_info/depslist.ordered>).
+Path of F<depslist> file (defaults to F<media/media_info/depslist.ordered>).
 
-=item --provides I<file>     Path of provides file (defaults to F<media/media_info/provides>)
+=item --provides file
 
-=item --mediacfg I<file>
+Path of F<provides> file (defaults to F<media/media_info/provides>)
+
+=item --mediacfg file
 
 Use the specified F<media.cfg> file (defaults to F<media/media_info/media.cfg>).
 
-=item --hdlists I<file>
+=item --hdlists file
 
 Path of the F<hdlists> file (defaults to F<media/media_info/hdlists>)
 
-=item --destdir I<dir>
+=item --destdir dir
 
 Create all new files in the specified directory. All subdirectories should
 exist. This option is mostly useful for testing, or while using a read-only
 repository.
 
-=item --headersdir I<dir>
+=item --headersdir dir
 
 Put temporary files in this directory (defaults to TMPDIR).
 
