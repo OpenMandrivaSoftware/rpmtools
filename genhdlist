@@ -130,13 +130,13 @@ genhdlist - generates an hdlist file
 
 =over 4
 
-=item --headersdir dir
-
-Put temporary files in directory.
-
 =item --dest dir
 
 Build index from this directory.
+
+=item --headersdir dir
+
+Put temporary files in directory.
 
 =item --nobadrpm
 
@@ -146,13 +146,13 @@ Do not abort on bad rpms.
 
 Keep cache files.
 
-=item --suffix SUFFIX
-
-Put a suffix on hdlist names.
-
 =item -s
 
 Silent mode.
+
+=item --suffix SUFFIX
+
+Put a suffix on hdlist names.
 
 =back
 

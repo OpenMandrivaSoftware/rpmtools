@@ -440,14 +440,6 @@ Create all new files in the specified directory. All subdirectories should
 exist. This option is mostly useful for testing, or while using a read-only
 repository.
 
-=item --provides file
-
-Path of F<provides> file (defaults to F<media/media_info/provides>)
-
-=item --mediacfg file
-
-Use the specified F<media.cfg> file (defaults to F<media/media_info/media.cfg>).
-
 =item --hdlists file
 
 Path of the F<hdlists> file (defaults to F<media/media_info/hdlists>)
@@ -456,17 +448,13 @@ Path of the F<hdlists> file (defaults to F<media/media_info/hdlists>)
 
 Put temporary files in this directory (defaults to TMPDIR).
 
+=item --mediacfg file
+
+Use the specified F<media.cfg> file (defaults to F<media/media_info/media.cfg>).
+
 =item --nobadrpm
 
 Don't abort when encountering bad rpms.
-
-=item --skipmissingdir
-
-If a media dir is missing, ignore instead of aborting.
-
-=item --noemptymedia
-
-Stop and abort if an empty media is found.
 
 =item --nochkdep
 
@@ -476,13 +464,25 @@ Don't search for missing dependencies.
 
 Keep cache files.
 
-=item --nomediainfo
+=item --noemptymedia
 
-Don't create per-media F<media_info> subdirectories.
+Stop and abort if an empty media is found.
 
 =item --nomd5sum
 
 Don't generate MD5SUM files.
+
+=item --nomediainfo
+
+Don't create per-media F<media_info> subdirectories.
+
+=item --provides file
+
+Path of F<provides> file (defaults to F<media/media_info/provides>)
+
+=item --skipmissingdir
+
+If a media dir is missing, ignore it instead of aborting.
 
 =item -s
 
