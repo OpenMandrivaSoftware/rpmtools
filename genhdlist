@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 
-#
-# $Id$
-#
+(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
 #- Copyright (C) 1999-2005 Mandrakesoft
 #-
@@ -23,7 +21,7 @@
 use strict;
 use URPM;
 use URPM::Build;
-use File::Find;
+use File::Find ();
 use File::Path;
 use Getopt::Long;
 
@@ -45,13 +43,13 @@ EOF
 }
 
 GetOptions(
-	'help|h' => sub { usage(); exit },
-	'noclean' => \$noclean,
-	'headersdir=s' => \$tmpdir,
-	'fermetagueule|s' => \$nooutput,
-	'dest=s' => \$dest,
-	'nobadrpm' => \$dontdie,
-	'suffix=s' => \$suffix,
+    'dest=s' => \$dest,
+    'headersdir=s' => \$tmpdir,
+    'help|h' => sub { usage(); exit },
+    nobadrpm => \$dontdie,
+    noclean => \$noclean,
+    s => \$nooutput,
+    'suffix=s' => \$suffix,
 );
 
 my $urpm = new URPM;
@@ -59,27 +57,31 @@ my $index = "hdlist$suffix.cz";
 my $synthesis = "synthesis.$index";
 my @dir = @ARGV ? @ARGV : ("."); 
 
-grep { m!^/! } @dir and die "Directory path to parse should be relative";
+grep { m!^/! } @dir and die "Directories to parse should be relative\n";
 
-$dest and do { chdir $dest or die "can't chdir in directory $dest" };
+$dest and do { chdir $dest or die "Can't chdir in directory $dest\n" };
 rmtree($tmpdir) unless $noclean;
 mkpath($tmpdir);
 
 my @rpms;
 my %rpmslist;
-sub wanted {
-    if (-f $_ && /^.*\.rpm$/) {
-	push(@rpms, $File::Find::name);
-    }
-}
 
 # get rpm list
-open my $list, ">", "list$suffix" or die "can't create list file: $!";
+open my $list, ">", "list$suffix" or die "Can't create list file: $!\n";
 foreach my $dir (@dir) {
     print "parsing $dir\n" unless $nooutput;
     @rpms = ();
     %rpmslist = ();
-    File::Find::find({ wanted => \&wanted, follow => 1 }, $dir);
+    File::Find::find(
+	{
+	    wanted => sub {
+		if (-f $_ && /^.*\.rpm$/) {
+		    push(@rpms, $File::Find::name);
+		}
+	    },
+	    follow => 1,
+	}, $dir,
+    );
     $urpm->parse_rpms_build_headers(
 	dir  => $tmpdir,
 	rpms => \@rpms,
@@ -88,7 +90,7 @@ foreach my $dir (@dir) {
 	callback => sub {
 	    my ($urpm, $id, %options) = @_;
 
-	    # This code need a fix in perl-URPM
+	    # This code needs a fix in perl-URPM
 	    # print $list "$options{file}\n";
 	    $rpmslist{scalar($urpm->{depslist}[$id]->fullname) . ".rpm"} = 1;
 	    $urpm->{depslist}[$id]->pack_header;
@@ -96,7 +98,7 @@ foreach my $dir (@dir) {
     );
     # This code will become useless... see above
     foreach my $rpm (@rpms) { 
-	$rpmslist{($rpm =~ m!.*/(.*)$!)[0]} or next;
+	$rpmslist{($rpm =~ m!.*/(.*)\z!)[0]} or next;
 	print $list "$rpm\n";
     }
 }
@@ -104,16 +106,22 @@ close($list);
 
 # create index file
 # No rpms, exit !
-@{$urpm->{depslist}} > 0 or die "nothing read";
+@{$urpm->{depslist}} > 0 or die "Nothing read\n";
 
-$urpm->build_hdlist(start  => 0,
-		    end    => $#{$urpm->{depslist}},
-		    dir    => $tmpdir,
-		    hdlist => $index,
-		    ratio  => 9);
+$urpm->build_hdlist(
+    start  => 0,
+    end    => $#{$urpm->{depslist}},
+    dir    => $tmpdir,
+    hdlist => $index,
+    ratio  => 9,
+);
 rmtree($tmpdir) unless $noclean;
 
 # create synthesis file
-$urpm->build_synthesis(start     => 0,
-		       end       => $#{$urpm->{depslist}},
-		       synthesis => $synthesis);
+$urpm->build_synthesis(
+    start     => 0,
+    end       => $#{$urpm->{depslist}},
+    synthesis => $synthesis,
+);
+
+__END__
