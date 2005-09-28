@@ -24,32 +24,24 @@ use URPM::Build;
 use File::Find ();
 use File::Path;
 use Getopt::Long;
+use Pod::Usage;
 
 my ($noclean, $nooutput, $dontdie, $suffix, $dest) = (0, 0, 0, "", "");
 my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
-sub usage {
-	print <<EOF;
-Usage: $0 [options] [dir...]
-Options:
-  --help              print this message and exit
-  --headersdir dir    put temporary files in dir
-  --dest              build index from this dir
-  -s                  silent mode
-  --nobadrpm          do not stop on bad rpm
-  --noclean           keep cache files
-  --suffix SUFFIX     put a suffix on hdlist names
-EOF
+sub usage () {
+    pod2usage({ -verbose => 1 });
 }
 
 GetOptions(
     'dest=s' => \$dest,
     'headersdir=s' => \$tmpdir,
-    'help|h' => sub { usage(); exit },
+    'help|h' => sub { usage(); exit 0 },
     nobadrpm => \$dontdie,
     noclean => \$noclean,
     s => \$nooutput,
     'suffix=s' => \$suffix,
+    'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
 );
 
 my $urpm = new URPM;
@@ -125,3 +117,58 @@ $urpm->build_synthesis(
 );
 
 __END__
+
+=head1 NAME
+
+genhdlist - generates an hdlist file
+
+=head1 SYNOPSIS
+
+    gendistrib [options] dir [dir...]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --headersdir dir
+
+Put temporary files in directory.
+
+=item --dest dir
+
+Build index from this directory.
+
+=item --nobadrpm
+
+Do not abort on bad rpms.
+
+=item --noclean
+
+Keep cache files.
+
+=item --suffix SUFFIX
+
+Put a suffix on hdlist names.
+
+=item -s
+
+Silent mode.
+
+=back
+
+=head1 DESCRIPTION
+
+=head1 SEE ALSO
+
+gendistrib(1)
+
+=head1 COPYRIGHT
+
+Copyright (C) 1999-2005 Mandrakesoft
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+=cut
