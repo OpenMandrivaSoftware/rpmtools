@@ -419,8 +419,6 @@ gendistrib - generates a mirror tree for a distribution
 
     gendistrib [options] directory
 
-=head1 DESCRIPTION
-
 =head1 OPTIONS
 
 =over 4
@@ -493,7 +491,66 @@ Silent mode.
 
 =back
 
+=head1 DESCRIPTION
+
+F<gendistrib> is a tool that helps to generate the structure of a Mandriva
+RPM repository, compatible with Mandriva tools (F<urpmi>, F<rpmdrake>,
+etc.)
+
+=head2 General Structure of a Repository
+
+A typical repository, under a root directory F</ROOT/>, has the following
+structure:
+
+    ROOT/ - media/
+	    |- contrib/
+	    |   `- media_info/
+	    |- main/
+	    |   `- media_info/
+	    `- media_info/
+
+In this example, we have two media, called I<main> and I<contrib>. The
+RPMs packages are placed in the F<main> and F<contrib> subdirectories.
+Repository metadata is contained in the top-level F<media_info> directory.
+Per-media metadata are contained in the F<main/media_info> and
+F<contrib/media_info> subdirectories.
+
+=head2 Configuration of the distribution tree
+
+Before using F<gendistrib>, you must create a file F<media_info/media.cfg>
+to describe your repository. (An empty file will work, but this isn't
+recommended.) The syntax of this file is reminiscent of F<.ini> files.
+
+A first section C<[media_info]> contains global information about the
+repository:
+
+    [media_info]
+    version=2006.0
+    branch=Cooker
+    arch=i586
+
+Then, supply one section per media.
+
+    [main]
+    hdlist=hdlist_main.cz
+    name=Main
+
+Here, the C<hdlist> parameter specifies what will be the name of the
+hdlist file in the top-level F<media_info> directory. C<name> is a human
+readable label for the media.
+
+=head2 Operation
+
+F<genhdlist> should be passed the F<ROOT> directory as parameter. It will
+then generate the hdlist and synthesis files and all other files needed
+for proper repository operation.
+
+F<genhdlist> will also verify any broken dependencies in your repository
+and report them.
+
 =head1 SEE ALSO
+
+genhdlist(1)
 
 =head1 COPYRIGHT
 
