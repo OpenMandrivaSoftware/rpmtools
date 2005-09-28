@@ -1,12 +1,10 @@
 # $Id$
 
-# use 5.008;
 use ExtUtils::MakeMaker;
 use MDK::Common qw(cat_);
 
 (my $rpmtools_version) = cat_('rpmtools.spec') =~ /define\s+version\s+(\d+\.\d+\.\d+)/
     or die "no version found\n";
-
 
 my $tag_version = "v$rpmtools_version";
 $tag_version =~ s/\./_/g;
@@ -16,10 +14,10 @@ sub MY::postamble {
 .PHONY: ChangeLog
 
 \$(FROMCC): %: %.cc
-	\$(CXX) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
+	\$(CXX) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) -o \$@
 
 \$(FROMC): %: %.c
-	\$(CC) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) \$(DEFRPM) -o \$@
+	\$(CC) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) -o \$@
 
 buildc: \$(FROMC) \$(FROMCC)
 
@@ -37,9 +35,7 @@ rpm: dist
 tag:
 	cvs tag $tag_version
 
-
 MAKEMAKEFILE
-
 }
 
 WriteMakefile(
@@ -51,7 +47,6 @@ WriteMakefile(
         FROMCC => '#gendepslist2 hdlist2names hdlist2files hdlist2prereq hdlist2groups',
         LIBRPM => '-lrpm -lrpmio -lrpmdb -lrpmbuild -lz -lbz2 -lpopt',
         INCRPM => '-I/usr/include/rpm',
-        DEFRPM => '-DRPM_42',
     },
     depend => {
         clean_subdirs => 'cleanc',
