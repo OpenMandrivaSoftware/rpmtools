@@ -1,8 +1,6 @@
 #!/usr/bin/perl
 
-#
-# $Id$
-#
+(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
 #- Copyright (C) 1999-2005 Mandrakesoft
 #-
@@ -64,24 +62,25 @@ EOF
 my %urpmfiles;
 
 GetOptions(
-    'help|h' => sub { usage(); exit },
+    'blind' => \my $blind,
     'compss=s' => \$urpmfiles{compss},
     'depslist=s' => \$urpmfiles{depslist},
+    'destdir=s' => \my $destdir,
     'distrib=s' => \my $rootdistrib,
-    'fermetagueule|s' => \my $nooutput,
     'hdlists=s' => \$urpmfiles{hdlists},
-    'mediacfg=s' => \$urpmfiles{mediacfg},
     'headersdir=s' => \$headers_dir,
+    'help|h' => sub { usage(); exit 0; },
+    'mediacfg=s' => \$urpmfiles{mediacfg},
     'nobadrpm' => \my $dontdie,
-    'skipmissingdir' => \my $skipmissingdir,
     'nochkdep' => \my $nochkdep,
     'noclean' => \my $noclean,
-    'provides=s' => \$urpmfiles{provides},
-    'nomediainfo' => \my $nomediainfo,
-    'nomd5sum' => \my $nomd5sum,
     'noemptymedia' => \my $noemptymedia,
-    'destdir=s' => \my $destdir,
-    'blind' => \my $blind,
+    'nomd5sum' => \my $nomd5sum,
+    'nomediainfo' => \my $nomediainfo,
+    'provides=s' => \$urpmfiles{provides},
+    'skipmissingdir' => \my $skipmissingdir,
+    's' => \my $nooutput,
+    'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
 );
 
 my @root = grep { $_ } ($rootdistrib, @ARGV);
