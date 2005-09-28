@@ -27,7 +27,7 @@ Distribconf - perl module to get config from a Mandriva Linux distribution tree
     use Distribconf;
 
     my $d = Distribconf->new("/path/to/the/distribution/root");
-    $d->load() and die "The dir does not seems to be a distribution tree";
+    $d->load() or die "This does not seem to be a distribution tree\n";
 
     print $d->getpath(undef, "root") ."\n";
     foreach ($d->listmedia) {
@@ -51,7 +51,7 @@ an F<hdlists> file based on this C<media.cfg>.
 
 =head1 media.cfg
 
-The media.cfg is like an ini file. All parameters are optional, this means that
+The media.cfg is like a .ini file. All parameters are optional; this means that
 a readable empty file is ok, if this is what you want :)
 
 The media.cfg contains sections, each section corresponding to a media, except
@@ -420,6 +420,9 @@ Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.11  2005/09/28 08:50:14  rgarciasuarez
+    Documentation nits. Fix some fatal error messages.
+
     Revision 1.10  2005/09/06 19:46:16  othauvin
     - s/mandrake/mandriva/
 

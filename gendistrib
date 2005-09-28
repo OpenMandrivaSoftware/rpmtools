@@ -90,14 +90,14 @@ my @root = grep { $_ } ($rootdistrib, @ARGV);
 
 my $distrib = Distribconf::Build->new($root[0]);
 
-$distrib->loadtree or die "$root[0] does not seems to be a distrib tree";
+$distrib->loadtree or die "$root[0] does not seem to be a distribution tree\n";
 
 if (defined($urpmfiles{mediacfg})) {
-    $distrib->parse_mediacfg($urpmfiles{mediacfg}) or die "Can't read $urpmfiles{mediacfg}";
+    $distrib->parse_mediacfg($urpmfiles{mediacfg}) or die "Can't read $urpmfiles{mediacfg}\n";
 } elsif (defined($urpmfiles{hdlists})) {
-    $distrib->parse_hdlists($urpmfiles{hdlists}) or die "Can't read $urpmfiles{hdlists}";
+    $distrib->parse_hdlists($urpmfiles{hdlists}) or die "Can't read $urpmfiles{hdlists}\n";
 } else {
-    $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the dsitrib config";
+    $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the dsitrib config\n";
 }
 
 my $destinfodir = $destdir ? 
@@ -369,42 +369,41 @@ foreach (0..$#hdlists) {
 clean_cache();
 
 if (grep { ! $_->{noneedrebuild} } @hdlists) {
-    
-print STDERR "building base files\n" unless $nooutput;
-$urpm->build_base_files(
-    depslist => $urpmfiles{depslist},
-    provides => $urpmfiles{provides},
-    compss   => $urpmfiles{compss},
-);
 
-#my $infodir = $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(undef, 'infodir');
-if (-f $destinfodir . '/media.cfg') {
-    if (! -f $destinfodir . '/hdlists' ||
-        ((stat($distrib->getfullpath(undef, 'infodir') . '/media.cfg'))[9] >
-        (stat($destinfodir . '/hdlists'))[9])) {
-	print STDERR "Write hdlists file\n" unless $nooutput;
-	$distrib->write_hdlists($destinfodir . '/hdlists')
-        or print STDERR "Can't write $destinfodir/hdlists file\n";
+    print STDERR "building base files\n" unless $nooutput;
+    $urpm->build_base_files(
+	depslist => $urpmfiles{depslist},
+	provides => $urpmfiles{provides},
+	compss   => $urpmfiles{compss},
+    );
+
+    if (-f $destinfodir . '/media.cfg') {
+	if (! -f $destinfodir . '/hdlists' ||
+	    ((stat($distrib->getfullpath(undef, 'infodir') . '/media.cfg'))[9] >
+		(stat($destinfodir . '/hdlists'))[9])) {
+	    print STDERR "Write hdlists file\n" unless $nooutput;
+	    $distrib->write_hdlists($destinfodir . '/hdlists')
+		or print STDERR "Can't write $destinfodir/hdlists file\n";
+	}
     }
-}
 
-#- safety cleaning
-unlink $urpmfiles{md5sum};
-unless ($nomd5sum) {
-    my $here = getcwd();
-    chdir $destinfodir;
-    my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
-    if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {
-	print $md5sumfh $md5sum;
-	close $md5sumfh;
-    } else {
-	print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
+    #- safety cleaning
+    unlink $urpmfiles{md5sum};
+    unless ($nomd5sum) {
+	my $here = getcwd();
+	chdir $destinfodir;
+	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
+	if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {
+	    print $md5sumfh $md5sum;
+	    close $md5sumfh;
+	} else {
+	    print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
+	}
+	chdir $here;
     }
-    chdir $here;
-}
 
-print STDERR "Building version file\n" unless $nooutput;
-$distrib->write_version($urpmfiles{version});
+    print STDERR "Building version file\n" unless $nooutput;
+    $distrib->write_version($urpmfiles{version});
 }
 
 #- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
