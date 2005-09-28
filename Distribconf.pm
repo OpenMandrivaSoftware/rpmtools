@@ -13,10 +13,10 @@
 ##- You should have received a copy of the GNU General Public License
 ##- along with this program; if not, write to the Free Software
 ##- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-#
-# $Id$
 
 package Distribconf;
+
+(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
 =head1 NAME
 
@@ -420,6 +420,9 @@ Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.12  2005/09/28 16:01:10  rgarciasuarez
+    Add  in Distribconf modules
+
     Revision 1.11  2005/09/28 08:50:14  rgarciasuarez
     Documentation nits. Fix some fatal error messages.
 

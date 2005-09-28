@@ -31,9 +31,8 @@ use warnings;
 
 use Distribconf;
 
-use vars qw(@ISA);
-@ISA = qw(Distribconf);
-
+our @ISA = qw(Distribconf);
+our $VERSION = $Distribconf::VERSION;
 
 =head2 new(root_of_distrib)
 
@@ -233,6 +232,9 @@ Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.4  2005/09/28 16:01:10  rgarciasuarez
+    Add  in Distribconf modules
+
     Revision 1.3  2005/09/06 19:46:17  othauvin
     - s/mandrake/mandriva/
 
