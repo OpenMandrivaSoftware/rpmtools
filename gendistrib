@@ -32,7 +32,7 @@ my $urpm = new URPM;
 my $tempdir = -d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp";
 my $headers_dir = $tempdir . "/.build_hdlist";
 
-sub usage {
+sub usage () {
 	print STDERR <<EOF;
 Usage: $0 [options] dir
 dir should be the top level of distro
@@ -433,3 +433,98 @@ if ($nooutput || !$nochkdep) {
         }
     }
 }
+
+__END__
+
+=head1 NAME
+
+gendistrib - generates a mirror tree for a distribution
+
+=head1 SYNOPSIS
+
+    gendistrib [options] directory
+
+=head1 DESCRIPTION
+
+=head1 OPTIONS
+
+=over 4
+
+=item --compss I<file>
+
+Path of compss file (defaults to F<media/media_info/compss>).
+
+=item --depslist I<file>
+
+Path of depslist file (defaults to F<media/media_info/depslist.ordered>).
+
+=item --provides I<file>     Path of provides file (defaults to F<media/media_info/provides>)
+
+=item --mediacfg I<file>
+
+Use the specified F<media.cfg> file (defaults to F<media/media_info/media.cfg>).
+
+=item --hdlists I<file>
+
+Path of the F<hdlists> file (defaults to F<media/media_info/hdlists>)
+
+=item --destdir I<dir>
+
+Create all new files in the specified directory. All subdirectories should
+exist. This option is mostly useful for testing, or while using a read-only
+repository.
+
+=item --headersdir I<dir>
+
+Put temporary files in this directory (defaults to TMPDIR).
+
+=item --nobadrpm
+
+Don't abort when encountering bad rpms.
+
+=item --skipmissingdir
+
+If a media dir is missing, ignore instead of aborting.
+
+=item --noemptymedia
+
+Stop and abort if an empty media is found.
+
+=item --nochkdep
+
+Don't search for missing dependencies.
+
+=item --blind
+
+Always rebuild indexes, without checking whether it's needed.
+
+=item --noclean
+
+Keep cache files.
+
+=item --nomediainfo
+
+Don't create per-media F<media_info> subdirectories.
+
+=item --nomd5sum
+
+Don't generate MD5SUM files.
+
+=item -s
+
+Silent mode.
+
+=back
+
+=head1 SEE ALSO
+
+=head1 COPYRIGHT
+
+Copyright (C) 1999-2005 Mandrakesoft
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+=cut
