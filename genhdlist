@@ -124,7 +124,7 @@ genhdlist - generates an hdlist file
 
 =head1 SYNOPSIS
 
-    gendistrib [options] dir [dir...]
+    genhdlist [options] dir [dir...]
 
 =head1 OPTIONS
 
@@ -157,6 +157,15 @@ Put a suffix on hdlist names.
 =back
 
 =head1 DESCRIPTION
+
+F<genhdlist> is used to generate an hdlist and a synthesis file from a set
+of RPM packages found in the directories passed on the command-line. By
+default it will put the hdlist and synthesis files in the current
+directory.
+
+It will also generate a F<list> file containing the relative paths to all
+RPMs. Consequently, the paths to the directories passed to F<genhdlist> must
+be relative ones.
 
 =head1 SEE ALSO
 
