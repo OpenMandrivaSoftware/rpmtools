@@ -14,15 +14,15 @@
 ##- along with this program; if not, write to the Free Software
 ##- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
-##- $Id$
-
-##- This package provides functions to use Compress::Zlib instead of gzip.
+#- This package provides functions to use Compress::Zlib instead of gzip.
 
 package Packdrakeng::zlib;
 
 use strict;
 use warnings;
 use Compress::Zlib;
+
+(our $VERSION) = q($Id$) =~ /(\d+\.\d+)/;
 
 my $gzip_header = pack("C" . Compress::Zlib::MIN_HDR_SIZE, 
     Compress::Zlib::MAGIC1, Compress::Zlib::MAGIC2, 
@@ -32,7 +32,7 @@ sub gzip_compress {
     my ($pack, $sourcefh) = @_;
     my ($insize, $outsize) = (0, 0); # aka uncompressed / compressed data length
 
-    # If $sourcefh is not set, this mean we want a flush(), for end_block()
+    # If $sourcefh is not set, this means we want a flush(), for end_block()
     # EOF, flush compress stream, adding crc
     if (!defined($sourcefh)) {
         if (defined($pack->{cstream_data}{object})) {
@@ -43,7 +43,7 @@ sub gzip_compress {
         $pack->{cstream_data} = undef;
         return(undef, $outsize);
     }
-    
+
     if (!defined $pack->{cstream_data}{object}) {
         # Writing gzip header file
         $outsize += syswrite($pack->{handle}, $gzip_header);
@@ -53,9 +53,8 @@ sub gzip_compress {
 	    -WindowBits    =>  - MAX_WBITS(),
 	);
     }
-    
+
     binmode $sourcefh;
-    
     while (my $lenght = sysread($sourcefh, my $buf, $pack->{bufsize})) {
         $pack->{cstream_data}{crc} = crc32($buf, $pack->{cstream_data}{crc});
         my ($cbuf, $status) = $pack->{cstream_data}{object}->deflate($buf);
@@ -160,7 +159,7 @@ sub gzip_uncompress {
         }
         $pack->{ustream_data}{read} += $l;
         if ($pack->{ustream_data}{read} <= $fileinfo->{off}) { next }
-       
+
         my $bw;
         if ($byteswritten + length($out) > $fileinfo->{size}) {
             $bw = $fileinfo->{size} - $byteswritten;
