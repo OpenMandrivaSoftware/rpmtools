@@ -215,10 +215,9 @@ sub load {
 
 =head2 $distrib->loadtree()
 
-Try to find a valid media information directory, on success set infodir
-and mediadir.
-
-Return 1 on success, 0 if no media information directory was found.
+Tries to find a valid media information directory, and set infodir and
+mediadir. Returns 1 on success, 0 if no media information directory was
+found.
 
 =cut
 
@@ -237,35 +236,37 @@ sub loadtree {
     return 1;
 }
 
-=head2 parse_hdlists($hdlists)
+=head2 $distrib->parse_hdlists($hdlists)
 
-Read the hdlists file found in the media information directory of the
-distribution, otherwise set the hdlists file given as argument.
-
-Return 1 on success, 0 if hdlists can't be found or is invalid.
+Reads the F<hdlists> file whose path is given by the parameter $hdlist,
+or, if no parameter is specified, the F<hdlists> file found in the media
+information directory of the distribution. Returns 1 on success, 0 if no
+F<hdlists> can be found or parsed.
 
 =cut
 
-# what to return if hdlists is found but invalid
 sub parse_hdlists {
     my ($distrib, $hdlists) = @_;
     $hdlists ||= "$distrib->{root}/$distrib->{infodir}/hdlists";
 
-    open(my $h_hdlists, "<", $hdlists) or return 0;
+    open my $h_hdlists, "<", $hdlists
+	or return 0;
     $distrib->{cfg} = new Config::IniFiles( -default => 'media_info', -allowcontinue => 1);
     my $i = 0;
     foreach (<$h_hdlists>) {
-        s/#.*//;
+        s/#.*//; s/^\s*//;
         chomp;
         length or next;
         my ($options, %media);
-        ($options, @media{qw/hdlist path name size/}) =
-            $_ =~ /^\s*(?:(.*):)?(\S+)\s+(\S+)\s+([^(]*)(?:\s+\((\w+)\))?$/;
-        if ($options) { $media{$_} = 1 foreach(split(':', $options)) }
+        ($options, @media{qw/hdlist path name size/}) = /^\s*(?:(.*):)?(\S+)\s+(\S+)\s+([^(]*)(?:\s+\((\w+)\))?$/;
+        if ($options) {
+	    $media{$_} = 1 foreach split /:/, $options;
+	}
         $media{name} =~ s/\s*$//;
         $media{path} =~ s!^$distrib->{mediadir}/+!!;
-        foreach (qw/hdlist name size/, $options ? split(':', $options) : ()) {
-            $distrib->{cfg}->newval($media{path}, $_, $media{$_}) or die "Can't set value";
+        foreach (qw/hdlist name size/, $options ? split(/:/, $options) : ()) {
+            $distrib->{cfg}->newval($media{path}, $_, $media{$_})
+		or die "Can't set value [$_]\n";
         }
     }
     close($h_hdlists);
@@ -273,31 +274,37 @@ sub parse_hdlists {
     return 1;
 }
 
-=head2 parse_version($version)
+=head2 $distrib->parse_version($fversion)
+
+Reads the F<VERSION> file whose path is given by the parameter $fversion,
+or, if no parameter is specified, the F<VERSION> file found in the media
+information directory of the distribution. Returns 1 on success, 0 if no
+F<VERSION> can be found or parsed.
 
 =cut
 
 sub parse_version {
     my ($distrib, $fversion) = @_;
     $fversion ||= $distrib->getfullpath(undef, 'VERSION');
-    open(my $h_ver, "<", $fversion) or return 0;
+    open my $h_ver, "<", $fversion
+	or return 0;
     my $l = <$h_ver>;
-    chomp($l);
+    close $h_ver;
+    chomp $l;
     my ($version, $branch, $product, $arch) = $l =~ /^(?:mandrake|mandriva) ?linux\s+(\w+)\s+([^- ]*)-([^- ]*)-([^- ]*)/i;
     $distrib->{cfg}->newval('media_info', 'version', $version);
     $distrib->{cfg}->newval('media_info', 'branch', $branch);
     $distrib->{cfg}->newval('media_info', 'product', $product);
     $distrib->{cfg}->newval('media_info', 'arch', $arch);
-    close($h_ver);
     return 1;
 }
 
-=head2 parse_mediacfg($mediacfg)
+=head2 $distrib->parse_mediacfg($mediacfg)
 
-Read the F<media.cfg> file found in the media information directory of the
-distribution, otherwise set the $mediacfg file given as argument.
-
-Return 1 on success, 0 if F<media.cfg> can't be found or is invalid.
+Reads the F<media.cfg> file whose path is given by the parameter
+$mediacfg, or, if no parameter is specified, the F<media.cfg> file found
+in the media information directory of the distribution. Returns 1 on
+success, 0 if no F<media.cfg> can be found or parsed.
 
 =cut
 
@@ -340,28 +347,26 @@ sub getvalue {
 
     my $default = "";
     for ($var) {
-        /^synthesis$/		and do { $default = 'synthesis.' . lc($distrib->getvalue($media, 'hdlist')) };
-        /^hdlist$/		and do { $default = 'hdlist_' . lc($distrib->getvalue($media, 'name')) . '.cz' };
-        /^pubkey$/		and do { $default = 'pubkey_' . lc($distrib->getvalue($media, 'name')) };
-        /^name$/		and do { $default = $media };
+        /^synthesis$/		and $default = 'synthesis.' . lc($distrib->getvalue($media, 'hdlist'));
+        /^hdlist$/		and $default = 'hdlist_' . lc($distrib->getvalue($media, 'name')) . '.cz';
+        /^pubkey$/		and $default = 'pubkey_' . lc($distrib->getvalue($media, 'name'));
+        /^name$/		and $default = $media;
         $default =~ s![/ ]+!_!g;
         /^path$/		and return $media;
         /^root$/		and return $distrib->{root};
         /^VERSION$/		and do { $default = 'VERSION'; last };
         /^product$/		and do { $default = 'Download'; last };
-        /^(tag|branch)$/	and do { $default = ''; last };
-        /^mediadir$|^infodir$/	and do { $default = $distrib->{$var}; last };
+        /^(?:tag|branch)$/	and do { $default = ''; last };
+        /^(?:media|info)dir$/	and do { $default = $distrib->{$var}; last };
     }
     return $distrib->{cfg}->val($media, $var, $default);
 }
 
-=head2 getpath($media, $var)
+=head2 $distrib->getpath($media, $var)
 
-Gives relative path from the root of the distrib.
-
-This function is useful to know where files are actually located. It takes
-care of location of media, location of index files, and path set in the
-configuration.
+Gives relative path of $var from the root of the distrib. This function is
+useful to know where files are actually located. It takes care of location
+of media, location of index files, and paths set in the configuration.
 
 =cut
 
@@ -369,11 +374,11 @@ sub getpath {
     my ($distrib, $media, $var) = @_;
 
     my $val = $distrib->getvalue($media, $var);
-    $var =~ /^(root|VERSION)$/ and return $val;
+    $var =~ /^(?:root|VERSION)$/ and return $val;
     return ($val =~ m!/! ? "" : ($var eq 'path' ? $distrib->{mediadir} : $distrib->{infodir} ) . "/") . $val;
 }
 
-=head2 getfullpath($media, $var)
+=head2 $distrib->getfullpath($media, $var)
 
 Does the same thing than getpath(), but the return value will be
 prefixed by the 'root' path. This is a shortcut for:
@@ -383,19 +388,22 @@ prefixed by the 'root' path. This is a shortcut for:
 =cut
 
 sub getfullpath {
-    my ($distrib, $media, $var) = @_;
-    return $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($media, $var);
+    my $distrib = shift;
+    return $distrib->getpath(undef, 'root') . '/' . $distrib->getpath(@_);
 }
 
 1;
 
 __END__
 
+=head1 SEE ALSO
+
+gendistrib(1)
+
 =head1 AUTHOR
 
 The code has been written by Olivier Thauvin <nanardon@mandriva.org> and is
-maintained by Rafael Garcia-Suarez <rgarciasuarez@mandriva.com>.
-
+currently maintained by Rafael Garcia-Suarez <rgarciasuarez@mandriva.com>.
 Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 
 =cut
