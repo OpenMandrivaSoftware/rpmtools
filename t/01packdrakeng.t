@@ -30,15 +30,14 @@ sub clean_test_files {
 sub create_test_files {
     my ($number) = @_;
     my %created;
-        foreach my $n (1 .. $number||10) {
+    foreach my $n (1 .. $number||10) {
         my $size = int(rand(1024));
-        # push(@created, "test/$size");
         system("dd if=/dev/urandom of=test/$size bs=1024 count=$size >/dev/null 2>&1");
         open(my $h, "test/$size");
         $created{"test/$size"} = Digest::MD5->new->addfile($h)->hexdigest;
         close $h;
     }
-    %created 
+    return %created;
 }
 
 sub check_files {
@@ -55,11 +54,7 @@ sub check_files {
     $ok
 }
 
-###################################
-#                                 #
-# Test series, packing, unpacking #
-#                                 #
-###################################
+# Test series, packing, unpacking
 
 sub test_packing {
     my ($pack_param, $listfiles) = @_;
@@ -68,9 +63,9 @@ sub test_packing {
     $pack or return;
     ok($pack->add(undef, keys %$listfiles), "packing files");
     $pack = undef; # closing the archive.
-    
+
     clean_test_files();
-    
+
     ok($pack = Packdrakeng->open(%$pack_param), "Re-opening the archive");
     $pack or die;
     ok($pack->extract('.', keys(%$listfiles)), "extracting files");
@@ -79,77 +74,70 @@ sub test_packing {
     $pack = undef;
 }
 
-# Testing simple additionnal function:
+# Testing simple additional function
 clean_test_files();
 
 {
-my ($handle, $filename) = Packdrakeng::tempfile();
-ok($handle && $filename, "can create temp file");
-ok(-f $filename, "Temp file exists");
-ok(print($handle $coin), "can write into file");
-close($handle);
-unlink($filename);
+    my ($handle, $filename) = Packdrakeng::tempfile();
+    ok($handle && $filename, "can create temp file");
+    ok(-f $filename, "Temp file exists");
+    ok(print($handle $coin), "can write into file");
+    close($handle);
+    unlink($filename);
 
-ok(Packdrakeng::mkpath('test/parent/child'), "can create dir like mkdir -p");
-ok(-d 'test/parent/child', "the dir really exists");
+    ok(Packdrakeng::mkpath('test/parent/child'), "can create dir like mkdir -p");
+    ok(-d 'test/parent/child', "the dir really exists");
 }
 
 # Single test:
 {
+    clean_test_files();
+
+    ok(my $pack = Packdrakeng->new(archive => "packtest.cz"), "Create a new archive");
+    open(my $fh, "+> test/test") or die "Can't open test file $!";
+    syswrite($fh, $coin);
+    sysseek($fh, 0, 0);
+    ok($pack->add_virtual('f', "coin", $fh), "Adding data from file");
+    close($fh);
+    unlink("test/test");
+
+    ok($pack->add_virtual('d', "dir"), "Adding a dir");
+    ok($pack->add_virtual('l', "symlink", "dest"), "Adding a symlink");
+    $pack = undef;
+
+    ok($pack = Packdrakeng->open(archive => "packtest.cz"), "Opening the archive");
+    my ($type, $info);
+    ($type, $info) = $pack->infofile("noexist");
+    ok(!defined($type), "get info from an non existed file");
+    ($type, $info) = $pack->infofile("dir");
+    ok($type eq 'd', "Get info from a dir");
+    ($type, $info) = $pack->infofile("symlink");
+    ok($type eq 'l' && $info eq 'dest', "Get info from a dir");
+    ($type, $info) = $pack->infofile("coin");
+    ok($type eq 'f' && $info eq length($coin), "Get info from a file");
+    ok($pack->extract("test", "dir"), "Extracting dir");
+    ok(-d "test/dir", "dir successfully restored");
+    ok($pack->extract("test", "symlink"), "Extracting symlink");
+    ok(readlink("test/symlink") eq "dest", "symlink successfully restored");
+
+    open($fh, "+> test/test") or die "Can't open file $!";
+    ok($pack->extract_virtual($fh, "coin"), "Extracting data");
+    sysseek($fh, 0, 0);
+    sysread($fh, my $data, 1000);
+    close($fh);
+    ok($data eq $coin, "Data is correct");
+}
+
 clean_test_files();
 
-ok(my $pack = Packdrakeng->new(archive => "packtest.cz"), "Create a new archive");
-open(my $fh, "+> test/test") or die "Can't open test file $!";
-syswrite($fh, $coin);
-sysseek($fh, 0, 0);
-ok($pack->add_virtual('f', "coin", $fh), "Adding data from file");
-close($fh);
-unlink("test/test");
+test_packing({ archive => "packtest-cat.cz", compress => 'cat', uncompress => 'cat', noargs => 1 }, { create_test_files(30) });
+clean_test_files();
 
-ok($pack->add_virtual('d', "dir"), "Adding a dir");
-ok($pack->add_virtual('l', "symlink", "dest"), "Adding a symlink");
-$pack = undef;
+test_packing({ archive => "packtest-gzipi.cz" }, { create_test_files(30) });
+clean_test_files();
 
-ok($pack = Packdrakeng->open(archive => "packtest.cz"), "Opening the archive");
-my ($type, $info);
-($type, $info) = $pack->infofile("noexist");
-ok(!defined($type), "get info from an non existed file");
-($type, $info) = $pack->infofile("dir");
-ok($type eq 'd', "Get info from a dir");
-($type, $info) = $pack->infofile("symlink");
-ok($type eq 'l' && $info eq 'dest', "Get info from a dir");
-($type, $info) = $pack->infofile("coin");
-ok($type eq 'f' && $info eq length($coin), "Get info from a file");
-ok($pack->extract("test", "dir"), "Extracting dir");
-ok(-d "test/dir", "dir successfully restored");
-ok($pack->extract("test", "symlink"), "Extracting symlink");
-ok(readlink("test/symlink") eq "dest", "symlink successfully restored");
+test_packing({ archive => "packtest-gzip.cz", compress => "gzip", extern => 1}, { create_test_files(30) });
+clean_test_files();
 
-open($fh, "+> test/test") or die "Can't open file $!";
-ok($pack->extract_virtual($fh, "coin"), "Extracting data");
-sysseek($fh, 0, 0);
-sysread($fh, my $data, 1000);
-close($fh);
-ok($data eq $coin, "Data is correct");
-
-} 
-
-diag "Test: using external cat function:";
-    clean_test_files();
-    test_packing({ archive => "packtest-cat.cz", compress => 'cat', uncompress => 'cat', noargs => 1 }, { create_test_files(30) });
-    clean_test_files();
-
-diag "Test: using internal gzip function:";
-    clean_test_files();
-    test_packing({ archive => "packtest-gzipi.cz" }, { create_test_files(30) });
-    clean_test_files();
-
-diag "Test: using external gzip function:";
-    clean_test_files();
-    test_packing({ archive => "packtest-gzip.cz", compress => "gzip", extern => 1}, { create_test_files(30) });
-    clean_test_files();
-   
-diag "Test: using external bzip function:";
-    clean_test_files();
-    test_packing({ archive => "packtest-bzip2.cz", compress => "bzip2", extern => 1}, { create_test_files(30) });
-    clean_test_files();
+test_packing({ archive => "packtest-bzip2.cz", compress => "bzip2", extern => 1}, { create_test_files(30) });
+clean_test_files();
