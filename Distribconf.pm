@@ -1,19 +1,3 @@
-##- Nanar <nanardon@mandriva.org>
-##-
-##- This program is free software; you can redistribute it and/or modify
-##- it under the terms of the GNU General Public License as published by
-##- the Free Software Foundation; either version 2, or (at your option)
-##- any later version.
-##-
-##- This program is distributed in the hope that it will be useful,
-##- but WITHOUT ANY WARRANTY; without even the implied warranty of
-##- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-##- GNU General Public License for more details.
-##-
-##- You should have received a copy of the GNU General Public License
-##- along with this program; if not, write to the Free Software
-##- Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-
 package Distribconf;
 
 (our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
@@ -181,14 +165,12 @@ directory of the tree.
 
 sub new {
     my ($class, $path) = @_;
-
-    my $distrib = {
-        root => $path,
-        medium => {},
-        cfg => new Config::IniFiles( -default => 'media_info', -allowcontinue => 1),
-    };
-
-    bless($distrib, $class);
+    bless {
+	root => $path,
+	infodir => '',
+	mediadir => '',
+	cfg => new Config::IniFiles(-default => 'media_info', -allowcontinue => 1),
+    }, $class;
 }
 
 =head2 $distrib->load()
@@ -203,6 +185,8 @@ Returns 0 on success, 1 if no directory containing media information is found,
 See also L<loadtree>, L<parse_hdlists> and L<parse_mediacfg>.
 
 =cut
+
+# TODO return 0 on error like everyone else does
 
 sub load {
     my ($distrib) = @_;
@@ -291,6 +275,7 @@ sub parse_version {
     my $l = <$h_ver>;
     close $h_ver;
     chomp $l;
+    # XXX heuristics ahead. This breaks regularly.
     my ($version, $branch, $product, $arch) = $l =~ /^(?:mandrake|mandriva) ?linux\s+(\w+)\s+([^- ]*)-([^- ]*)-([^- ]*)/i;
     $distrib->{cfg}->newval('media_info', 'version', $version);
     $distrib->{cfg}->newval('media_info', 'branch', $branch);
@@ -405,5 +390,21 @@ gendistrib(1)
 The code has been written by Olivier Thauvin <nanardon@mandriva.org> and is
 currently maintained by Rafael Garcia-Suarez <rgarciasuarez@mandriva.com>.
 Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
+
+(c) 2005 Olivier Thauvin
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 
 =cut
