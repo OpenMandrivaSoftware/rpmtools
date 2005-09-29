@@ -27,7 +27,8 @@ Distribconf - perl module to get config from a Mandriva Linux distribution tree
     use Distribconf;
 
     my $d = Distribconf->new("/path/to/the/distribution/root");
-    $d->load() or die "This does not seem to be a distribution tree\n";
+    $d->load() == 0
+	or die "This doesn't seem to be a distribution tree\n";
 
     print $d->getpath(undef, "root") ."\n";
     foreach ($d->listmedia) {
@@ -36,28 +37,29 @@ Distribconf - perl module to get config from a Mandriva Linux distribution tree
 
 =head1 DESCRIPTION
 
-Distribconf is a little module to get/write the configuration of a
-Mandriva Linux distribution tree.
+Distribconf is a module to get/write the configuration of a Mandriva Linux
+distribution tree. This configuration is stored in a file called F<media.cfg>,
+aimed at replacing the old-style F<hdlists> file.
 
-The goal is to manage both configuration of old-style trees
-(C<Mandrake/base/> ie 10.0 and older) and of new-style ones
-(C<media/media_info/> ie 10.1 and newer).
+The format of the F<hdlists> file is limited and doesn't allow to add new
+values without breaking compatibility, while F<media.cfg> is designed for
+extensibility. To keep compatibility with old tools, this module is able
+to generate an F<hdlists> file based on F<media.cfg>.
 
-Another point about the C<hdlists> file: the format is limited and does not
-permit to add new values without breaking compatiblity. This module is able to
-find a C<media.cfg> that allows to add new parameters. See the L</media.cfg>
-section. To keep compatiblity with old tools, this module is able to generate
-an F<hdlists> file based on this C<media.cfg>.
+This module is able to manage both configuration of old-style trees
+(F<Mandrake/base/> for OS versions 10.0 and older) and of new-style ones
+(F<media/media_info/> for 10.1 and newer).
 
 =head1 media.cfg
 
-The media.cfg is like a .ini file. All parameters are optional; this means that
-a readable empty file is ok, if this is what you want :)
+The F<media.cfg> is structured like a classical F<.ini> file. All
+parameters are optional; this means that a readable empty file is ok, if
+this is what you want :)
 
-The media.cfg contains sections, each section corresponding to a media, except
-the [media_info] section wich is used to store global info. The section name is
-the path where the rpms are located. The section name is sufficient to identify
-a media.
+F<media.cfg> contains sections, each section corresponding to a media,
+except the C<[media_info]> section wich is used to store global info. The
+section name is the (relative) path where the rpms are located. It is
+sufficient to uniquely identify a media.
 
 Some values have specific signification:
 
@@ -69,23 +71,24 @@ Some values have specific signification:
 
 =item B<hdlist>
 
-the path or basename of the hdlist, if not specified by default is
-hdlist_mediapath.cz, '/' characters are replaced by '_',
+The path or basename of the hdlist. By default, this is
+C<hdlist_mediapath.cz>, with slashes and spaces being replaced by '_'.
 
 =item B<synthesis>
 
-the path or basename of the synthesis, by default is hdlist name
-prefixed by 'synthesis',
+The path or basename of the synthesis. By default, this is the hdlist
+name prefixed by C<synthesis>.
 
 =item B<pubkey>
 
-the path or basename of the gpg public key file, by default the
-the media name prefixed by 'pubkey_',
+The path or basename of the gpg public key file. By default, this is
+the media name prefixed by C<pubkey_>.
 
 =item B<name>
 
-the name of the media, by default is media path, '/' character are
-replaced by '_',
+A human-readable name for the media. By default this is the media path
+(that is, the section name), where slashes have been replaced by
+underscores.
 
 =back
 
@@ -93,55 +96,59 @@ replaced by '_',
 
 =over 4
 
+=item B<version>
+
+OS version.
+
+=item B<branch>
+
+OS branch (cooker, etc.)
+
+=item B<arch>
+
+Media target architecture.
+
 =item B<root>
 
-the root of the distribution tree, this value is not set in
-media.cfg, can't be owerwritten, is only use internaly
+The root path of the distribution tree. This value is not set in
+F<media.cfg>, can't be owerwritten, and is only used internally.
 
 =item B<mediadir>
 
-the default directory from 'root' path where media are
-located, automatically found by Distribconf.
+The default path relative to the 'root' path where media are
+located. Distribconf is supposed to configure this automatically
+to C<Mandrake> or to C<media>, depending on the OS version.
 
 =item B<infodir>
 
-the default directory from 'root' path where distrib informations
-are located, automatically found by Distribconf.
+The default path relative to the 'root' path where distrib metadata
+are located. Distribconf is supposed to configure this automatically
+to C<Mandrake/base> or to C<media/media_info>, depending on the OS
+version.
 
 =back
 
 =back
 
-For section name (path) hdlist and synthesis, if there is only the basename,
-the path is relative to the mediadir or infodir, else the path is relative
-to the 'root'one :
+For the paths of the hdlist and synthesis files, if only a basename is
+provided, the path is assumed to be relative to the mediadir or infodir.
+(hdlist and synthesis are created in both directories.) If it's a complete
+path, it's assumed to be relative to the 'root'. For example,
 
-    - hdlist.cz is root/infodir/hdlist.cz,
-    - ./hdlist.cz is root/./hdlist.cz.
+    hdlist.cz    -> <root>/<infodir>/hdlist.cz
+    ./hdlist.cz  -> <root>/./hdlist.cz
 
-The media.cfg should be located at the same location than hdlists,
-so Mandrake/base won't happen (this tree form is no longer used)
-and media/media_info will.
-
-Let's start, first a very basic (but valid) media.cfg:
-
-    [main]
-    [contrib]
-    [jpackage]
-
-Simple, isn't it ? :)
-Now a more complex but more realistic media.cfg:
+Here's a complete example of a F<media.cfg> file:
 
     # Comment
     [media_info]
-    # if one tools want to use these values
-    version=10.2
+    # some tools can use those values
+    version=2006.0
     branch=cooker
 
     [main]
     hdlist=hdlist_main.cz
     name=Main
-    size=3400m
 
     [../SRPMS/main]
     hdlist=hdlist_main.src.cz
@@ -151,22 +158,10 @@ Now a more complex but more realistic media.cfg:
     [contrib]
     hdlist=hdlist_contrib.cz
     name=Contrib
-    size=4300m
 
     [../SRPMS/contrib]
     hdlist=hdlist_contrib.src.cz
     name=Contrib Sources
-    noauto=1
-
-    [jpackage]
-    hdlist=hdlist_jpackage.cz
-    name=Jpackage
-    size=360m
-    noauto=1
-
-    [../SRPMS/jpackage]
-    hdlist=hdlist_jpackage.src.cz
-    name=Jpackage Sources
     noauto=1
 
 =head1 METHODS
@@ -175,13 +170,12 @@ Now a more complex but more realistic media.cfg:
 
 use strict;
 use warnings;
-
 use Config::IniFiles;
 
-=head2 new($root_of_distrib)
+=head2 Distribconf->new($root)
 
-Return a new Distribconf object having C<$root_of_distrib> as top level of the
-tree.
+Returns a new Distribconf object, C<$root> being the top level
+directory of the tree.
 
 =cut
 
@@ -197,22 +191,14 @@ sub new {
     bless($distrib, $class);
 }
 
-=head2 load
+=head2 $distrib->load()
 
-Find and load the configuration of the distrib:
+Finds and loads the configuration of the distrib: locate the path where
+information is found; if available loads F<media.cfg>, if available loads
+F<hdlists>.
 
-=over 4
-
-=item find the path where are located information
-
-=item if availlable load media.cfg
-
-=item if availlable load hdlists
-
-=back
-
-Return 0 on success, 1 if no directory containing media information is found,
-2 if no media.cfg, neither hdlists are found.
+Returns 0 on success, 1 if no directory containing media information is found,
+2 if no F<media.cfg>, neither F<hdlists> files are found.
 
 See also L<loadtree>, L<parse_hdlists> and L<parse_mediacfg>.
 
@@ -227,7 +213,7 @@ sub load {
     return 0;
 }
 
-=head2 loadtree
+=head2 $distrib->loadtree()
 
 Try to find a valid media information directory, on success set infodir
 and mediadir.
@@ -274,7 +260,7 @@ sub parse_hdlists {
         length or next;
         my ($options, %media);
         ($options, @media{qw/hdlist path name size/}) =
-            $_ =~ m/^\s*(?:(.*):)?(\S+)\s+(\S+)\s+([^(]*)(?:\s+\((\w+)\))?$/;
+            $_ =~ /^\s*(?:(.*):)?(\S+)\s+(\S+)\s+([^(]*)(?:\s+\((\w+)\))?$/;
         if ($options) { $media{$_} = 1 foreach(split(':', $options)) }
         $media{name} =~ s/\s*$//;
         $media{path} =~ s!^$distrib->{mediadir}/+!!;
@@ -308,10 +294,10 @@ sub parse_version {
 
 =head2 parse_mediacfg($mediacfg)
 
-Read the media.cfg file found in the media information directory of the
+Read the F<media.cfg> file found in the media information directory of the
 distribution, otherwise set the $mediacfg file given as argument.
 
-Return 1 on success, 0 if media.cfg can't be found or is invalid.
+Return 1 on success, 0 if F<media.cfg> can't be found or is invalid.
 
 =cut
 
@@ -324,9 +310,9 @@ sub parse_mediacfg {
     return 1;
 }
 
-=head2 listmedia
+=head2 $distrib->listmedia()
 
-Return an array of existing media in the configuration
+Returns an array of existing media in the configuration
 
 =cut
 
@@ -335,16 +321,16 @@ sub listmedia {
     return grep { $_ ne 'media_info' } $distrib->{cfg}->Sections;
 }
 
-=head2 getvalue($media, $var)
+=head2 $distrib->getvalue($media, $var)
 
-Return the $var value for $media, return undef if the value is not set.
+Returns the $var value for $media, or C<undef> if the value is not set.
 
-If $var is name, hdlist or synthesis, and the value is not explicity defined,
-the return value is expanded from $media.
+If $var is "name", "hdlist" or "synthesis", and if the value is not explicitly
+defined, the return value is expanded from $media.
 
-If $media is 'media_info' or undef, you'll get the global value.
+If $media is "media_info" or C<undef>, you'll get the global value.
 
-This function does not take care about path, see L<getpath>.
+This function doesn't take care about path, see L<getpath>.
 
 =cut
 
@@ -353,29 +339,28 @@ sub getvalue {
     $media ||= 'media_info';
 
     my $default = "";
-    SWITCH: for ($var) {
-        /^synthesis$/ and do { $default = 'synthesis.' . lc($distrib->getvalue($media, 'hdlist')); };
-        /^hdlist$/    and do { $default = 'hdlist_' . lc($distrib->getvalue($media, 'name')) . '.cz'; };
-        /^pubkey$/    and do { $default = 'pubkey_' . lc($distrib->getvalue($media, 'name')); };
-        /^name$/      and do { $default = $media; };
+    for ($var) {
+        /^synthesis$/		and do { $default = 'synthesis.' . lc($distrib->getvalue($media, 'hdlist')) };
+        /^hdlist$/		and do { $default = 'hdlist_' . lc($distrib->getvalue($media, 'name')) . '.cz' };
+        /^pubkey$/		and do { $default = 'pubkey_' . lc($distrib->getvalue($media, 'name')) };
+        /^name$/		and do { $default = $media };
         $default =~ s![/ ]+!_!g;
-        /^path$/      and return $media;
-        /^root$/      and return $distrib->{root};
-        /^VERSION$/   and do { $default = 'VERSION'; last; };
-        /^product$/   and do { $default = 'Download'; last; };
-        /^tag$/   and do { $default = ''; last; };
-        /^branch$/   and do { $default = ''; last; };
-        /^mediadir$|^infodir$/  and do { $default = $distrib->{$var}; last; };
+        /^path$/		and return $media;
+        /^root$/		and return $distrib->{root};
+        /^VERSION$/		and do { $default = 'VERSION'; last };
+        /^product$/		and do { $default = 'Download'; last };
+        /^(tag|branch)$/	and do { $default = ''; last };
+        /^mediadir$|^infodir$/	and do { $default = $distrib->{$var}; last };
     }
     return $distrib->{cfg}->val($media, $var, $default);
 }
 
 =head2 getpath($media, $var)
 
-Give relative path from the root of the distrib.
+Gives relative path from the root of the distrib.
 
-This function is usefull to know where are really located files, it take care
-of location of medium, the location of index files, and the path set in the
+This function is useful to know where files are actually located. It takes
+care of location of media, location of index files, and path set in the
 configuration.
 
 =cut
@@ -384,16 +369,16 @@ sub getpath {
     my ($distrib, $media, $var) = @_;
 
     my $val = $distrib->getvalue($media, $var);
-    $var =~ /^root$|^VERSION$/ and return $val;
+    $var =~ /^(root|VERSION)$/ and return $val;
     return ($val =~ m!/! ? "" : ($var eq 'path' ? $distrib->{mediadir} : $distrib->{infodir} ) . "/") . $val;
 }
 
 =head2 getfullpath($media, $var)
 
-Does the same thing than L<getpath> but the return value is already
-prefixed by the 'root' path.
-This function is shortcut for:
-$distrib->getpath(undef, 'root') . '/' . $distrib->getpath($media, $var).
+Does the same thing than getpath(), but the return value will be
+prefixed by the 'root' path. This is a shortcut for:
+
+    $distrib->getpath(undef, 'root') . '/' . $distrib->getpath($media, $var).
 
 =cut
 
@@ -408,57 +393,9 @@ __END__
 
 =head1 AUTHOR
 
-The code has been written by Olivier Thauvin <nanardon@mandriva.org>.
-
-The media.cfg has been improved by Warly <warly@mandriva.com>.
-
-Special thanks to Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> for
-suggesting to use Config::IniFiles.
+The code has been written by Olivier Thauvin <nanardon@mandriva.org> and is
+maintained by Rafael Garcia-Suarez <rgarciasuarez@mandriva.com>.
 
 Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
-
-=head1 ChangeLog
-
-    $Log$
-    Revision 1.12  2005/09/28 16:01:10  rgarciasuarez
-    Add  in Distribconf modules
-
-    Revision 1.11  2005/09/28 08:50:14  rgarciasuarez
-    Documentation nits. Fix some fatal error messages.
-
-    Revision 1.10  2005/09/06 19:46:16  othauvin
-    - s/mandrake/mandriva/
-
-    Revision 1.9  2005/03/07 13:45:09  rgarciasuarez
-    Doc and POD fixes
-
-    Revision 1.8  2005/02/22 20:12:31  othauvin
-    - split Distribconf with Build
-    - add write_VERSION
-
-    Revision 1.7  2005/02/22 12:52:51  othauvin
-    - don't add a 'm' to size in hdlists
-
-    Revision 1.6  2005/02/21 21:40:10  othauvin
-    - add getfullpath
-    - s![ /]*!_! in default path
-    - add check()
-
-    Revision 1.5  2005/02/21 15:34:56  othauvin
-    Distribconf
-
-    Revision 1.4  2005/02/21 13:14:19  othauvin
-    - add doc for pubkey
-
-    Revision 1.3  2005/02/21 13:11:01  othauvin
-    - lowercase media name in file name
-    - manage pubkey
-
-    Revision 1.2  2005/02/21 12:47:34  othauvin
-    - avoid error message about non existing media.cfg
-
-    Revision 1.1  2005/02/20 21:15:50  othauvin
-    - initials release for managing mandrakelinux distro tree
-
 
 =cut
