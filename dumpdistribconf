@@ -1,28 +1,24 @@
 #!/usr/bin/perl
 
-# $Id$
+(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
 use strict;
 use Getopt::Long;
 use Distribconf::Build;
+use Pod::Usage;
 
-sub usage {
-    print STDERR <<EOF;
-$0 -h|-m [options] path1 [path2 ...]
-Dump Mandriva Linux distrib configuration.
-
--h      output an hdlists file
--m      output an media.cfg file
--d      write the directly into the dedicated location
-EOF
-    exit 1;
-};
+sub usage () {
+    pod2usage({ -verbose => 1 });
+    exit 0;
+}
 
 my ($out, $outputtype) = (\*STDOUT, 'm');
 GetOptions(
     h => sub { $outputtype = 'h' },
     m => sub { $outputtype = 'm' },
     d => sub { undef $out },
+    'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
+    'h|help' => \&usage,
 );
 
 @ARGV or usage;
@@ -42,3 +38,38 @@ foreach (@ARGV) {
 }
 
 __END__
+
+=head1 NAME
+
+dumpdistribconf - dumps a media.cfg from a distribution tree
+
+=head1 SYNOPSIS
+
+    dumpdistribconf [-h|-m] [-d] path [path...]
+
+=head1 DESCRIPTION
+
+This will dump a F<media.cfg> (or an F<hdlists> file if B<-h> is
+specified) from a Mandriva Linux distribution tree. By default
+it's dumped to the standard output.
+
+=head1 OPTIONS
+
+=over 4
+
+=item B<-h>
+
+Dump an F<hdlists> file.
+
+=item B<-m>
+
+Dump a F<media.cfg> file (default)
+
+=item B<-d>
+
+Instead of writing to the standard output, write to a file placed in the
+standard location (e.g. F<< <root>/media/media_info/media.cfg >>).
+
+=back
+
+=cut
