@@ -20,7 +20,7 @@ package Distribconf::Build;
 
 =head1 NAME
 
-Distribconf::Build - Extend Distribconf module to allow building the conf
+Distribconf::Build - Extension to Distribconf to build configuration
 
 =head1 METHODS
 
@@ -34,17 +34,16 @@ use Distribconf;
 our @ISA = qw(Distribconf);
 our $VERSION = $Distribconf::VERSION;
 
-=head2 new(root_of_distrib)
+=head2 Distribconf::Build->new($root_of_distrib)
 
-Return a new Distribconf::Build object
+Returns a new Distribconf::Build object
 
 =cut
 
 sub new {
-    my ($class, @options) = @_;
-    my $self = $class->SUPER::new(@options);
-
-    bless($self, $class);
+    my $class = shift;
+    my $self = $class->SUPER::new(@_);
+    bless $self, $class;
 }
 
 =head2 write_hdlists($hdlists)
@@ -216,63 +215,5 @@ __END__
 =head1 SEE ALSO
 
 L<Distribconf>
-
-=head1 AUTHOR
-
-The code has been written by Olivier Thauvin <nanardon@mandriva.org>.
-
-The media.cfg has been improved by Warly <warly@mandriva.com>.
-
-Special thanks to Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> for
-suggesting to use Config::IniFiles.
-
-Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
-
-=head1 ChangeLog
-
-    $Log$
-    Revision 1.6  2005/09/29 13:43:32  rgarciasuarez
-    Reports errors on STDERR, not STDOUT
-
-    Revision 1.5  2005/09/29 12:28:04  rgarciasuarez
-    Spell check error message
-
-    Revision 1.4  2005/09/28 16:01:10  rgarciasuarez
-    Add  in Distribconf modules
-
-    Revision 1.3  2005/09/06 19:46:17  othauvin
-    - s/mandrake/mandriva/
-
-    Revision 1.2  2005/05/26 09:32:40  rgarciasuarez
-    Fix error messages
-
-    Revision 1.1  2005/02/22 20:12:31  othauvin
-    - split Distribconf with Build
-    - add write_VERSION
-
-    Revision 1.7  2005/02/22 12:52:51  othauvin
-    - don't add a 'm' to size in hdlists
-
-    Revision 1.6  2005/02/21 21:40:10  othauvin
-    - add getfullpath
-    - s![ /]*!_! in default path
-    - add check()
-
-    Revision 1.5  2005/02/21 15:34:56  othauvin
-    Distribconf
-
-    Revision 1.4  2005/02/21 13:14:19  othauvin
-    - add doc for pubkey
-
-    Revision 1.3  2005/02/21 13:11:01  othauvin
-    - lowercase media name in file name
-    - manage pubkey
-
-    Revision 1.2  2005/02/21 12:47:34  othauvin
-    - avoid error message about non existing media.cfg
-
-    Revision 1.1  2005/02/20 21:15:50  othauvin
-    - initials release for managing mandrakelinux distro tree
-
 
 =cut
