@@ -183,7 +183,7 @@ sub check {
 
         foreach my $key (keys %e) {
             if (@{$e{$key}} > 1) {
-                $report_err->('E', "medium %s have same %s (%s)",
+                $report_err->('E', "media %s have same %s (%s)",
                     join (", ", @{$e{$key}}),
                     $var,
                     $key
@@ -232,6 +232,9 @@ Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.5  2005/09/29 12:28:04  rgarciasuarez
+    Spell check error message
+
     Revision 1.4  2005/09/28 16:01:10  rgarciasuarez
     Add  in Distribconf modules
 
