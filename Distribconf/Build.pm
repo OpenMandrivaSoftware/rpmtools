@@ -152,23 +152,23 @@ sub write_version {
 }
 
 
-=head2 check($out)
+=head2 check($fhout)
 
-Perform a check on the distribution and print to $out (STDOUT by default)
-errors found
+Performs a check on the distribution and prints to $fhout (STDERR by default)
+warnings and errors found.
 
 =cut
 
 sub check {
-    my ($distrib, $out) = @_;
-    $out ||= \*STDOUT;
+    my ($distrib, $fhout) = @_;
+    $fhout ||= \*STDERR;
 
     my $error = 0;
 
     my $report_err = sub {
         my ($l, $f, @msg) = @_;
         $l eq 'E' and $error++;
-        printf $out "$l: $f\n", @msg;
+        printf $fhout "$l: $f\n", @msg;
     };
 
     $distrib->listmedia or $report_err->('W', "No media found in this config");
@@ -193,19 +193,18 @@ sub check {
     }
 
     foreach my $media ($distrib->listmedia) {
-        -d $distrib->getfullpath($media, 'path') or
-            $report_err->('E', "dir %s does't exist for media '%s'",
-                $distrib->getpath($media, 'path'),
-                $media
-            );
-
-        foreach (qw/hdlist synthesis pubkey/) {
-            -f $distrib->getfullpath($media, $_) or
-                $report_err->('E', "$_ %s doesn't exist for media '%s'",
-                    $distrib->getpath($media, $_),
-                    $media
-                );
-        }
+	-d $distrib->getfullpath($media, 'path') or $report_err->(
+	    'E', "dir %s does't exist for media '%s'",
+	    $distrib->getpath($media, 'path'),
+	    $media
+	);
+	foreach (qw/hdlist synthesis pubkey/) {
+	    -f $distrib->getfullpath($media, $_) or $report_err->(
+		'E', "$_ %s doesn't exist for media '%s'",
+		$distrib->getpath($media, $_),
+		$media
+	    );
+	}
     }
     return $error;
 }
@@ -232,6 +231,9 @@ Thanks to Sylvie Terjan <erinmargault@mandriva.org> for the spell checking.
 =head1 ChangeLog
 
     $Log$
+    Revision 1.6  2005/09/29 13:43:32  rgarciasuarez
+    Reports errors on STDERR, not STDOUT
+
     Revision 1.5  2005/09/29 12:28:04  rgarciasuarez
     Spell check error message
 
