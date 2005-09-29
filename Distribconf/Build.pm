@@ -24,19 +24,20 @@ Distribconf::Build - Extension to Distribconf to build configuration
 
 =head1 METHODS
 
+=over 4
+
 =cut
 
 use strict;
 use warnings;
-
 use Distribconf;
 
 our @ISA = qw(Distribconf);
 our $VERSION = $Distribconf::VERSION;
 
-=head2 Distribconf::Build->new($root_of_distrib)
+=item Distribconf::Build->new($root_of_distrib)
 
-Returns a new Distribconf::Build object
+Returns a new Distribconf::Build object.
 
 =cut
 
@@ -46,46 +47,45 @@ sub new {
     bless $self, $class;
 }
 
-=head2 write_hdlists($hdlists)
+=item $distrib->setvalue($media, $var, $val)
 
-Write the hdlists file into the media information directory, or into the
-$hdlists given as argument. $hdlists can be a file path, or a glob reference
-(\*STDOUT for example).
-
-Return 1 on success, 0 on error.
-
-=cut
-
-=head2 setvalue($media, $var, $val)
-
-Set or add $var parameter from $media to $val.
-
-If $media does not exists, it is implicitly created.
-If $var is not defined, a new media is create without parameters defined.
+Sets or adds $var parameter from $media to $val. If $media doesn't exist,
+it is implicitly created. If $var is C<undef>, a new media is created with
+no defined parameters.
 
 =cut
 
 sub setvalue {
     my ($distrib, $media, $var, $val) = @_;
     if ($var) {
-        $var =~ /^mediadir$|^infodir$/ and do {
+        $var =~ /^(?:media|info)dir\z/ and do {
             $distrib->{$var} = $val;
             return;
         };
-        $distrib->{cfg}->newval($media, $var, $val) or die "Can't set value";
+        $distrib->{cfg}->newval($media, $var, $val)
+	    or die "Can't set value [$var=$val] for $media\n";
     } else {
         $distrib->{cfg}->AddSection($media);
     }
 }
 
+=item $distrib->write_hdlists($hdlists)
+
+Writes the F<hdlists> file to C<$hdlists>, or if no parameter is given, in
+the media information directory. C<$hdlists> can be a file path or a file
+handle. Returns 1 on success, 0 on error.
+
+=cut
+
 sub write_hdlists {
     my ($distrib, $hdlists) = @_;
     my $h_hdlists;
-    if (ref($hdlists) eq 'GLOB') {
+    if (ref $hdlists eq 'GLOB') {
         $h_hdlists = $hdlists;
     } else {
         $hdlists ||= "$distrib->{root}/$distrib->{infodir}/hdlists";
-        open($h_hdlists, ">", $hdlists) or return 0;
+        open $h_hdlists, ">", $hdlists
+	    or return 0;
     }
     foreach my $media ($distrib->listmedia) {
         printf($h_hdlists "%s%s\t%s\t%s\t%s\n",
@@ -96,20 +96,16 @@ sub write_hdlists {
             $distrib->getvalue($media, 'size') ? '('.$distrib->getvalue($media, 'size'). ')' : "",
         ) or return 0;
     }
-
-    if (ref($hdlists) ne 'GLOB') {
-        close($h_hdlists);
-    }
     return 1;
 }
 
-=head2 write_mediacfg($mediacfg)
+=item $distrib->write_mediacfg($mediacfg)
 
 Write the media.cfg file into the media information directory, or into the
 $mediacfg given as argument. $mediacfg can be a file path, or a glob reference
 (\*STDOUT for example).
 
-Return 1 on success, 0 on error.
+Returns 1 on success, 0 on error.
 
 =cut
 
@@ -119,7 +115,7 @@ sub write_mediacfg {
     $distrib->{cfg}->WriteConfig($hdlistscfg);
 }
 
-=head2 write_version($version)
+=item $distrib->write_version($version)
 
 =cut
 
@@ -151,10 +147,10 @@ sub write_version {
 }
 
 
-=head2 check($fhout)
+=item $distrib->check($fhout)
 
-Performs a check on the distribution and prints to $fhout (STDERR by default)
-warnings and errors found.
+Performs basic checks on the distribution and prints to $fhout (STDERR by
+default) warnings and errors found. Returns the number of errors reported.
 
 =cut
 
@@ -211,6 +207,8 @@ sub check {
 1;
 
 __END__
+
+=back
 
 =head1 SEE ALSO
 
