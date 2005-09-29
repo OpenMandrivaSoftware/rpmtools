@@ -549,7 +549,8 @@ and report them.
 
 =head1 SEE ALSO
 
-genhdlist(1)
+genhdlist(1), and Distribconf(3) for description of the format of the
+F<media.cfg> file.
 
 =head1 COPYRIGHT
 
