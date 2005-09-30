@@ -14,7 +14,7 @@ sub usage () {
 
 my ($out, $outputtype) = (\*STDOUT, 'm');
 GetOptions(
-    h => sub { $outputtype = 'h' },
+    s => sub { $outputtype = 's' },
     m => sub { $outputtype = 'm' },
     d => sub { undef $out },
     'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
@@ -30,7 +30,7 @@ foreach (@ARGV) {
 	warn "Can't load configuration from $_\n";
 	next;
     };
-    if ($outputtype eq 'h') {
+    if ($outputtype eq 's') {
 	$d->write_hdlists($out) or warn "Can't write hdlists file\n";
     } else {
 	$d->write_mediacfg($out) or warn "Can't write media.cfg file\n";
@@ -45,11 +45,11 @@ dumpdistribconf - dumps a media.cfg from a distribution tree
 
 =head1 SYNOPSIS
 
-    dumpdistribconf [-h|-m] [-d] path [path...]
+    dumpdistribconf [-s|-m] [-d] path [path...]
 
 =head1 DESCRIPTION
 
-This will dump a F<media.cfg> (or an F<hdlists> file if B<-h> is
+This will dump a F<media.cfg> (or an F<hdlists> file if B<-s> is
 specified) from a Mandriva Linux distribution tree. By default
 it's dumped to the standard output.
 
@@ -57,7 +57,7 @@ it's dumped to the standard output.
 
 =over 4
 
-=item B<-h>
+=item B<-s>
 
 Dump an F<hdlists> file.
 
