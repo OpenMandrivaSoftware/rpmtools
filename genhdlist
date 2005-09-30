@@ -26,10 +26,9 @@ use File::Path;
 use Getopt::Long;
 use Pod::Usage;
 
-# TODO generate MD5SUM
 # TODO more flexiblity about destination directory
 
-my ($noclean, $nooutput, $dontdie, $suffix, $dest) = (0, 0, 0, "", "");
+my ($noclean, $nooutput, $dontdie, $md5sum, $suffix, $dest) = (0, 0, 0, 0, "", "");
 my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
 sub usage () {
@@ -42,6 +41,7 @@ GetOptions(
     'help|h' => sub { usage(); exit 0 },
     nobadrpm => \$dontdie,
     noclean => \$noclean,
+    md5sum => \$md5sum,
     s => \$nooutput,
     'suffix=s' => \$suffix,
     'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
@@ -50,7 +50,7 @@ GetOptions(
 my $urpm = new URPM;
 my $index = "hdlist$suffix.cz";
 my $synthesis = "synthesis.$index";
-my @dir = @ARGV ? @ARGV : ("."); 
+my @dir = @ARGV ? @ARGV : (".");
 
 grep { m!^/! } @dir and die "Directories to parse should be relative\n";
 
@@ -62,7 +62,8 @@ my @rpms;
 my %rpmslist;
 
 # get rpm list
-open my $list, ">", "list$suffix" or die "Can't create list file: $!\n";
+open my $list, ">", "list$suffix"
+    or die "Can't create list file [list$suffix]: $!\n";
 foreach my $dir (@dir) {
     print "parsing $dir\n" unless $nooutput;
     @rpms = ();
@@ -92,12 +93,12 @@ foreach my $dir (@dir) {
 	},
     );
     # This code will become useless... see above
-    foreach my $rpm (@rpms) { 
+    foreach my $rpm (@rpms) {
 	$rpmslist{($rpm =~ m!.*/(.*)\z!)[0]} or next;
 	print $list "$rpm\n";
     }
 }
-close($list);
+close $list;
 
 # create index file
 # No rpms, exit !
@@ -118,6 +119,13 @@ $urpm->build_synthesis(
     end       => $#{$urpm->{depslist}},
     synthesis => $synthesis,
 );
+
+if ($md5sum) {
+    my $m = qx(/usr/bin/md5sum '$index' '$synthesis');
+    open my $f, '>', 'MD5SUM' or die "Can't write MD5SUM: $!\n";
+    print $f $m;
+    close $f;
+}
 
 __END__
 
@@ -140,6 +148,10 @@ Build index from this directory.
 =item --headersdir dir
 
 Put temporary files in directory.
+
+=item --md5sum
+
+Generates an MD5SUM file.
 
 =item --nobadrpm
 
