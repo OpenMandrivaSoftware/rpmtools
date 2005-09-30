@@ -28,7 +28,7 @@ use Pod::Usage;
 
 # TODO more flexiblity about destination directory
 
-my ($noclean, $nooutput, $dontdie, $md5sum, $suffix, $dest) = (0, 0, 0, 0, "", "");
+my ($noclean, $nooutput, $nobadrpm, $md5sum, $suffix, $dest) = (0, 0, 0, 0, "", "");
 my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
 sub usage () {
@@ -39,7 +39,7 @@ GetOptions(
     'dest=s' => \$dest,
     'headersdir=s' => \$tmpdir,
     'help|h' => sub { usage(); exit 0 },
-    nobadrpm => \$dontdie,
+    nobadrpm => \$nobadrpm,
     noclean => \$noclean,
     md5sum => \$md5sum,
     s => \$nooutput,
@@ -56,8 +56,8 @@ grep { m!^/! } @dir and die "Directories to parse should be relative\n";
 
 $dest and do { chdir $dest or die "Can't chdir in directory $dest\n" };
 
-!-e $tmpdir or -o _ or
-    die "$tmpdir is not owned by you, bailing out\n";
+!-e $tmpdir or -o _
+    or die "$tmpdir is not owned by you, bailing out\n";
 rmtree($tmpdir) unless $noclean;
 mkpath($tmpdir);
 
@@ -74,7 +74,7 @@ foreach my $dir (@dir) {
     File::Find::find(
 	{
 	    wanted => sub {
-		if (-f $_ && /^.*\.rpm$/) {
+		if (/^.*\.rpm$/ && -f) {
 		    push(@rpms, $File::Find::name);
 		}
 	    },
@@ -84,7 +84,7 @@ foreach my $dir (@dir) {
     $urpm->parse_rpms_build_headers(
 	dir  => $tmpdir,
 	rpms => \@rpms,
-	dontdie => $dontdie,
+	dontdie => $nobadrpm,
 	silent => $nooutput,
 	callback => sub {
 	    my ($urpm, $id, %options) = @_;
@@ -146,7 +146,8 @@ genhdlist - generates an hdlist file
 
 =item --dest dir
 
-Build index from this directory.
+Build index from this directory (that is, chdir's to this directory before
+operation).
 
 =item --headersdir dir
 
@@ -170,7 +171,7 @@ Silent mode.
 
 =item --suffix SUFFIX
 
-Put a suffix on hdlist names.
+Put a suffix on list/hdlist/synthesis names (for example, C<_main>).
 
 =back
 
@@ -184,6 +185,10 @@ directory.
 It will also generate a F<list> file containing the relative paths to all
 RPMs. Consequently, the paths to the directories passed to F<genhdlist> must
 be relative ones.
+
+The temporary header directory (overriden by B<--headersdir>) defaults to
+F<~/tmp/.build_hdlist>, then F<$TMPDIR/.build_hdlist> and
+F</tmp/.build_hdlist>.
 
 =head1 SEE ALSO
 
