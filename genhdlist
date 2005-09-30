@@ -55,6 +55,9 @@ my @dir = @ARGV ? @ARGV : (".");
 grep { m!^/! } @dir and die "Directories to parse should be relative\n";
 
 $dest and do { chdir $dest or die "Can't chdir in directory $dest\n" };
+
+-o $tmpdir or
+    die "$tmpdir is not owned by you, bailing out\n";
 rmtree($tmpdir) unless $noclean;
 mkpath($tmpdir);
 
