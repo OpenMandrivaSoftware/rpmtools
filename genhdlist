@@ -26,9 +26,7 @@ use File::Path;
 use Getopt::Long;
 use Pod::Usage;
 
-# TODO more flexiblity about destination directory
-
-my ($noclean, $nooutput, $nobadrpm, $md5sum, $suffix, $dest) = (0, 0, 0, 0, "", "");
+my ($noclean, $nooutput, $nobadrpm, $md5sum, $subdir, $suffix, $dest) = (0, 0, 0, 0, "", "", "");
 my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
 sub usage () {
@@ -43,19 +41,29 @@ GetOptions(
     noclean => \$noclean,
     md5sum => \$md5sum,
     s => \$nooutput,
+    'subdir=s' => \$subdir,
     'suffix=s' => \$suffix,
     'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
 );
 
 my $urpm = new URPM;
-my $index = "hdlist$suffix.cz";
-my $synthesis = "synthesis.$index";
+if ($subdir && $subdir !~ m{/$}) { $subdir .= '/' }
+my $hdlist_base = "hdlist$suffix.cz";
+my $hdlist = $subdir . $hdlist_base;
+my $synthesis_base = "synthesis.$hdlist_base";
+my $synthesis = $subdir . $synthesis_base;
 my @dir = @ARGV ? @ARGV : (".");
 
 grep { m!^/! } @dir and die "Directories to parse should be relative\n";
 
 $dest and do { chdir $dest or die "Can't chdir in directory $dest\n" };
 
+if ($subdir && !-e $subdir) {
+    mkdir $subdir
+	or die "Can't mkdir $subdir: $!n";
+}
+$subdir && -d $subdir && -w _ && -x _
+    or die "$subdir isn't a writable directory, bailing out\n";
 !-e $tmpdir or -o _
     or die "$tmpdir is not owned by you, bailing out\n";
 rmtree($tmpdir) unless $noclean;
@@ -65,8 +73,8 @@ my @rpms;
 my %rpmslist;
 
 # get rpm list
-open my $list, ">", "list$suffix"
-    or die "Can't create list file [list$suffix]: $!\n";
+open my $list, ">", "${subdir}list$suffix"
+    or die "Can't create list file [${subdir}list$suffix]: $!\n";
 foreach my $dir (@dir) {
     print "parsing $dir\n" unless $nooutput;
     @rpms = ();
@@ -88,9 +96,6 @@ foreach my $dir (@dir) {
 	silent => $nooutput,
 	callback => sub {
 	    my ($urpm, $id, %options) = @_;
-
-	    # This code needs a fix in perl-URPM
-	    # print $list "$options{file}\n";
 	    $rpmslist{scalar($urpm->{depslist}[$id]->fullname) . ".rpm"} = 1;
 	    $urpm->{depslist}[$id]->pack_header;
 	},
@@ -103,15 +108,15 @@ foreach my $dir (@dir) {
 }
 close $list;
 
-# create index file
+# create hdlist file
 # No rpms, exit !
-@{$urpm->{depslist}} > 0 or die "Nothing read\n";
+@{$urpm->{depslist}} or die "Nothing read, no file to write\n";
 
 $urpm->build_hdlist(
     start  => 0,
     end    => $#{$urpm->{depslist}},
     dir    => $tmpdir,
-    hdlist => $index,
+    hdlist => $hdlist,
     ratio  => 9,
 );
 rmtree($tmpdir) unless $noclean;
@@ -124,8 +129,8 @@ $urpm->build_synthesis(
 );
 
 if ($md5sum) {
-    my $m = qx(/usr/bin/md5sum '$index' '$synthesis');
-    open my $f, '>', 'MD5SUM' or die "Can't write MD5SUM: $!\n";
+    my $m = qx(cd '$subdir' && /usr/bin/md5sum '$hdlist_base' '$synthesis_base');
+    open my $f, '>', "${subdir}MD5SUM" or die "Can't write MD5SUM: $!\n";
     print $f $m;
     close $f;
 }
@@ -146,8 +151,8 @@ genhdlist - generates an hdlist file
 
 =item --dest dir
 
-Build index from this directory (that is, chdir's to this directory before
-operation).
+Build indexes from this directory (that is, chdir's to this directory
+before operation).
 
 =item --headersdir dir
 
@@ -168,6 +173,10 @@ Keep cache files.
 =item -s
 
 Silent mode.
+
+=item --subdir directory
+
+Write indexes in this subdirectory.
 
 =item --suffix SUFFIX
 
