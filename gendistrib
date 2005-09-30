@@ -33,6 +33,7 @@ my $headers_dir = $tempdir . "/.build_hdlist";
 
 sub usage () {
     pod2usage({ -verbose => 1 });
+    exit 0;
 }
 
 my %urpmfiles;
@@ -44,7 +45,7 @@ GetOptions(
     'destdir=s' => \my $destdir,
     'hdlists=s' => \$urpmfiles{hdlists},
     'headersdir=s' => \$headers_dir,
-    'help|h' => sub { usage(); exit 0; },
+    'help|h' => \&usage,
     'mediacfg=s' => \$urpmfiles{mediacfg},
     'nobadrpm' => \my $dontdie,
     'nochkdep' => \my $nochkdep,
@@ -58,9 +59,7 @@ GetOptions(
     'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
 );
 
-my @root = grep { $_ } @ARGV;
-
-@root > 0 or do { usage(); exit 1 };
+(my @root = grep { $_ } @ARGV) > 0 or usage();
 
 my $distrib = Distribconf::Build->new($root[0]);
 
