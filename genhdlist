@@ -9,9 +9,10 @@ use File::Find ();
 use File::Path;
 use Getopt::Long;
 use Pod::Usage;
+use File::Temp qw(tempdir);
 
 my ($nooutput, $nobadrpm, $md5sum, $subdir, $suffix, $dest) = (0, 0, 0, "", "", "");
-my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
+my $tmpdir_tpl = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlistXXXXX";
 
 sub usage () {
     pod2usage({ -verbose => 1 });
@@ -19,7 +20,6 @@ sub usage () {
 
 GetOptions(
     'dest=s' => \$dest,
-    'headersdir=s' => \$tmpdir,
     'help|h' => sub { usage(); exit 0 },
     list => \my $list,
     nobadrpm => \$nobadrpm,
@@ -51,10 +51,7 @@ if ($subdir) {
     -d $subdir && -w _ && -x _
 	or die "$subdir isn't a writable directory, bailing out\n";
 }
-!-e $tmpdir or -o _
-    or die "$tmpdir is not owned by you, bailing out\n";
-rmtree($tmpdir) unless $noclean;
-mkpath($tmpdir);
+my $tmpdir = tempdir($tmpdir_tpl, CLEANUP => !$noclean);
 
 my @rpms;
 my %rpmslist;
@@ -109,7 +106,6 @@ $urpm->build_hdlist(
     hdlist => $hdlist,
     ratio  => 9,
 );
-rmtree($tmpdir) unless $noclean;
 
 # create synthesis file
 $urpm->build_synthesis(
@@ -143,10 +139,6 @@ genhdlist - generates an hdlist file
 
 Build indexes from this directory (that is, chdir's to this directory
 before operation).
-
-=item --headersdir dir
-
-Put temporary files in directory.
 
 =item --list
 
@@ -188,10 +180,6 @@ directory.
 If the option B<--list> is given, it will also generate a F<list> file containing
 the relative paths to all RPMs. Consequently, the paths to the directories
 passed to F<genhdlist> must be relative ones.
-
-The temporary header directory (overriden by B<--headersdir>) defaults to
-F<~/tmp/.build_hdlist>, then F<$TMPDIR/.build_hdlist> and
-F</tmp/.build_hdlist>.
 
 =head1 SEE ALSO
 
