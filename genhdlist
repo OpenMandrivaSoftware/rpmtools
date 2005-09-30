@@ -26,6 +26,9 @@ use File::Path;
 use Getopt::Long;
 use Pod::Usage;
 
+# TODO generate MD5SUM
+# TODO more flexiblity about destination directory
+
 my ($noclean, $nooutput, $dontdie, $suffix, $dest) = (0, 0, 0, "", "");
 my $tmpdir = (-d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : $ENV{TMPDIR} || "/tmp") . "/.build_hdlist";
 
