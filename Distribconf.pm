@@ -11,7 +11,7 @@ Distribconf - perl module to get config from a Mandriva Linux distribution tree
     use Distribconf;
 
     my $d = Distribconf->new("/path/to/the/distribution/root");
-    $d->load() == 0
+    $d->load()
 	or die "This doesn't seem to be a distribution tree\n";
 
     print $d->getpath(undef, "root") ."\n";
@@ -179,22 +179,19 @@ Finds and loads the configuration of the distrib: locate the path where
 information is found; if available loads F<media.cfg>, if available loads
 F<hdlists>.
 
-Returns 0 on success, 1 if no directory containing media information is found,
-2 if no F<media.cfg>, neither F<hdlists> files are found.
+Returns 1 on success, 0 error (that is, if no directory containing media
+information is found, or if no F<media.cfg>, neither F<hdlists> files are
+found).
 
 See also L<loadtree>, L<parse_hdlists> and L<parse_mediacfg>.
 
 =cut
 
-# TODO return 0 on error like everyone else does
-
 sub load {
     my ($distrib) = @_;
-    $distrib->loadtree() or return 1;
-
-    $distrib->parse_mediacfg() || $distrib->parse_hdlists() or return 2;
-
-    return 0;
+    $distrib->loadtree() or return 0;
+    $distrib->parse_mediacfg() || $distrib->parse_hdlists() or return 0;
+    return 1;
 }
 
 =head2 $distrib->loadtree()
