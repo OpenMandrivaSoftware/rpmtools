@@ -37,6 +37,7 @@ GetOptions(
     'dest=s' => \$dest,
     'headersdir=s' => \$tmpdir,
     'help|h' => sub { usage(); exit 0 },
+    list => \my $list,
     nobadrpm => \$nobadrpm,
     noclean => \$noclean,
     md5sum => \$md5sum,
@@ -62,8 +63,10 @@ if ($subdir && !-e $subdir) {
     mkdir $subdir
 	or die "Can't mkdir $subdir: $!n";
 }
-$subdir && -d $subdir && -w _ && -x _
-    or die "$subdir isn't a writable directory, bailing out\n";
+if ($subdir) {
+    -d $subdir && -w _ && -x _
+	or die "$subdir isn't a writable directory, bailing out\n";
+}
 !-e $tmpdir or -o _
     or die "$tmpdir is not owned by you, bailing out\n";
 rmtree($tmpdir) unless $noclean;
@@ -73,8 +76,11 @@ my @rpms;
 my %rpmslist;
 
 # get rpm list
-open my $list, ">", "${subdir}list$suffix"
-    or die "Can't create list file [${subdir}list$suffix]: $!\n";
+my $listfh;
+if ($list) {
+    open $listfh, ">", "${subdir}list$suffix"
+	or die "Can't create list file [${subdir}list$suffix]: $!\n";
+}
 foreach my $dir (@dir) {
     print "parsing $dir\n" unless $nooutput;
     @rpms = ();
@@ -103,10 +109,10 @@ foreach my $dir (@dir) {
     # This code will become useless... see above
     foreach my $rpm (@rpms) {
 	$rpmslist{($rpm =~ m!.*/(.*)\z!)[0]} or next;
-	print $list "$rpm\n";
+	print $listfh "$rpm\n" if $list;
     }
 }
-close $list;
+close $listfh if $listfh;
 
 # create hdlist file
 # No rpms, exit !
@@ -158,6 +164,10 @@ before operation).
 
 Put temporary files in directory.
 
+=item --list
+
+Creates a list file.
+
 =item --md5sum
 
 Generates an MD5SUM file.
@@ -191,9 +201,9 @@ of RPM packages found in the directories passed on the command-line. By
 default it will put the hdlist and synthesis files in the current
 directory.
 
-It will also generate a F<list> file containing the relative paths to all
-RPMs. Consequently, the paths to the directories passed to F<genhdlist> must
-be relative ones.
+If the option B<--list> is given, it will also generate a F<list> file containing
+the relative paths to all RPMs. Consequently, the paths to the directories
+passed to F<genhdlist> must be relative ones.
 
 The temporary header directory (overriden by B<--headersdir>) defaults to
 F<~/tmp/.build_hdlist>, then F<$TMPDIR/.build_hdlist> and
