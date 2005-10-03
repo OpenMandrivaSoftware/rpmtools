@@ -21,6 +21,7 @@ my @list;
 my $error_mode = "packdrake: choose only --build, --extract, --list or --cat\n";
 foreach (@ARGV) {
     /^--help$/       and usage();
+    /^--version$/    and do { print "$0 version $packdrake::VERSION\n"; exit 0 };
     /^--build$/      and do { $mode and die $error_mode; $mode = "build"; @nextargv = (\$file); next };
     /^--extract$/    and do { $mode and die $error_mode; $mode = "extract"; @nextargv = (\$file, \$dir); next };
     /^--list$/       and do { $mode and die $error_mode; $mode = "list"; @nextargv = (\$file); next };
@@ -118,7 +119,7 @@ Default is deduced from the archive filename (gzip or bzip2).
 
 =item --compress cmd
 
-Select compression command.
+Select compression command (e.g. C<gzip -9>).
 
 =back
 
