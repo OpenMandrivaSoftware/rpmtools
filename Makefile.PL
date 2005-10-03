@@ -1,10 +1,19 @@
 # $Id$
 
+use strict;
 use ExtUtils::MakeMaker;
-use MDK::Common qw(cat_);
 
-(my $rpmtools_version) = cat_('rpmtools.spec') =~ /define\s+version\s+(\d+\.\d+\.\d+)/
+my $spec;
+{
+    local $/ = undef;
+    open my $specfh, 'rpmtools.spec' or die "Can't open rpmtools.spec: $!\n";
+    $spec = <$specfh>;
+    close $specfh;
+}
+
+(my $rpmtools_version) = $spec =~ /define\s+version\s+(\d+\.\d+\.\d+)/
     or die "no version found\n";
+warn "building rpmtools version v$rpmtools_version\n";
 
 my $tag_version = "v$rpmtools_version";
 $tag_version =~ s/\./_/g;
