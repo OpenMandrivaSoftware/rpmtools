@@ -2,36 +2,15 @@
 
 use strict;
 use packdrake;
+use Pod::Usage;
 
 #- general information.
 my $default_size = 400000;
 my $default_ratio = 6;
 
-sub usage {
-    die qq(packdrake version $packdrake::VERSION
-Copyright (C) 2000-2004 Mandrakesoft.
-This is free software and may be redistributed under the terms of the GNU GPL.
-
-usage:
-  --help                 - print this help message.
-  --build <file>         - build archive <file> with filenames given on
-                           standard input.
-    -[1..9]              - select appropriate compression ratio, $default_ratio by default.
-    --dir <srcdir>       - set source directory where to search files, "." by default.
-    --size <cmd>         - set maximun chunk size, $default_size by default.
-    --method <cmd>       - select standard compression command method, default
-                           is set according to archive filename, example is
-                           /bin/gzip or /usr/bin/bzip2.
-    --compress <cmd>     - select compression command.
-    --uncompress <cmd>   - select uncompression command.
-  --extract <file> <dir> - extract archive <file> contents to directory <dir>,
-                           specific file to extract are given on command line.
-    --uncompress <cmd>   - override uncompression method in archive <file>.
-  --list <file>          - list contents of archive.
-  --cat <file>           - dump archive, only supported with gzip and bzip2,
-                           this write the contents of all file in archive.
-  --quiet                - quiet operation
-);
+sub usage () {
+    pod2usage({ -verbose => 1 });
+    exit 0;
 }
 
 my ($file, $mode, $dir, $size, $method, $compress, $uncompress, $ratio, $quiet);
@@ -41,7 +20,7 @@ my @list;
 #- some quite useful error message.
 my $error_mode = "packdrake: choose only --build, --extract, --list or --cat\n";
 foreach (@ARGV) {
-    /^--help$/       and do { usage; next };
+    /^--help$/       and usage();
     /^--build$/      and do { $mode and die $error_mode; $mode = "build"; @nextargv = (\$file); next };
     /^--extract$/    and do { $mode and die $error_mode; $mode = "extract"; @nextargv = (\$file, \$dir); next };
     /^--list$/       and do { $mode and die $error_mode; $mode = "list"; @nextargv = (\$file); next };
@@ -97,3 +76,105 @@ for ($mode) {
 }
 
 __END__
+
+=head1 NAME
+
+packdrake - manipulates archives
+
+=head1 SYNOPSIS
+
+    packdrake [options] [--build|-b] file
+    packdrake [options] [--extract|-x] file
+    packdrake [options] [--list|-l] file
+    packdrake [options] [--cat|-c] file
+
+=head1 OPTIONS
+
+=over 2
+
+=item --build file
+
+Build mode; build archive file with filenames given on standard input.
+Sub-options are:
+
+=over 4
+
+=item -1 .. -9
+
+Select appropriate compression ratio.
+
+=item --dir srcdir
+
+set source directory where to search files, C<.> by default.
+
+=item --size
+
+Set maximum chunk size, 400000 by default.
+
+=item --method
+
+Select standard compression command method.
+Default is deduced from the archive filename (gzip or bzip2).
+
+=item --compress cmd
+
+Select compression command.
+
+=back
+
+=item --extract file dir file1...fileN
+
+Extracts archive file to specified directory.
+Specific files to extract may be given on the command line.
+
+=over 4
+
+=item --uncompress cmd
+
+Select uncompression command.
+
+=back
+
+=item --list file
+
+Lists contents of archive.
+
+=item --cat file
+
+Dumps archive to standard output.
+
+=item General options
+
+=over 4
+
+=item --quiet
+
+Silent mode.
+
+=back
+
+=back
+
+=head1 DESCRIPTION
+
+=head1 SEE ALSO
+
+=head1 COPYRIGHT
+
+Copyright (C) 2000-2005 Mandrakesoft.
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+=cut
