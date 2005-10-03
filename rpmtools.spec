@@ -1,6 +1,6 @@
 %define name rpmtools
 # do not modify here, see spec file in the CVS
-%define version 5.0.24
+%define version 5.0.25
 %define release %mkrel 1
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
@@ -82,6 +82,17 @@ is fully compatible with old packdrake.
 %{_mandir}/man3/[pP]ackdrake*
 
 %changelog
+* Mon Oct 03 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.25-1mdk
+- Documentation: new manpages for gendistrib, genhdlist, dumpdistribconf.
+  More internal docs for Perl modules.
+- gendistrib: new --version switch. Remove --distrib switch.
+- Use Pod::Usage to implement --help in Perl tools
+- Many code cleanups.
+- dumpdistribconf wasn't working.
+- genhdlist has new switches --md5sum, --list and --subdir. --headersdir has
+  been removed since it uses File::Temp now.
+- Remove build dependency on MDK::Common (Buchan Milne)
+
 * Wed Sep 14 2005 Olivier Thauvin <nanardon@zarb.org> 5.0.24-1mdk
 - 5.0.24 (gendistrib improvement && s/mandrake/mandriva/)
 

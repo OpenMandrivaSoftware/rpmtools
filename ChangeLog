@@ -1,4 +1,197 @@
-2005-09-14 03:02  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-10-03 18:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* packdrake: Make Pod::Usage optional, for dependency reasons
+
+2005-10-03 17:40  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Packdrakeng/zlib.pm: Disarm warnings
+
+2005-10-03 17:09  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* packdrake: Add --version. Doc clarification.
+
+2005-10-03 16:08  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* packdrake: Use Pod::Usage
+
+2005-10-03 14:49  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* packdrake: Begin cleanup.
+
+2005-10-03 13:25  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Makefile.PL: Don't depend on MDK::Common
+
+2005-09-30 18:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Put license in POD
+
+2005-09-30 17:56  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Use a random temp directory. Remove --headersdir
+	  option.
+
+2005-09-30 17:23  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Put license in doc. More code cleanup.
+
+2005-09-30 17:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Don't create a list file, unless explicitly told so
+	  (with --list)
+
+2005-09-30 16:59  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Add a --subdir option
+
+2005-09-30 16:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: More docs and cleanup
+
+2005-09-30 16:07  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Well, if tempdir doesn't exist, that's okay too
+
+2005-09-30 16:04  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Safety check: make sur temporary directory is owned by
+	  user
+
+2005-09-30 15:39  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Add an option --md5sum
+
+2005-09-30 14:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: TODO
+
+2005-09-30 14:43  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf.pm, dumpdistribconf: Use meaningful return values for
+	  DistribConf::load()
+
+2005-09-30 14:29  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Factorize
+
+2005-09-30 14:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* dumpdistribconf: Don't give two meanings to -h
+
+2005-09-29 18:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* t/01packdrakeng.t: Test cleanup
+
+2005-09-29 18:08  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* dumpdistribconf: Use Pod::Usage
+
+2005-09-29 17:51  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* dumpdistribconf: Use Distribconf::Build, or else it will go boom
+
+2005-09-29 17:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf/Build.pm: More docs and minor fixes
+
+2005-09-29 16:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf/Build.pm: Don't repeat copyright put in Distribconf
+
+2005-09-29 16:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf.pm: Avoid uninitialized warnings. Licensing terms.
+	  TODO and XXX notations.
+
+2005-09-29 15:44  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf.pm: More docs for Distribconf
+
+2005-09-29 15:43  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf/Build.pm: Reports errors on STDERR, not STDOUT
+
+2005-09-29 14:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf.pm: More, more docs
+
+2005-09-29 14:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Add SEE ALSO
+
+2005-09-29 14:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf/Build.pm: Spell check error message
+
+2005-09-28 18:17  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: Spec cleanup
+
+2005-09-28 18:05  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Packdrakeng/zlib.pm: Add version, fix typo
+
+2005-09-28 18:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf.pm, Distribconf/Build.pm: Add  in Distribconf modules
+
+2005-09-28 17:58  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Add a description, typo fixes
+
+2005-09-28 17:11  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib, genhdlist: Sort manpage by alphabetical order
+
+2005-09-28 17:09  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Remove unnecessary, misnamed, undocumented and
+	  deprecated option --distrib
+
+2005-09-28 16:29  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Use Pod::Usage
+
+2005-09-28 16:19  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Code cleanup
+
+2005-09-28 15:44  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Add a manpage for gendistrib(1)
+
+2005-09-28 14:06  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Makefile.PL, gendistrib, rpmtools.spec: Use Pod::Usage for
+	  gendistrib
+
+2005-09-28 12:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Add --version option. Suppress idiotic -s option
+	  alias.
+
+2005-09-28 12:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: First POD draft.
+
+2005-09-28 11:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Makefile.PL, rpm2header.c: Remove obsolete code
+
+2005-09-28 10:50  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf.pm, gendistrib: Documentation nits. Fix some fatal
+	  error messages.
+
+2005-09-14 17:05  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* rpmtools.spec: -add %check
+
+2005-09-14 17:04  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* rpmtools.spec: - 5.0.24
+
+2005-09-14 03:02  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - skip hdlist rebuild per media when not need
 
