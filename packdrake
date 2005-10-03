@@ -2,14 +2,17 @@
 
 use strict;
 use packdrake;
-use Pod::Usage;
 
 #- general information.
 my $default_size = 400000;
 my $default_ratio = 6;
 
 sub usage () {
-    pod2usage({ -verbose => 1 });
+    eval {
+	require Pod::Usage;
+	Pod::Usage->import();
+	pod2usage({ -verbose => 1 });
+    }
     exit 0;
 }
 
