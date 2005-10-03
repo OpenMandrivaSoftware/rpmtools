@@ -19,7 +19,6 @@
 package Packdrakeng::zlib;
 
 use strict;
-use warnings;
 use Compress::Zlib;
 
 (our $VERSION) = q($Id$) =~ /(\d+\.\d+)/;
