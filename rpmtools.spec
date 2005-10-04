@@ -15,8 +15,8 @@ License:	GPL
 Group:		%{group}
 URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
 BuildRoot:	%{_tmppath}/%{name}-buildroot
-BuildRequires:	rpm-devel >= 4.0.3 bzip2-devel
-BuildRequires:	perl-devel
+BuildRequires:	perl%{?mdkversion:-devel}
+BuildRequires:	rpm-devel >= 4.2.3
 BuildRequires:	perl-Compress-Zlib
 Requires:	rpm >= %{rpm_version}
 Requires:	bzip2 >= 1.0
