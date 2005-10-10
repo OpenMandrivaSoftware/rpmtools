@@ -5,7 +5,7 @@
 use strict;
 use warnings;
 
-use Distribconf::Build;
+use MDV::Distribconf::Build;
 use Term::ReadLine;
 use Text::ParseWords;
 use Getopt::Long;
@@ -24,7 +24,7 @@ my $commands = {
             return;
         }
         foreach (@_) {
-            my $dbuild = Distribconf::Build->new($_);
+            my $dbuild = MDV::Distribconf::Build->new($_);
             $dbuild->load() or do {
                 print STDERR "Can't load distrib from $_\n";
                 next;
@@ -108,7 +108,12 @@ my $commands = {
     },
 
     addmedia => sub {
-    }
+        local @ARGV = @_;
+        my ($m, $name) = @ARGV;
+        foreach (@distribs) {
+            $_->setvalue($m);
+        }
+    },
 };
 
 
