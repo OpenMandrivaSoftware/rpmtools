@@ -1,0 +1,133 @@
+#!/usr/bin/perl
+
+# $Id$
+
+use strict;
+use warnings;
+
+use Distribconf::Build;
+use Term::ReadLine;
+use Text::ParseWords;
+use Getopt::Long;
+
+my @distribs;
+my @selected;
+
+# list of availlable command
+# name => coderef
+my $commands = {
+    
+    load => sub {
+        if (grep { /-h|--help/ } @_) {
+            print "unload path1 [path2 [...]]\n";
+            print "Try to load distrib configuration from given path\n";
+            return;
+        }
+        foreach (@_) {
+            my $dbuild = Distribconf::Build->new($_);
+            $dbuild->load() or do {
+                print STDERR "Can't load distrib from $_\n";
+                next;
+            };
+            push(@distribs, $dbuild);
+        }
+    },
+
+    unload => sub {
+        if (grep { /-h|--help/ } @_) {
+            print "unload ID1 [ID2 [...]]\n";
+            print "Unload tree\n";
+            return;
+        }
+        my @toremove = @_;
+        my @new;
+        foreach my $id (0 .. $#distribs) {
+            grep { $id == $_ } @toremove and next;
+            push(@new, $distribs[$id]);
+        }
+        @distribs = @new;
+    },
+
+    list => sub {
+        if (grep { /-h|--help/ } @_) {
+            print "list current load distrib tree\n";
+            return;
+        }
+        foreach (0 .. $#distribs) {
+            my $d = $distribs[$_];
+            printf "%3d %s\n", $_, $d->getpath(undef, "root");
+        }
+    },
+
+    show => sub {
+        local @ARGV = @_;
+        GetOptions(
+            'h|help' => \my $help,
+            'm=s' => \my @medias,
+            'a' => \my $allmedia,
+        );
+
+        if ($help) {
+            print "show [-m medianame [-m ...]] [-a] value\n";
+            print "show a value for each distrib\n";
+            print " -a list a value for all media\n";
+            print " -m show the value only for given media\n";
+            print "Default action is to give the global value\n";
+            return;
+        }
+        
+        foreach (0 .. $#distribs) {
+            my $d = $distribs[$_];
+            printf "%3d %s\n", $_, $d->getpath(undef, "root");
+            my $m;
+            
+            if ($allmedia) {
+                $m = [ $d->listmedia ];
+            } elsif (@medias) {
+                $m = \@medias;
+            }
+            if ($m) {
+                foreach my $med (@{$m}) {
+                    foreach my $var (@ARGV) {
+                        printf 
+                            " %10s [%10s]: %s\n",
+                            $var, 
+                            $med ? $med : "(global)",
+                            $d->getvalue($med, $var);
+                    }
+                }
+            } else {
+                foreach my $var (@ARGV) {
+                    printf 
+                        " %10s: %s\n",
+                            $var, 
+                            $d->getvalue(undef, $var);
+                }
+            }
+        }
+    },
+
+    addmedia => sub {
+    }
+};
+
+
+$commands->{load}->(@ARGV);
+
+my $term = new Term::ReadLine 'editdistrib';
+
+while ( defined ($_ = $term->readline('> ')) ) {
+    my ($command, @arg) = &shellwords($_);
+
+    if ($command eq 'help') {
+        print "Availlable commands:\n ";
+        print join(' ', sort keys %$commands) . "\n";
+        next;
+    }
+    
+    if (defined($commands->{$command})) {
+        $commands->{$command}->(@arg);
+    } else {
+        print STDERR "Unkown command\n";
+    }
+}
