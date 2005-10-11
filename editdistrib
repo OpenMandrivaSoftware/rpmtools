@@ -11,19 +11,19 @@ use Text::ParseWords;
 use Getopt::Long;
 
 my @distribs;
-my @selected;
 
 # list of availlable command
 # name => coderef
 my $commands = {
     
     load => sub {
-        if (grep { /-h|--help/ } @_) {
+        my ($param, @path) = @_;
+        if ($param->{current}{help}) {
             print "unload path1 [path2 [...]]\n";
             print "Try to load distrib configuration from given path\n";
             return;
         }
-        foreach (@_) {
+        foreach (@path) {
             my $dbuild = MDV::Distribconf::Build->new($_);
             $dbuild->load() or do {
                 print STDERR "Can't load distrib from $_\n";
@@ -34,22 +34,24 @@ my $commands = {
     },
 
     unload => sub {
-        if (grep { /-h|--help/ } @_) {
+        my ($param, @ids) = @_;
+        if ($param->{current}{help}) {
             print "unload ID1 [ID2 [...]]\n";
             print "Unload tree\n";
             return;
         }
-        my @toremove = @_;
         my @new;
         foreach my $id (0 .. $#distribs) {
-            grep { $id == $_ } @toremove and next;
+            grep { $id == $_ } @ids and next;
             push(@new, $distribs[$id]);
         }
         @distribs = @new;
+        $param->{selected} = undef;
     },
 
     list => sub {
-        if (grep { /-h|--help/ } @_) {
+        my ($param) = @_;
+        if ($param->{current}{help}) {
             print "list current load distrib tree\n";
             return;
         }
@@ -60,14 +62,14 @@ my $commands = {
     },
 
     show => sub {
+        my ($param) = shift(@_);
         local @ARGV = @_;
         GetOptions(
-            'h|help' => \my $help,
             'm=s' => \my @medias,
             'a' => \my $allmedia,
         );
 
-        if ($help) {
+        if ($param->{current}{help}) {
             print "show [-m medianame [-m ...]] [-a] value\n";
             print "show a value for each distrib\n";
             print " -a list a value for all media\n";
@@ -76,7 +78,7 @@ my $commands = {
             return;
         }
         
-        foreach (0 .. $#distribs) {
+        foreach (@{$param->{distrib}}) {
             my $d = $distribs[$_];
             printf "%3d %s\n", $_, $d->getpath(undef, "root");
             my $m;
@@ -108,31 +110,76 @@ my $commands = {
     },
 
     addmedia => sub {
+        my ($param, $m, $name) = @_;
+        foreach (@{$param->{distrib}}) {
+            $distribs[$_]->setvalue($m);
+        }
+    },
+
+    delmedia => sub {
+        my ($param, $m) = @_;
+        foreach (@{$param->{distrib}}) {
+            $distribs[$_]->delvalue($m);
+        }
+    },
+
+    sel => sub {
+        my $param = shift(@_);
         local @ARGV = @_;
-        my ($m, $name) = @ARGV;
-        foreach (@distribs) {
-            $_->setvalue($m);
+        GetOptions(
+            e => \my $empty,
+        );
+        if ($empty) {
+            $param->{selected} = {};
+        }
+
+        foreach (@ARGV) {
+            if ($_ < 0 || $_ > $#distribs) {
+                next;
+            }
+            $param->{selected}{$_} = 1;
         }
     },
 };
 
 
-$commands->{load}->(@ARGV);
+$commands->{load}->(undef, @ARGV);
 
+my $session_param;
 my $term = new Term::ReadLine 'editdistrib';
-
-while ( defined ($_ = $term->readline('> ')) ) {
-    my ($command, @arg) = &shellwords($_);
-
+my $prompt = '(all) > ';
+while ( defined ($_ = $term->readline($prompt)) ) {
+    local @ARGV = &shellwords($_);
+    my $command = shift(@ARGV);
+    $command ||= ""; # avoid undef
+    
     if ($command eq 'help') {
         print "Availlable commands:\n ";
         print join(' ', sort keys %$commands) . "\n";
         next;
     }
+
+    $session_param->{current} = {};
+    my $gl = new Getopt::Long::Parser config => [ qw(pass_through no_auto_abbrev) ];
+    $gl->getoptions(
+        all => \$session_param->{current}{all},
+        'h|help' => \$session_param->{current}{help},
+    );
+    
+
+    if ($session_param->{current}{all} || ! $session_param->{selected}) {
+        @{$session_param->{distrib}} = (0 .. $#distribs);
+    } else {
+        @{$session_param->{distrib}} = keys %{$session_param->{selected}};
+    }
     
     if (defined($commands->{$command})) {
-        $commands->{$command}->(@arg);
+        $commands->{$command}->($session_param, @ARGV);
     } else {
         print STDERR "Unkown command\n";
     }
+
+    $prompt = sprintf("(%s) > ",
+        $session_param->{selected} ? join(' ', sort keys %{$session_param->{selected}}) : "all");
+    
 }
