@@ -54,7 +54,7 @@ if (defined($urpmfiles{mediacfg})) {
 } elsif (defined($urpmfiles{hdlists})) {
     $distrib->parse_hdlists($urpmfiles{hdlists}) or die "Can't read $urpmfiles{hdlists}\n";
 } else {
-    $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the dsitrib config\n";
+    $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the distrib config\n";
 }
 
 my $destinfodir = $destdir ?
