@@ -140,6 +140,72 @@ my $commands = {
             $param->{selected}{$_} = 1;
         }
     },
+
+    set => sub {
+        my $param = shift(@_);
+        local @ARGV = @_;
+        GetOptions(
+            'm=s' => \my $media,
+            'a' => \my $allmedia,
+        );
+        my ($var, $val) = @ARGV;
+        foreach my $d (@{$param->{distrib}}) {
+            if ($media || $allmedia) {
+                foreach my $m ($distribs[$d]->listmedia) {
+                    if ($media && $m ne $media) {
+                        next;
+                    }
+                    $distribs[$d]->setvalue($m, $var, $val);
+                }
+            } else {
+                $distribs[$d]->setvalue(undef, $var, $val);
+            }
+        }
+    },
+
+    del => sub {
+        my $param = shift(@_);
+        local @ARGV = @_;
+        GetOptions(
+            'm=s' => \my $media,
+            'a' => \my $allmedia,
+        );
+        my ($var) = @ARGV;
+        foreach my $d (@{$param->{distrib}}) {
+            if ($media || $allmedia) {
+                foreach my $m ($distribs[$d]->listmedia) {
+                    if ($media && $m ne $media) {
+                        next;
+                    }
+                    $distribs[$d]->delvalue($m, $var);
+                }
+            } else {
+                $distribs[$d]->delvalue(undef, $var);
+            }
+        }
+    },
+    
+    check => sub {
+        my $param = shift(@_);
+        local @ARGV = @_;
+        GetOptions(
+        );
+
+        foreach my $d (@{$param->{distrib}}) {
+            printf "%3d %s\n", $d, $distribs[$d]->getpath(undef, "root");
+            $distribs[$d]->check();
+        }
+    },
+
+    save => sub {
+        my $param = shift(@_);
+        local @ARGV = @_;
+        GetOptions(
+        );
+        foreach my $d (@{$param->{distrib}}) {
+            $distribs[$d]->write_mediacfg();
+        }
+    },
 };
 
 
