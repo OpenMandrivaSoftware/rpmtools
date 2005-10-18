@@ -12,7 +12,7 @@ sub usage () {
 	require Pod::Usage;
 	Pod::Usage->import();
 	pod2usage({ -verbose => 1 });
-    }
+    };
     exit 0;
 }
 
