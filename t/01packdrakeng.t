@@ -6,7 +6,7 @@ use strict;
 use Test::More tests => 41;
 use Digest::MD5;
 
-use_ok('Packdrakeng');
+BEGIN { use_ok('Packdrakeng'); }
 
 -d "test" || mkdir "test" or die "Can't create directory test";
 
