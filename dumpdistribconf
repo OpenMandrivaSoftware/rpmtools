@@ -4,7 +4,7 @@
 
 use strict;
 use Getopt::Long;
-use Distribconf::Build;
+use MDV::Distribconf::Build;
 use Pod::Usage;
 
 sub usage () {
@@ -24,8 +24,8 @@ GetOptions(
 @ARGV or usage;
 
 foreach (@ARGV) {
-    print "Using root $_...\n";
-    my $d = Distribconf::Build->new($_);
+    warn "Using root $_...\n";
+    my $d = MDV::Distribconf::Build->new($_);
     $d->load or do {
 	warn "Can't load configuration from $_\n";
 	next;

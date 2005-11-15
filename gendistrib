@@ -7,8 +7,8 @@ use Cwd;
 use URPM;
 use URPM::Build;
 use Getopt::Long;
-use Distribconf::Build;
-use Packdrakeng;
+use MDV::Distribconf::Build;
+use MDV::Packdrakeng;
 use Pod::Usage;
 
 my $urpm = new URPM;
@@ -45,7 +45,7 @@ GetOptions(
 
 (my @root = grep { $_ } @ARGV) > 0 or usage();
 
-my $distrib = Distribconf::Build->new($root[0]);
+my $distrib = MDV::Distribconf::Build->new($root[0]);
 
 $distrib->loadtree or die "$root[0] does not seem to be a distribution tree\n";
 
@@ -220,7 +220,7 @@ foreach (0..$#hdlists) {
 # return 1 if differ, 0 otherwise
 sub compare_headers_with_hdlist {
     my ($hdlist, @headers) = @_;
-    if (my $pack = Packdrakeng->open(archive => $hdlist)) {
+    if (my $pack = MDV::Packdrakeng->open(archive => $hdlist)) {
         my %exists_headers;
         $exists_headers{$_} = 0 foreach(@headers);
         my (undef, $files, undef) = $pack->getcontent();
@@ -291,7 +291,7 @@ foreach (0..$#hdlists) {
 			   synthesis => $e->{synthesis});
 
     } else { # no rpm, creating empty but valid index
-        my $pack = Packdrakeng->new(archive =>  $temp_hdlist);
+        my $pack = MDV::Packdrakeng->new(archive =>  $temp_hdlist);
         $pack = undef; # closing archive
 
         system('/bin/mv', $temp_hdlist, $e->{hdlist});
@@ -532,7 +532,7 @@ and report them.
 
 =head1 SEE ALSO
 
-genhdlist(1), and Distribconf(3) for description of the format of the
+genhdlist(1), and MDV::Distribconf(3) for description of the format of the
 F<media.cfg> file.
 
 =head1 COPYRIGHT
