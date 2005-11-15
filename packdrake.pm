@@ -20,13 +20,13 @@ package packdrake;
 
 use strict;
 use warnings;
-use Packdrakeng;
-our @ISA = qw(Packdrakeng);
-our $VERSION = $Packdrakeng::VERSION;
+use MDV::Packdrakeng;
+our @ISA = qw(MDV::Packdrakeng);
+our $VERSION = $MDV::Packdrakeng::VERSION;
 
 sub new {
     my ($class, $file, %options) = @_;
-    my $pack = Packdrakeng->open(
+    my $pack = MDV::Packdrakeng->open(
         %options,
         archive => $file
     ) or do { print STDERR "Can't open $file: $!\n"; return undef };
@@ -48,7 +48,7 @@ sub extract_all_archive {
 
 sub list_archive {
     foreach my $archive (@_) {
-        my $pack = Packdrakeng->open(archive => $archive) or do {
+        my $pack = MDV::Packdrakeng->open(archive => $archive) or do {
 	    print STDERR "Can't open $archive: $!\n";
 	    next;
 	};
@@ -60,7 +60,7 @@ sub build_archive {
     my ($listh, $dir, $archive, $size, $compress, $uncompress) = @_;
     my ($comp_level) = $compress =~ m/ -(\d)(?:\s|$)/;
     $compress =~ s/ -\d(\s|$)/$1/;
-    my $pack = Packdrakeng->new(
+    my $pack = MDV::Packdrakeng->new(
         archive => $archive,
         compress => $compress,
         uncompress => $uncompress,
@@ -76,7 +76,7 @@ sub build_archive {
 
 sub cat_archive {
     foreach my $archive (@_) {
-        my $pack = Packdrakeng->open(archive => $archive) or do {
+        my $pack = MDV::Packdrakeng->open(archive => $archive) or do {
 	    print STDERR "Can't open $archive: $!\n";
 	    next;
 	};
@@ -95,7 +95,7 @@ __END__
 
 packdrake - Simple Archive Extractor/Builder
 
-This module is a compatibility wrapper around the new Packdrakeng module.
+This module is a compatibility wrapper around the new MDV::Packdrakeng module.
 
 =head1 SYNOPSIS
 
@@ -159,7 +159,7 @@ specified
 
 =head1 SEE ALSO
 
-L<Packdrakeng>.
+L<MDV::Packdrakeng>.
 
 =head1 COPYRIGHT
 
