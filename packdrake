@@ -161,7 +161,12 @@ Silent mode.
 
 =head1 DESCRIPTION
 
+Packdrake is a simple indexed archive builder and extractor using
+standard compression methods.
+
 =head1 SEE ALSO
+
+L<MDV::Packdrakeng>
 
 =head1 COPYRIGHT
 
