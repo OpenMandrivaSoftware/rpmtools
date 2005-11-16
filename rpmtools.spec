@@ -24,7 +24,7 @@ Requires:	perl-URPM >= 0.94
 Requires:	perl
 Conflicts:	rpmtools-compat <= 2.0
 Conflicts:	rpmtools-devel <= 2.0
-Conflicts:	packdrake < 5.0.10
+Conflicts:	packdrake < 5.0.26
 
 %description
 Various tools needed by urpmi and drakxtools for handling rpm files.
@@ -32,7 +32,7 @@ Various tools needed by urpmi and drakxtools for handling rpm files.
 %package -n packdrake
 Group:		%{group}
 Summary:	A simple Archive Extractor/Builder
-Conflicts:	rpmtools <= 5.0.0
+Conflicts:	rpmtools <= 5.0.25
 Provides:	perl(packdrake)
 
 %description -n packdrake
