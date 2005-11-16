@@ -76,6 +76,7 @@ WriteMakefile(
     INC		    => '',
     LIBS	    => [ '' ],
     INSTALLDIRS	    => 'vendor',
+    MAN3PODS	    => {},
     dist	    => {
         COMPRESS => 'bzip2 --best',
         SUFFIX => '.bz2',

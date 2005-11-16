@@ -70,8 +70,11 @@ is fully compatible with old packdrake.
 %{_bindir}/rpm2cpio.pl
 %{_bindir}/dumpdistribconf
 %{perl_vendorlib}/Distribconf*
-%{_mandir}/man1/*
-%{_mandir}/man3/Distribconf*
+%{_mandir}/man1/dumpdistribconf*
+%{_mandir}/man1/gendistrib*
+%{_mandir}/man1/genhdlist*
+%{_mandir}/man1/parsehdlist*
+%{_mandir}/man1/rpm2header*
 
 %files -n packdrake
 %defattr(-,root,root)
@@ -79,7 +82,7 @@ is fully compatible with old packdrake.
 %{perl_vendorlib}/packdrake.pm
 %{perl_vendorlib}/Packdrakeng.pm
 %{perl_vendorlib}/Packdrakeng/zlib.pm
-%{_mandir}/man3/[pP]ackdrake*
+%{_mandir}/man1/packdrake*
 
 %changelog
 * Mon Oct 03 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.25-1mdk
