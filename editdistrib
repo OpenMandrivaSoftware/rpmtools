@@ -1,7 +1,5 @@
 #!/usr/bin/perl
 
-# $Id$
-
 use strict;
 use warnings;
 
@@ -10,12 +8,15 @@ use Term::ReadLine;
 use Text::ParseWords;
 use Getopt::Long;
 
+our $VERSION = q$Id$ =~ /(\d+\.\d+)/;
+
 my @distribs;
 
-# list of availlable command
+# list of available commands
 # name => coderef
+
 my $commands = {
-    
+
     load => sub {
         my ($param, @path) = @_;
         if ($param->{current}{help}) {
@@ -77,12 +78,12 @@ my $commands = {
             print "Default action is to give the global value\n";
             return;
         }
-        
+
         foreach (@{$param->{distrib}}) {
             my $d = $distribs[$_];
             printf "%3d %s\n", $_, $d->getpath(undef, "root");
             my $m;
-            
+
             if ($allmedia) {
                 $m = [ $d->listmedia ];
             } elsif (@medias) {
@@ -91,18 +92,18 @@ my $commands = {
             if ($m) {
                 foreach my $med (@{$m}) {
                     foreach my $var (@ARGV) {
-                        printf 
+                        printf
                             " %10s [%10s]: %s\n",
-                            $var, 
+                            $var,
                             $med ? $med : "(global)",
                             $d->getvalue($med, $var);
                     }
                 }
             } else {
                 foreach my $var (@ARGV) {
-                    printf 
+                    printf
                         " %10s: %s\n",
-                            $var, 
+                            $var,
                             $d->getvalue(undef, $var);
                 }
             }
@@ -184,7 +185,7 @@ my $commands = {
             }
         }
     },
-    
+
     check => sub {
         my $param = shift(@_);
         local @ARGV = @_;
@@ -206,6 +207,9 @@ my $commands = {
             $distribs[$d]->write_mediacfg();
         }
     },
+
+    quit => sub { exit(0) },
+
 };
 
 
@@ -218,9 +222,9 @@ while ( defined ($_ = $term->readline($prompt)) ) {
     local @ARGV = &shellwords($_);
     my $command = shift(@ARGV);
     $command ||= ""; # avoid undef
-    
+
     if ($command eq 'help') {
-        print "Availlable commands:\n ";
+        print "Available commands:\n ";
         print join(' ', sort keys %$commands) . "\n";
         next;
     }
@@ -231,21 +235,21 @@ while ( defined ($_ = $term->readline($prompt)) ) {
         all => \$session_param->{current}{all},
         'h|help' => \$session_param->{current}{help},
     );
-    
+
 
     if ($session_param->{current}{all} || ! $session_param->{selected}) {
         @{$session_param->{distrib}} = (0 .. $#distribs);
     } else {
         @{$session_param->{distrib}} = keys %{$session_param->{selected}};
     }
-    
+
     if (defined($commands->{$command})) {
         $commands->{$command}->($session_param, @ARGV);
     } else {
-        print STDERR "Unkown command\n";
+        print STDERR "Unknown command '$command'\n";
     }
 
     $prompt = sprintf("(%s) > ",
         $session_param->{selected} ? join(' ', sort keys %{$session_param->{selected}}) : "all");
-    
+
 }
