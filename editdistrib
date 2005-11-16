@@ -8,7 +8,7 @@ use Term::ReadLine;
 use Text::ParseWords;
 use Getopt::Long;
 
-our $VERSION = q$Id$ =~ /(\d+\.\d+)/;
+(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
 
 my @distribs;
 
@@ -209,6 +209,7 @@ my $commands = {
     },
 
     quit => sub { exit(0) },
+    version => sub { print "version: $VERSION\n" },
 
 };
 
