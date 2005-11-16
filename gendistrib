@@ -313,13 +313,13 @@ foreach (0..$#hdlists) {
 	my $here = getcwd();
 	chdir $e->{thismediainfo};
 	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
+	chdir $here;
 	if (open my $md5sumfh, '>', $e->{md5sum}) {
 	    print $md5sumfh $md5sum;
 	    close $md5sumfh;
 	} else {
 	    print STDERR qq(Can't create "$e->{md5sum}": $!\n);
 	}
-	chdir $here;
     }
 }
 
@@ -350,13 +350,13 @@ if (grep { ! $_->{noneedrebuild} } @hdlists) {
 	my $here = getcwd();
 	chdir $destinfodir;
 	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
+	chdir $here;
 	if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {
 	    print $md5sumfh $md5sum;
 	    close $md5sumfh;
 	} else {
 	    print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
 	}
-	chdir $here;
     }
 
     print STDERR "Building version file\n" unless $nooutput;
