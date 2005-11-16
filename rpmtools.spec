@@ -1,6 +1,6 @@
 %define name rpmtools
 # do not modify here, see spec file in the CVS
-%define version 5.0.25
+%define version 5.0.26
 %define release %mkrel 1
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
@@ -34,8 +34,6 @@ Group:		%{group}
 Summary:	A simple Archive Extractor/Builder
 Conflicts:	rpmtools <= 5.0.0
 Provides:	perl(packdrake)
-# perl-Compress-Zlib is only "suggested"
-%define _requires_exceptions perl(Compress::Zlib)
 
 %description -n packdrake
 Packdrake is a simple indexed archive builder and extractor using
@@ -63,12 +61,12 @@ is fully compatible with old packdrake.
 
 %files
 %defattr(-,root,root)
-%{_bindir}/parsehdlist
-%{_bindir}/rpm2header
+%{_bindir}/dumpdistribconf
 %{_bindir}/gendistrib
 %{_bindir}/genhdlist
+%{_bindir}/parsehdlist
 %{_bindir}/rpm2cpio.pl
-%{_bindir}/dumpdistribconf
+%{_bindir}/rpm2header
 %{perl_vendorlib}/Distribconf*
 %{_mandir}/man1/dumpdistribconf*
 %{_mandir}/man1/gendistrib*
@@ -81,10 +79,17 @@ is fully compatible with old packdrake.
 %{_bindir}/packdrake
 %{perl_vendorlib}/packdrake.pm
 %{perl_vendorlib}/Packdrakeng.pm
+%{perl_vendorlib}/Packdrakeng
 %{perl_vendorlib}/Packdrakeng/zlib.pm
 %{_mandir}/man1/packdrake*
 
 %changelog
+* Wed Nov 16 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.26-1mdk
+- Use MDV:: perl modules, replaces the ones shipped by compatibility wrappers
+- Move packdrake manpage to packdrake rpm
+- gendistrib: Fix the location where the MD5SUM files are generated
+  (thanks joeghi)
+
 * Mon Oct 03 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.25-1mdk
 - Documentation: new manpages for gendistrib, genhdlist, dumpdistribconf.
   More internal docs for Perl modules.

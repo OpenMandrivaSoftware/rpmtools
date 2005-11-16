@@ -1,3 +1,87 @@
+2005-11-16 15:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* editdistrib: Add a version command
+
+2005-11-16 15:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* editdistrib: Fix a few typos; add a "quit" command
+
+2005-11-16 14:57  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Makefile.PL, rpmtools.spec: Put packdrake(1) manpage in the
+	  packdrake rpm, not in the rpmtools rpm.  Don't install manpages
+	  in section 3 for obsolete modules.
+
+2005-11-16 14:56  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* packdrake: Don't leave empty sections in manpage
+
+2005-11-16 14:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Fix the location where the MD5SUM files are generated
+	  (thanks joeghi)
+
+2005-11-15 13:42  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* packdrake.pm: Remove wrapper overhead, use directly new module
+
+2005-11-15 13:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Distribconf.pm, Packdrakeng.pm, Distribconf/Build.pm,
+	  Packdrakeng/zlib.pm: Replace modules by wrappers around new MDV::
+	  namespace. Add a deprecation warning.
+
+2005-11-15 13:19  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* t/01packdrakeng.t: use_ok must be done at compile time for
+	  imports to work
+
+2005-11-15 12:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* dumpdistribconf, gendistrib: Use modules in the new namespace
+	  MDV::
+
+2005-11-15 12:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* MANIFEST: Add editdistrib to the MANIFEST
+
+2005-11-15 12:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* .cvsignore: Ignore MakeMaker build files and compiled binaries
+
+2005-10-18 17:41  Olivier Blin <oblin at mandriva.com>
+
+	* packdrake: fix syntax error
+
+2005-10-14 03:49  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* editdistrib: - add del/save/set/check
+
+2005-10-11 23:23  pterjan
+
+	* gendistrib: Fix typo
+
+2005-10-11 08:32  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* editdistrib: - factorize code
+
+2005-10-11 01:26  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* editdistrib: - add addmedia() - use MDV::...
+
+2005-10-10 14:42  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* editdistrib: - add
+
+2005-10-04 14:07  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: Make perl-devel dependency portable (thanks to
+	  Buchan)
+
+2005-10-03 19:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 5.0.25-1mdk
+
 2005-10-03 18:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: Make Pod::Usage optional, for dependency reasons
