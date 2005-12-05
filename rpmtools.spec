@@ -69,8 +69,6 @@ is fully compatible with old packdrake.
 %{_mandir}/man1/dumpdistribconf*
 %{_mandir}/man1/gendistrib*
 %{_mandir}/man1/genhdlist*
-%{_mandir}/man1/parsehdlist*
-%{_mandir}/man1/rpm2header*
 
 %files -n packdrake
 %defattr(-,root,root)

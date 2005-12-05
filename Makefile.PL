@@ -76,6 +76,12 @@ WriteMakefile(
     INC		    => '',
     LIBS	    => [ '' ],
     INSTALLDIRS	    => 'vendor',
+    MAN1PODS	    => {
+	dumpdistribconf	=> '$(INST_MAN1DIR)/dumpdistribconf.1',
+	gendistrib	=> '$(INST_MAN1DIR)/gendistrib.1',
+	genhdlist	=> '$(INST_MAN1DIR)/genhdlist.1',
+	packdrake	=> '$(INST_MAN1DIR)/packdrake.1',
+    },
     MAN3PODS	    => {},
     dist	    => {
         COMPRESS => 'bzip2 --best',
