@@ -20,8 +20,6 @@ BuildRequires:	rpm-devel >= 4.2.3
 BuildRequires:	perl-Compress-Zlib
 Requires:	rpm >= %{rpm_version}
 Requires:	bzip2 >= 1.0
-Requires:	perl-URPM >= 0.94
-Requires:	perl
 Conflicts:	rpmtools-compat <= 2.0
 Conflicts:	rpmtools-devel <= 2.0
 Conflicts:	packdrake < 5.0.26
