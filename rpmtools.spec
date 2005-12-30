@@ -1,7 +1,7 @@
 %define name rpmtools
 # do not modify here, see spec file in the CVS
 %define version 5.0.26
-%define release %mkrel 1
+%define release %mkrel 2
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -80,6 +80,11 @@ is fully compatible with old packdrake.
 %{_mandir}/man1/packdrake*
 
 %changelog
+* Fri Dec 30 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.26-2mdk
+- Bump conflicts due to file moves
+- Don't install empty manpages
+- Update copyright notices
+
 * Wed Nov 16 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.26-1mdk
 - Use MDV:: perl modules, replaces the ones shipped by compatibility wrappers
 - Move packdrake manpage to packdrake rpm

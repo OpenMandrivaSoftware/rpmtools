@@ -1,3 +1,28 @@
+2005-12-30 16:53  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Fix typo; update copyright
+
+2005-12-30 16:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Make it clear that genhdlist always generates a
+	  synthesis.  Update copyright notice.
+
+2005-12-05 19:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* Makefile.PL, rpmtools.spec: Don't install empty manpages
+
+2005-12-05 18:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: Trust automatic requires.
+
+2005-11-16 17:20  Thierry Vignaud <tvignaud at mandriva.com>
+
+	* rpmtools.spec: bump conflicts due to file moves
+
+2005-11-16 15:46  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 5.0.26-1mdk
+
 2005-11-16 15:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* editdistrib: Add a version command
