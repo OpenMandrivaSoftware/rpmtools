@@ -78,10 +78,9 @@ while (my ($k, $v) = each(%default_urpmfiles)) {
 $distrib->check(\*STDERR) unless $nooutput;
 
 my @hdlists;
-my @media_mising_dirs;
+my @media_missing_dirs;
 foreach ($distrib->listmedia) {
     $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
-
 
     if (! -d ($distrib->getfullpath($_, 'path'))) {
         if ($skipmissingdir) {
@@ -91,7 +90,7 @@ foreach ($distrib->listmedia) {
             ) unless $nooutput;
         } else {
             # delaying error report to report all errors, not the only first
-            push(@media_mising_dirs, $_);
+            push(@media_missing_dirs, $_);
         }
         next;
     }
@@ -123,9 +122,9 @@ foreach ($distrib->listmedia) {
     };
 }
 
-# if there is result here, $skipmissingdir is not set and there is errors:
-if (@media_mising_dirs) {
-    foreach my $media (@media_mising_dirs) {
+#- die if there are unspecified missing directories
+if (@media_missing_dirs) {
+    foreach my $media (@media_missing_dirs) {
         printf(STDERR
             "Missing dir '%s' for media '%s'\n",
             $distrib->getpath($media, 'path'),
@@ -143,12 +142,12 @@ if (!-d $destinfodir) {
 }
 
 foreach my $e (@hdlists) {
-	for my $d (qw(mediainfo thismediainfo)) {
-	    if (! -d $e->{$d}) {
-		mkdir $e->{$d}, 0755
-		    or die qq(Can't create directory "$e->{$d}": $!\n);
-	    }
+    for my $d (qw(mediainfo thismediainfo)) {
+	if (! -d $e->{$d}) {
+	    mkdir $e->{$d}, 0755
+		or die qq(Can't create directory "$e->{$d}": $!\n);
 	}
+    }
 }
 
 sub clean_cache {
@@ -537,7 +536,9 @@ F<media.cfg> file.
 
 =head1 COPYRIGHT
 
-Copyright (C) 1999-2005 Mandrakesoft
+Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 MandrakeSoft SA
+
+Copyright (C) 2005 Mandriva SA
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
