@@ -125,7 +125,7 @@ __END__
 
 =head1 NAME
 
-genhdlist - generates an hdlist file
+genhdlist - generates an hdlist and a synthesis file
 
 =head1 SYNOPSIS
 
@@ -172,10 +172,9 @@ Put a suffix on list/hdlist/synthesis names (for example, C<_main>).
 
 =head1 DESCRIPTION
 
-F<genhdlist> is used to generate an hdlist and a synthesis file from a set
-of RPM packages found in the directories passed on the command-line. By
-default it will put the hdlist and synthesis files in the current
-directory.
+F<genhdlist> is used to generate an hdlist and an associated synthesis file
+from a set of RPM packages found in the directories passed on the command-line.
+By default it will put the hdlist and synthesis files in the current directory.
 
 If the option B<--list> is given, it will also generate a F<list> file containing
 the relative paths to all RPMs. Consequently, the paths to the directories
@@ -187,7 +186,9 @@ gendistrib(1), parsehdlist(1)
 
 =head1 COPYRIGHT
 
-Copyright (C) 1999-2005 Mandrakesoft
+Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 MandrakeSoft SA
+
+Copyright (C) 2005 Mandriva SA
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
