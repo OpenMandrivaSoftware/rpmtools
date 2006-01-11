@@ -276,7 +276,6 @@ foreach (0..$#hdlists) {
     }
 
     print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
-    unlink $temp_hdlist;
     $urpm->build_hdlist(start  => $start,
 			end    => $end,
 			dir    => $headers_dir,
