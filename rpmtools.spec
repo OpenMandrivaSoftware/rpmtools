@@ -18,6 +18,8 @@ BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	perl%{?mdkversion:-devel}
 BuildRequires:	rpm-devel >= 4.2.3
 BuildRequires:	perl-Compress-Zlib
+BuildRequires:	perl-MDV-Packdrakeng
+BuildRequires:	perl-MDV-Distribconf
 Requires:	rpm >= %{rpm_version}
 Requires:	bzip2 >= 1.0
 Conflicts:	rpmtools-compat <= 2.0
