@@ -37,7 +37,7 @@ static int print_name = 0;
 static int print_info = 0;
 static int print_group = 0;
 static int print_size = 0;
-static int print_serial = 0;
+static int print_epoch = 0;
 static int print_summary = 0;
 static int print_description = 0;
 static int print_provides = 0;
@@ -74,7 +74,7 @@ int get_int(Header header, int_32 tag) {
   int_32 *i;
 
   headerGetEntry(header, tag, &type, (void **) &i, &count);
-  return i ? *i : 0; /* assume for default, necessary for RPMTAG_SERIAL */
+  return i ? *i : 0; /* assume for default, necessary for RPMTAG_EPOCH */
 }
 
 char *
@@ -83,7 +83,7 @@ printable_header(int quiet, char *name, char sep, char* final)
   static char buff[128];
   int n = sprintf(buff, "%%s%c", sep ? sep : ':');
   if (!quiet) n += sprintf(buff + n, "%s%c", name, sep ? sep : ':');
-  n += sprintf(buff + n, !strcmp(name, "size") || !strcmp(name, "serial") ? "%%d" : "%%s");
+  n += sprintf(buff + n, !strcmp(name, "size") || !strcmp(name, "epoch") ? "%%d" : "%%s");
   if (final) n += sprintf(buff + n, "%s", final);
   return buff; /* static string, this means to use result before calling again */
 }
@@ -270,7 +270,7 @@ static
 void print_help(void) {
   printf(
 	  "parsehdlist version " VERSION_STRING "\n"
-	  "Copyright (C) 2000-2005 Mandrakesoft.\n"
+	  "Copyright (C) 2000-2006 Mandriva SA.\n"
 	  "This is free software and may be redistributed under the terms of the GNU GPL.\n"
 	  "\n"
 	  "usage:\n"
@@ -286,10 +286,10 @@ void print_help(void) {
 	  "  --all          - print all tags (incompatible with interactive mode).\n"
 	  "  --synthesis    - print synthesis tags (incompatible with interactive mode).\n"
 	  "  --name         - print tag name and rpm filename if needed.\n"
-	  "  --info         - print tag name, serial and rpm filename if needed.\n"
+	  "  --info         - print tag name, epoch and rpm filename if needed.\n"
 	  "  --group        - print tag group: group.\n"
 	  "  --size         - print tag size: size.\n"
-	  "  --serial       - print tag serial: serial.\n"
+	  "  --epoch        - print tag epoch: epoch.\n"
 	  "  --summary      - print tag summary: summary.\n"
 	  "  --description  - print tag description: description.\n"
 	  "  --provides     - print tag provides: all provides (multiple lines).\n"
@@ -320,7 +320,7 @@ print_header_flag_interactive(char *in_tag, Header header)
   else if (!strncmp(in_tag, "prereqs", 7)) print_list_prereqs(header, "%2$s\n", "");
   else if (!strncmp(in_tag, "name", 4)) print_list_name(header, "%2$s", 0, 0);
   else if (!strncmp(in_tag, "info", 4)) print_list_name(header, "%2$s", 0, 1);
-  else if (!strncmp(in_tag, "serial", 6)) printf("%d\n", get_int(header, RPMTAG_SERIAL));
+  else if (!strncmp(in_tag, "epoch", 6)) printf("%d\n", get_int(header, RPMTAG_EPOCH));
   else if (!strncmp(in_tag, "size", 4)) printf("%d\n", get_int(header, RPMTAG_SIZE));
   else if (!strncmp(in_tag, "group", 5)) printf("%s\n", get_name(header, RPMTAG_GROUP));
   else if (!strncmp(in_tag, "url", 3)) printf("%s\n", get_name(header, RPMTAG_URL));
@@ -328,7 +328,7 @@ print_header_flag_interactive(char *in_tag, Header header)
   else if (!strncmp(in_tag, "description", 11)) printf("%s\n", get_name(header, RPMTAG_DESCRIPTION));
 }
 
-int main(int argc, char **argv) 
+int main(int argc, char **argv)
 {
   int i;
 
@@ -351,7 +351,8 @@ int main(int argc, char **argv)
       else if (strcmp(argv[i], "--info") == 0)        print_info = 1;
       else if (strcmp(argv[i], "--group") == 0)       print_group = 1;
       else if (strcmp(argv[i], "--size") == 0)        print_size = 1;
-      else if (strcmp(argv[i], "--serial") == 0)      print_serial = 1;
+      else if (strcmp(argv[i], "--epoch") == 0)       print_epoch = 1;
+      else if (strcmp(argv[i], "--serial") == 0)      print_epoch = 1; /* deprecated option, backwards compat */
       else if (strcmp(argv[i], "--summary") == 0)     print_summary = 1;
       else if (strcmp(argv[i], "--description") == 0) print_description = 1;
       else if (strcmp(argv[i], "--provides") == 0)    print_provides = 1;
@@ -502,7 +503,7 @@ int main(int argc, char **argv)
 	    }
 	    if (print_group) sql_state = sql_print_name(header, RPMTAG_GROUP, sql_state);
 	    if (print_size) sql_state = sql_print_int(header, RPMTAG_SIZE, sql_state);
-	    if (print_serial) sql_state = sql_print_name(header, RPMTAG_SERIAL, sql_state);
+	    if (print_epoch) sql_state = sql_print_name(header, RPMTAG_EPOCH, sql_state);
 	    if (print_url) sql_state = sql_print_name(header, RPMTAG_URL, sql_state);
 	    if (print_summary) sql_state = sql_print_name(header, RPMTAG_SUMMARY, sql_state);
 	    if (print_description) sql_state = sql_print_name(header, RPMTAG_DESCRIPTION, sql_state);
@@ -522,7 +523,7 @@ int main(int argc, char **argv)
 	    if (print_prereqs) print_list_prereqs(header, printable_header(print_quiet, "prereqs", print_sep, "\n"), name);
 	    if (print_group) printf(printable_header(print_quiet, "group", print_sep, "\n"), name, get_name(header, RPMTAG_GROUP));
 	    if (print_size) printf(printable_header(print_quiet, "size", print_sep, "\n"), name, get_int(header, RPMTAG_SIZE));
-	    if (print_serial) printf(printable_header(print_quiet, "serial", print_sep, "\n"),
+	    if (print_epoch) printf(printable_header(print_quiet, "epoch", print_sep, "\n"),
 				     name, get_int(header, RPMTAG_EPOCH));
 	    if (print_summary) print_multiline(printable_header(print_quiet, "summary", print_sep, "\n"),
 					       name, get_name(header, RPMTAG_SUMMARY));
@@ -530,7 +531,7 @@ int main(int argc, char **argv)
 						   name, get_name(header, RPMTAG_DESCRIPTION));
 	    if (print_name) print_list_name(header, printable_header(print_quiet, "name", print_sep, 0), print_sep, 0);
 	    if (print_info) print_list_name(header, printable_header(print_quiet, "info", print_sep, 0), print_sep, 1);
-	    if ((print_name | print_info | print_group | print_size | print_serial | print_summary | print_description |
+	    if ((print_name | print_info | print_group | print_size | print_epoch | print_summary | print_description |
 		 print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs | print_files_more_info) == 0) {
 	      printf("%s\n", get_name(header, FILENAME_TAG));
 	    }
