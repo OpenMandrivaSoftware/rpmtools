@@ -1,7 +1,7 @@
 %define name rpmtools
 # do not modify here, see spec file in the CVS
-%define version 5.0.26
-%define release %mkrel 2
+%define version 5.0.27
+%define release %mkrel 1
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
 %define rpm_version %(rpm -q --queryformat '%{VERSION}-%{RELEASE}' rpm)
@@ -39,25 +39,22 @@ Provides:	perl(packdrake)
 Packdrake is a simple indexed archive builder and extractor using
 standard compression methods.
 
-Packadrakeng is a from scratch rewrite of the original packdrake. Its format
-is fully compatible with old packdrake.
-
 %prep
 %setup -q
 
 %build
-%{__perl} Makefile.PL INSTALLDIRS=vendor
+%__perl Makefile.PL INSTALLDIRS=vendor
 %make OPTIMIZE="%optflags"
 
 %check
 %make test
 
 %install
-%{__rm} -rf %{buildroot}
+%__rm -rf %{buildroot}
 %makeinstall_std
 
 %clean
-%{__rm} -rf %{buildroot}
+%__rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root)
@@ -82,6 +79,11 @@ is fully compatible with old packdrake.
 %{_mandir}/man1/packdrake*
 
 %changelog
+* Mon Jan 16 2006 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.27-1mdk
+- Replace serial by epoch everywhere in parsehdlist (rpm 4.4.4 compatibility)
+- Fix BuildRequires
+- Misc. code cleanup in gendistrib
+
 * Fri Dec 30 2005 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.26-2mdk
 - Bump conflicts due to file moves
 - Don't install empty manpages

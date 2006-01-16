@@ -1,3 +1,24 @@
+2006-01-16 15:51  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Use mktemp for temp files. Error checking when
+	  opening files. Fix comments. Update copyright.
+
+2006-01-16 15:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: Revert Titi's last commit and reindent properly
+
+2006-01-13 12:02  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: Add BuildRequires for regression tests
+
+2006-01-11 15:37  Thierry Vignaud <tvignaud at mandriva.com>
+
+	* gendistrib: fix obvious bug
+
+2005-12-30 17:06  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 5.0.26-2mdk
+
 2005-12-30 16:53  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Fix typo; update copyright
