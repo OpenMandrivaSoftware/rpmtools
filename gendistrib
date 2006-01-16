@@ -10,6 +10,7 @@ use Getopt::Long;
 use MDV::Distribconf::Build;
 use MDV::Packdrakeng;
 use Pod::Usage;
+use File::Temp 'mktemp';
 
 my $urpm = new URPM;
 my $tempdir = -d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp";
@@ -89,7 +90,7 @@ foreach ($distrib->listmedia) {
                 $distrib->getpath($_, 'path')
             ) unless $nooutput;
         } else {
-            # delaying error report to report all errors, not the only first
+            # delaying error report to report all errors, not only the first ones
             push(@media_missing_dirs, $_);
         }
         next;
@@ -134,8 +135,6 @@ if (@media_missing_dirs) {
     die "Stopping because dirs are missing, specify --skipmissingdir to ignore\n";
 }
 
-# Creating destination directory, doing it early,
-# don't die after 30 minutes of rpm parsing
 if (!-d $destinfodir) {
     mkdir $destinfodir, 0755
         or die qq(Can't create directory "$destinfodir": $!\n);
@@ -205,7 +204,7 @@ foreach (0..$#hdlists) {
     $e->{headers} = \@headers;
 
     if (!$blind) {
-        # checking if hdlist rebuild is need
+        # checking if hdlist rebuild is needed
         print STDERR "Checking if hdlist need to be rebuild for media $e->{descr}\n" unless $nooutput;
         if(!compare_headers_with_hdlist($e->{hdlist}, @headers)) {
             $e->{noneedrebuild} = 1;
@@ -238,7 +237,6 @@ sub compare_headers_with_hdlist {
             return 1;
         }
     } else {
-        # no valid hdlist, it differ for sure !
         return 1;
     }
     return 0; # no diff
@@ -255,7 +253,8 @@ print STDERR "clean data for second pass\n" unless $nooutput;
 $urpm->unresolved_provides_clean;
 
 #- temporary file where to build hdlists
-my $temp_hdlist = $tempdir . '/hdlist' . $$;
+my $temp_hdlist = mktemp("$tempdir/hdlistXXXXX");
+
 foreach (0..$#hdlists) {
     my $e = $hdlists[$_];
 
@@ -288,11 +287,14 @@ foreach (0..$#hdlists) {
 	    synthesis => $e->{synthesis});
 
     } else { # no rpm, creating empty but valid index
-        my $pack = MDV::Packdrakeng->new(archive =>  $temp_hdlist);
-        $pack = undef; # closing archive
-
-        system('/bin/mv', $temp_hdlist, $e->{hdlist});
-        open(my $hsynth, "| gzip > $e->{synthesis}");
+        if (my $pack = MDV::Packdrakeng->new(archive => $temp_hdlist)) {
+	    $pack = undef; # closing archive
+	    system('/bin/mv', $temp_hdlist, $e->{hdlist});
+	} else {
+	    print STDERR "Can't create empty archive $temp_hdlist: $MDV::Packdrakeng::error\n";
+	}
+        open(my $hsynth, "| /bin/gzip > $e->{synthesis}")
+	    or print STDERR "Can't create empty synthesis $e->{synthesis}: $!\n";
         close($hsynth);
     }
 
@@ -536,7 +538,7 @@ F<media.cfg> file.
 
 Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 MandrakeSoft SA
 
-Copyright (C) 2005 Mandriva SA
+Copyright (C) 2005, 2006 Mandriva SA
 
 This program is free software; you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
