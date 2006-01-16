@@ -261,32 +261,31 @@ foreach (0..$#hdlists) {
 
     if ($e->{headers}) { # We have rpms in this media
 
-    print STDERR qq(parsing headers for "$e->{descr}"\n) unless $nooutput;
-    my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
-					     headers => $e->{headers},
-				             dontdie => $dontdie,
-					     silent  => $nooutput);
+	print STDERR qq(parsing headers for "$e->{descr}"\n) unless $nooutput;
+	my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
+	    headers => $e->{headers},
+	    dontdie => $dontdie,
+	    silent  => $nooutput);
 
-    print STDERR "computing deps\n" unless $nooutput;
-    $urpm->compute_deps;
+	print STDERR "computing deps\n" unless $nooutput;
+	$urpm->compute_deps;
 
-    if ($e->{noneedrebuild}) {
-        # No media change, nothing to write
-        next;
-    }
+	# No media change, nothing to write
+	next if $e->{noneedrebuild};
 
-    print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
-    $urpm->build_hdlist(start  => $start,
-			end    => $end,
-			dir    => $headers_dir,
-			hdlist => $temp_hdlist,
-			ratio  => 9);
-    system('/bin/mv', $temp_hdlist, $e->{hdlist});
+	print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
+	unlink $temp_hdlist;
+	$urpm->build_hdlist(start  => $start,
+	    end    => $end,
+	    dir    => $headers_dir,
+	    hdlist => $temp_hdlist,
+	    ratio  => 9);
+	system('/bin/mv', $temp_hdlist, $e->{hdlist});
 
-    print STDERR qq(building synthesis for medium "$e->{descr}"\n) unless $nooutput;
-    $urpm->build_synthesis(start     => $start,
-			   end       => $end,
-			   synthesis => $e->{synthesis});
+	print STDERR qq(building synthesis for medium "$e->{descr}"\n) unless $nooutput;
+	$urpm->build_synthesis(start     => $start,
+	    end       => $end,
+	    synthesis => $e->{synthesis});
 
     } else { # no rpm, creating empty but valid index
         my $pack = MDV::Packdrakeng->new(archive =>  $temp_hdlist);
