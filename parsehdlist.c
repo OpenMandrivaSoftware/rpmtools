@@ -11,6 +11,7 @@
 #include <rpm/header.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 
 #ifndef VERSION_STRING
 #define VERSION_STRING "0.0"
