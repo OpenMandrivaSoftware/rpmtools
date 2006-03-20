@@ -1,6 +1,6 @@
 %define name rpmtools
 # do not modify here, see spec file in the CVS
-%define version 5.0.27
+%define version 5.0.28
 %define release %mkrel 1
 
 %define group %(perl -e 'print "%_vendor" =~ /\\bmandr/i ? "System/Configuration/Packaging" : "System Environment/Base"')
@@ -79,6 +79,12 @@ standard compression methods.
 %{_mandir}/man1/packdrake*
 
 %changelog
+* Mon Mar 20 2006 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.28-1mdk
+- Add --norecursive option to genhdlist (M. Scherer)
+
+* Wed Mar 15 2006 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.27-2mdk
+- Rebuild for rpm 4.4.5
+
 * Mon Jan 16 2006 Rafael Garcia-Suarez <rgarciasuarez@mandriva.com> 5.0.27-1mdk
 - Replace serial by epoch everywhere in parsehdlist (rpm 4.4.4 compatibility)
 - Fix BuildRequires

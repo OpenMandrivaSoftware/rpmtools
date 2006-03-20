@@ -1,3 +1,22 @@
+2006-03-20 13:52  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* genhdlist: Add a --norecursive option to genhdlist (Michael
+	  Scherer)
+
+2006-03-01 12:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* parsehdlist.c: Fix compilation warning
+
+2006-01-16 16:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* rpmtools.spec: 5.0.27-1mdk
+
+2006-01-16 16:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* parsehdlist.c: Replace serial by epoch everywhere, to be able to
+	  build with rpm 4.4.4.  The --serial switch is still recognized,
+	  but not documented.  Update Copyright.
+
 2006-01-16 15:51  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Use mktemp for temp files. Error checking when
