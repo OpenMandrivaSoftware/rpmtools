@@ -15,8 +15,15 @@ my $spec;
     or die "no version found\n";
 warn "building rpmtools version v$rpmtools_version\n";
 
-my $tag_version = "v$rpmtools_version";
-$tag_version =~ s/\./_/g;
+# to generate the ChangeLog depending on the checkout layout
+my $commonusername = "../common/";
+-d $commonusername or do {
+    $commonusername = "../../common/";
+    -d $commonusername or do {
+	$commonusername = "../../../common/";
+	-d $commonusername or $commonusername = "";
+    };
+};
 
 sub MY::postamble {
     <<MAKEMAKEFILE;
@@ -35,15 +42,11 @@ cleanc:
 	rm -rf *.cz test
 
 ChangeLog:
-	cvs2cl -W 400 -I ChangeLog --accum -U ../common/username
+	LC_ALL=C svn2cl --accum --strip-prefix=soft/rpm/rpmtools/trunk --authors ${commonusername}username.xml
 	rm -f *.bak
 
 rpm: dist
 	rpm --define "_sourcedir `pwd`" -ba --clean --rmsource rpmtools.spec
-
-tag:
-	cvs tag $tag_version
-
 MAKEMAKEFILE
 }
 

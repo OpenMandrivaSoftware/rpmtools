@@ -1,2017 +1,2093 @@
-2006-03-20 13:52  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2006-06-12 13:11  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* parsehdlist.c: RPMTAG_SOURCEPACKAGE is deprecated, use
+	  RPMTAG_SOURCERPM
+
+2006-03-20 13:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* ChangeLog, rpmtools.spec: 5.0.28
+
+2006-03-20 12:52  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Add a --norecursive option to genhdlist (Michael
 	  Scherer)
 
-2006-03-01 12:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2006-03-01 11:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: Fix compilation warning
 
-2006-01-16 16:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2006-01-16 15:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.27-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.27-1mdk
 
-2006-01-16 16:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2006-01-16 15:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: Replace serial by epoch everywhere, to be able to
-	  build with rpm 4.4.4.  The --serial switch is still recognized,
-	  but not documented.  Update Copyright.
+	  build with rpm 4.4.4.
+	  The --serial switch is still recognized, but not documented.
+	  Update Copyright.
 
-2006-01-16 15:51  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2006-01-16 14:51  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Use mktemp for temp files. Error checking when
 	  opening files. Fix comments. Update copyright.
 
-2006-01-16 15:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2006-01-16 14:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Revert Titi's last commit and reindent properly
 
-2006-01-13 12:02  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2006-01-13 11:02  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Add BuildRequires for regression tests
 
-2006-01-11 15:37  Thierry Vignaud <tvignaud at mandriva.com>
+2006-01-11 14:37  Thierry Vignaud <tvignaud at mandriva.com>
 
 	* gendistrib: fix obvious bug
 
-2005-12-30 17:06  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-12-30 16:06  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.26-2mdk
+	* ChangeLog, rpmtools.spec: 5.0.26-2mdk
 
-2005-12-30 16:53  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-12-30 15:53  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Fix typo; update copyright
 
-2005-12-30 16:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-12-30 15:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Make it clear that genhdlist always generates a
-	  synthesis.  Update copyright notice.
+	  synthesis.
+	  Update copyright notice.
 
-2005-12-05 19:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-12-05 18:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL, rpmtools.spec: Don't install empty manpages
 
-2005-12-05 18:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-12-05 17:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Trust automatic requires.
 
-2005-11-16 17:20  Thierry Vignaud <tvignaud at mandriva.com>
+2005-11-16 16:20  Thierry Vignaud <tvignaud at mandriva.com>
 
 	* rpmtools.spec: bump conflicts due to file moves
 
-2005-11-16 15:46  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-16 14:46  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.26-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.26-1mdk
 
-2005-11-16 15:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-16 14:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* editdistrib: Add a version command
 
-2005-11-16 15:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-16 14:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* editdistrib: Fix a few typos; add a "quit" command
 
-2005-11-16 14:57  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-16 13:57  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL, rpmtools.spec: Put packdrake(1) manpage in the
-	  packdrake rpm, not in the rpmtools rpm.  Don't install manpages
-	  in section 3 for obsolete modules.
+	  packdrake rpm, not in the rpmtools rpm.
+	  Don't install manpages in section 3 for obsolete modules.
 
-2005-11-16 14:56  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-16 13:56  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: Don't leave empty sections in manpage
 
-2005-11-16 14:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-16 13:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* gendistrib: Fix the location where the MD5SUM files are generated
-	  (thanks joeghi)
+	* gendistrib: Fix the location where the MD5SUM files are
+	  generated (thanks joeghi)
 
-2005-11-15 13:42  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-15 12:42  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake.pm: Remove wrapper overhead, use directly new module
 
-2005-11-15 13:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-15 12:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* Distribconf.pm, Packdrakeng.pm, Distribconf/Build.pm,
-	  Packdrakeng/zlib.pm: Replace modules by wrappers around new MDV::
-	  namespace. Add a deprecation warning.
+	* Distribconf.pm, Distribconf/Build.pm, Packdrakeng.pm,
+	  Packdrakeng/zlib.pm: Replace modules by wrappers around new
+	  MDV:: namespace. Add a deprecation warning.
 
-2005-11-15 13:19  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-15 12:19  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* t/01packdrakeng.t: use_ok must be done at compile time for
 	  imports to work
 
-2005-11-15 12:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-15 11:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* dumpdistribconf, gendistrib: Use modules in the new namespace
 	  MDV::
 
-2005-11-15 12:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-15 11:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* MANIFEST: Add editdistrib to the MANIFEST
 
-2005-11-15 12:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-11-15 11:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* .cvsignore: Ignore MakeMaker build files and compiled binaries
+	* ., .cvsignore: Ignore MakeMaker build files and compiled binaries
 
-2005-10-18 17:41  Olivier Blin <oblin at mandriva.com>
+2005-10-18 15:41  Olivier Blin <oblin at mandriva.com>
 
 	* packdrake: fix syntax error
 
-2005-10-14 03:49  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-10-14 01:49  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* editdistrib: - add del/save/set/check
 
-2005-10-11 23:23  pterjan
+2005-10-11 21:23  Pascal Terjan <pterjan at mandriva.com>
 
 	* gendistrib: Fix typo
 
-2005-10-11 08:32  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-10-11 06:32  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* editdistrib: - factorize code
 
-2005-10-11 01:26  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-10-10 23:26  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* editdistrib: - add addmedia() - use MDV::...
+	* editdistrib: - add addmedia()
+	  - use MDV::...
 
-2005-10-10 14:42  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-10-10 12:42  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* editdistrib: - add
 
-2005-10-04 14:07  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-04 12:07  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Make perl-devel dependency portable (thanks to
 	  Buchan)
 
-2005-10-03 19:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-03 17:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.25-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.25-1mdk
 
-2005-10-03 18:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-03 16:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: Make Pod::Usage optional, for dependency reasons
 
-2005-10-03 17:40  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-03 15:40  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng/zlib.pm: Disarm warnings
 
-2005-10-03 17:09  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-03 15:09  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: Add --version. Doc clarification.
 
-2005-10-03 16:08  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-03 14:08  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: Use Pod::Usage
 
-2005-10-03 14:49  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-03 12:49  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: Begin cleanup.
 
-2005-10-03 13:25  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-10-03 11:25  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL: Don't depend on MDK::Common
 
-2005-09-30 18:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 16:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Put license in POD
 
-2005-09-30 17:56  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 15:56  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Use a random temp directory. Remove --headersdir
 	  option.
 
-2005-09-30 17:23  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 15:23  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Put license in doc. More code cleanup.
 
-2005-09-30 17:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 15:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Don't create a list file, unless explicitly told so
 	  (with --list)
 
-2005-09-30 16:59  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 14:59  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Add a --subdir option
 
-2005-09-30 16:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 14:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: More docs and cleanup
 
-2005-09-30 16:07  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 14:07  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Well, if tempdir doesn't exist, that's okay too
 
-2005-09-30 16:04  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 14:04  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* genhdlist: Safety check: make sur temporary directory is owned by
-	  user
+	* genhdlist: Safety check: make sur temporary directory is owned
+	  by user
 
-2005-09-30 15:39  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 13:39  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Add an option --md5sum
 
-2005-09-30 14:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 12:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: TODO
 
-2005-09-30 14:43  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 12:43  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* Distribconf.pm, dumpdistribconf: Use meaningful return values for
-	  DistribConf::load()
+	* Distribconf.pm, dumpdistribconf: Use meaningful return values
+	  for DistribConf::load()
 
-2005-09-30 14:29  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 12:29  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Factorize
 
-2005-09-30 14:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-30 12:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* dumpdistribconf: Don't give two meanings to -h
 
-2005-09-29 18:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 16:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* t/01packdrakeng.t: Test cleanup
 
-2005-09-29 18:08  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 16:08  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* dumpdistribconf: Use Pod::Usage
 
-2005-09-29 17:51  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 15:51  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* dumpdistribconf: Use Distribconf::Build, or else it will go boom
 
-2005-09-29 17:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 15:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf/Build.pm: More docs and minor fixes
 
-2005-09-29 16:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 14:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf/Build.pm: Don't repeat copyright put in Distribconf
 
-2005-09-29 16:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 14:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf.pm: Avoid uninitialized warnings. Licensing terms.
 	  TODO and XXX notations.
 
-2005-09-29 15:44  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 13:44  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf.pm: More docs for Distribconf
 
-2005-09-29 15:43  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 13:43  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf/Build.pm: Reports errors on STDERR, not STDOUT
 
-2005-09-29 14:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-29 12:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf.pm: More, more docs
-
-2005-09-29 14:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
-
 	* gendistrib: Add SEE ALSO
-
-2005-09-29 14:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
-
 	* Distribconf/Build.pm: Spell check error message
 
-2005-09-28 18:17  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 16:17  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Spec cleanup
 
-2005-09-28 18:05  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 16:05  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng/zlib.pm: Add version, fix typo
 
-2005-09-28 18:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 16:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* Distribconf.pm, Distribconf/Build.pm: Add  in Distribconf modules
+	* Distribconf.pm, Distribconf/Build.pm: Add in Distribconf modules
 
-2005-09-28 17:58  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 15:58  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Add a description, typo fixes
 
-2005-09-28 17:11  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 15:11  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib, genhdlist: Sort manpage by alphabetical order
 
-2005-09-28 17:09  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 15:09  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Remove unnecessary, misnamed, undocumented and
 	  deprecated option --distrib
 
-2005-09-28 16:29  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 14:29  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Use Pod::Usage
 
-2005-09-28 16:19  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 14:19  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Code cleanup
 
-2005-09-28 15:44  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 13:44  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Add a manpage for gendistrib(1)
 
-2005-09-28 14:06  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 12:06  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL, gendistrib, rpmtools.spec: Use Pod::Usage for
 	  gendistrib
 
-2005-09-28 12:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 10:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Add --version option. Suppress idiotic -s option
 	  alias.
 
-2005-09-28 12:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 10:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: First POD draft.
 
-2005-09-28 11:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 09:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL, rpm2header.c: Remove obsolete code
 
-2005-09-28 10:50  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-09-28 08:50  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf.pm, gendistrib: Documentation nits. Fix some fatal
 	  error messages.
 
-2005-09-14 17:05  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-09-14 15:05  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: -add %check
 
-2005-09-14 17:04  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-09-14 15:04  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* rpmtools.spec: - 5.0.24
+	* ChangeLog, rpmtools.spec: - 5.0.24
 
-2005-09-14 03:02  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-09-14 01:02  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - skip hdlist rebuild per media when not need
 
-2005-09-07 11:33  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-09-07 09:33  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - add --blind option / rebuild even it is not need
 
-2005-09-07 08:41  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-09-07 06:41  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - do not rebuild hdlist if not need
 
-2005-09-07 01:48  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-09-06 23:48  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: add --destdir option
 
-2005-09-06 21:46  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-09-06 19:46  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Distribconf.pm, Packdrakeng.pm, dumpdistribconf, packdrake.pm,
-	  Distribconf/Build.pm: - s/mandrake/mandriva/
+	* Distribconf.pm, Distribconf/Build.pm, Packdrakeng.pm,
+	  dumpdistribconf, packdrake.pm: - s/mandrake/mandriva/
 
-2005-09-06 18:58  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-09-06 16:58  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - make empty media non fatal, use --noemptymedia to
-	  back old behaviour - add --mediacfg in --help - die if header dir
-	  can't be recreate
+	  back old behaviour
+	  - add --mediacfg in --help
+	  - die if header dir can't be recreate
 
-2005-09-06 17:56  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-09-06 15:56  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - show all missing directory before dying when
 	  --skipmissingdir is not specified
 
-2005-08-23 14:57  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-08-23 12:57  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* t/01packdrakeng.t: Test fix to go along with the previous change.
-	  Be more TAP compliant.  Die early of errors.
+	* t/01packdrakeng.t: Test fix to go along with the previous
+	  change. Be more TAP compliant.
+	  Die early of errors.
 
-2005-08-23 14:50  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-08-23 12:50  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.23-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.23-1mdk
 
-2005-08-23 14:47  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-08-23 12:47  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: If extracting an archive to an undefined
-	  directory, output to stdout.	(used by urpmq)
+	  directory, output to stdout.
+	  (used by urpmq)
 
-2005-08-22 19:59  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-08-22 17:59  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.22
+	* ChangeLog, rpmtools.spec: 5.0.22
 
-2005-08-22 18:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-08-22 16:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* Packdrakeng.pm: Use destdir = "." if not specified.  Don't use
-	  warnings.
+	* Packdrakeng.pm: Use destdir = "." if not specified.
+	  Don't use warnings.
 
-2005-08-19 17:33  Thierry Vignaud <tvignaud at mandriva.com>
+2005-08-19 15:33  Thierry Vignaud <tvignaud at mandriva.com>
 
 	* Packdrakeng.pm: let it pass perl_checker
-
-2005-08-19 17:33  Thierry Vignaud <tvignaud at mandriva.com>
-
 	* .perl_checker: blacklist a few packages in order to be able to
 	  run perl_checker over Packadrake
 
-2005-08-19 17:30  Thierry Vignaud <tvignaud at mandriva.com>
+2005-08-19 15:30  Thierry Vignaud <tvignaud at mandriva.com>
 
 	* Packdrakeng.pm: (tempfile) display which file we failed to create
 
-2005-06-20 12:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-06-20 10:14  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 4.0.21
+	* ChangeLog, rpmtools.spec: 4.0.21
 
-2005-06-16 03:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-06-16 01:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Create temp file in $TMPDIR instead of $TMP, and
 	  warn when creation failed
 
-2005-05-26 11:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-05-26 09:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf/Build.pm: Fix error messages
 
-2005-05-10 11:24  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-05-10 09:24  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.20-2mdk
+	* ChangeLog, rpmtools.spec: 5.0.20-2mdk
 
-2005-04-15 17:48  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-04-15 15:48  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Be less dependant on distribution name
 
-2005-04-04 17:31  Pixel <pixel at mandriva.com>
+2005-04-04 15:31  Pixel <pixel at mandriva.com>
 
 	* Packdrakeng.pm, rpmtools.spec: packdrake: remove dirty message
 	  when decompressing without Compress::Zlib
 
-2005-03-29 17:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-03-29 15:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.19-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.19-1mdk
 
-2005-03-29 17:37  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+2005-03-29 15:37  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Remove redundant code
 
-2005-03-29 17:24  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-29 15:24  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Create the directory "thismediainfo" if it doesn't
 	  exist
 
-2005-03-14 14:01  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-14 13:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.18-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.18-1mdk
 
-2005-03-14 13:47  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-14 12:47  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Build hdlists in temporary locations
 
-2005-03-07 16:06  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-07 15:06  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: 5.0.17-1mdk
 
-2005-03-07 16:00  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-07 15:00  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Factorisation of paths
 
-2005-03-07 15:20  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-07 14:20  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Generate media-specific MD5SUM files in
 	  'thismediainfo' dir, not 'mediainfo'
 
-2005-03-07 14:45  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-07 13:45  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Distribconf.pm: Doc and POD fixes
 
-2005-03-07 11:59  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-07 10:59  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Spelling fix
 
-2005-03-01 12:46  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-01 11:46  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.16-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.16-1mdk
 
-2005-03-01 12:33  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-01 11:33  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: Output help to stdout
 
-2005-03-01 12:31  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-03-01 11:31  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: Patch by Leon Brooks to add an --sql option to
-	  dump output as SQL INSERT statements, and an --url option to get
-	  the rpm's URL tag.
+	  dump output as SQL INSERT
+	  statements, and an --url option to get the rpm's URL tag.
 
-2005-02-28 12:37  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-02-28 11:37  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: POD fixes.
 
-2005-02-28 12:32  Rafael Garcia-Suarez <rgarciasuarez at mandrakesoft.com>
+2005-02-28 11:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: toc_f_count wasn't stored in the Packdrakeng
-	  object, and it's used by rpmdrake's search progress bar. (bug
-	  14008)
+	  object, and it's used by
+	  rpmdrake's search progress bar. (bug 14008)
 
-2005-02-22 21:24  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+2005-02-23 18:32  Pablo Saratxaga <pablo at mandriva.com>
+
+	* ChangeLog: converted to UTF-8
+
+2005-02-22 20:25  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* ChangeLog: -update
+
+2005-02-22 20:24  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* MANIFEST, Makefile.PL, rpmtools.spec: - 5.0.15
 
-2005-02-22 21:15  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-22 20:15  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* gendistrib: - --skipmissingdir - preform a simple on the distrib
-	  - die ealier on missing media dir - generate VERSION it self
+	* gendistrib: - --skipmissingdir
+	  - preform a simple on the distrib
+	  - die ealier on missing media dir
+	  - generate VERSION it self
 
-2005-02-22 21:12  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-22 20:12  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Distribconf.pm, Distribconf/Build.pm: - split Distribconf with
-	  Build - add write_VERSION
+	* Distribconf, Distribconf.pm, Distribconf/Build.pm: - split
+	  Distribconf with Build
+	  - add write_VERSION
 
-2005-02-22 13:52  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-22 12:52  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Distribconf.pm: - don't add a 'm' to size in hdlists
 
-2005-02-21 22:40  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 21:40  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Distribconf.pm: - add getfullpath - s![ /]*!_! in default path -
-	  add check()
+	* Distribconf.pm: - add getfullpath
+	  - s![ /]*!_! in default path
+	  - add check()
 
-2005-02-21 22:36  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 21:36  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - add a "\n" to beautify output
 
-2005-02-21 16:45  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 15:45  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
+	* ChangeLog: - update
 	* rpmtools.spec: - 5.0.14
 
-2005-02-21 16:42  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 15:42  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: -fix wrong commit
 
-2005-02-21 16:34  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 15:34  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Distribconf.pm, gendistrib: Distribconf
 
-2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 13:15  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* ChangeLog: - update
+
+2005-02-21 13:14  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: - 5.0.13
-
-2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
-
 	* Distribconf.pm: - add doc for pubkey
 
-2005-02-21 14:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 13:11  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Distribconf.pm: - add doc for pubkey
+	* Distribconf.pm: - lowercase media name in file name
+	  - manage pubkey
 
-2005-02-21 14:11  Olivier Thauvin <thauvin@aerov.jussieu.fr>
-
-	* Distribconf.pm: - lowercase media name in file name - manage
-	  pubkey
-
-2005-02-21 13:47  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 12:47  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Distribconf.pm: - avoid error message about non existing
 	  media.cfg
 
-2005-02-21 01:06  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 00:10  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* ChangeLog: - update
+
+2005-02-21 00:06  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - s/getpath/getvalue/
 
-2005-02-21 01:04  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 00:05  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* ChangeLog: - update
+
+2005-02-21 00:04  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: - 5.0.12
 
-2005-02-21 01:03  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-21 00:03  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib: - skip media genration if suppl or askmedia
 
-2005-02-21 00:36  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-20 23:36  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: - remove prefix tag
 
-2005-02-21 00:20  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-20 23:20  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* gendistrib, rpmtools.spec: - don't create existing dir - minor
-	  fix - 5.8.11
+	* gendistrib, rpmtools.spec: - don't create existing dir
+	  - minor fix
+	  - 5.8.11
 
-2005-02-20 22:44  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-20 21:44  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* MANIFEST, Makefile.PL: - add Districonf and co
 
-2005-02-20 22:15  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-02-20 21:15  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Distribconf.pm, dumpdistribconf: - initials release for managing
 	  mandrakelinux distro tree
 
-2005-02-17 13:58  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 12:58  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.10-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.10-1mdk
 
-2005-02-17 13:30  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 12:30  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Ensure links are done
 
-2005-02-17 12:26  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 11:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Spelling fixes in usage
 
-2005-02-17 11:57  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 10:57  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Generate MD5SUM files
 
-2005-02-17 11:23  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 10:23  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: More cleanup
 
-2005-02-17 10:58  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 09:58  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Add creation of links to hdlist/synthesis in
-	  media_info subdirectories (and add a command line option to
-	  disable it)
+	  media_info subdirectories
+	  (and add a command line option to disable it)
 
-2005-02-17 10:09  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 09:09  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Code cleanup
 
-2005-02-17 09:16  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-17 08:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Handle new hdlists format (with sizes)
 
-2005-02-02 12:28  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-02-02 11:28  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Remove redundant and bogus require on perl-base
 
-2005-01-17 14:26  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-01-17 13:26  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.9-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.9-1mdk
 
-2005-01-17 14:01  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-01-17 13:01  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* genhdlist: Add a "follow" option to the File::Find call, to
-	  follow symlinks, as suggested by Steven Shiau. Plus some tidying
-	  up and perl_checker fixes.
+	  follow symlinks, as
+	  suggested by Steven Shiau. Plus some tidying up and perl_checker
+	  fixes.
 
-2005-01-07 13:38  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-01-07 12:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: More filehandle cleanup
 
-2005-01-03 22:52  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2005-01-03 21:52  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng/zlib.pm: Fix warning messages (english grammar, plus
 	  final \n)
 
-2005-01-03 17:54  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-01-03 16:55  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Packdrakeng.pm, rpmtools.spec: - Fix options parsing - 5.0.8
+	* ChangeLog: - update for 5.0.8
 
-2005-01-03 17:38  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2005-01-03 16:54  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* Packdrakeng.pm, rpmtools.spec: - Fix options parsing
+	  - 5.0.8
+
+2005-01-03 16:38  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Packdrakeng.pm, Packdrakeng/zlib.pm: - fix data read detection
 	  when using cache
 
-2004-12-30 17:00  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-30 16:00  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
+	* ChangeLog: - update
 	* rpmtools.spec: - 5.0.7
 
-2004-12-30 16:55  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-30 15:55  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Packdrakeng.pm, Packdrakeng/zlib.pm: - speedup uncompress
-	  function - factorize code
+	  function
+	  - factorize code
 
-2004-12-22 00:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-21 23:14  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Packdrakeng/zlib.pm: -really fix syswrite
 
-2004-12-21 23:29  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-21 22:29  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Packdrakeng/zlib.pm: - check data are really writen
 
-2004-12-20 13:25  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-20 12:25  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Packdrakeng.pm, t/01packdrakeng.t: - add infofile() function -
-	  more doc
+	* Packdrakeng.pm, t/01packdrakeng.t: - add infofile() function
+	  - more doc
 
-2004-12-17 17:04  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-17 16:04  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: perl_checker fixes
 
-2004-12-17 14:32  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-17 13:32  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.6-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.6-1mdk
 
-2004-12-17 14:24  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-17 13:24  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm, Packdrakeng/zlib.pm: Ensure Packdrakeng::zlib
-	  loads properly, and is not used if Compress::Zlib is not
-	  available
+	  loads properly, and is not used if Compress::Zlib
+	  is not available
 
-2004-12-17 14:13  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-17 13:13  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* t/: 01packdrakeng.t, 02packdrake.t: Neatier test labels
+	* t/01packdrakeng.t, t/02packdrake.t: Neatier test labels
 
-2004-12-17 11:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-17 10:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Simplify optional module loading
 
-2004-12-16 16:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-16 15:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake.pm: At least show a warning when an archive can't be
 	  found
 
-2004-12-16 16:03  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-16 15:03  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Don't invoke compression/decompression
 	  subroutines as methods
 
-2004-12-16 13:50  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-16 12:50  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Makefile.PL: - add tag command
 
-2004-12-15 20:52  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-15 19:52  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Packdrakeng.pm: - more docs
 
-2004-12-14 20:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 19:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.5-1mdk
+	* ChangeLog, rpmtools.spec: 5.0.5-1mdk
 
-2004-12-14 20:16  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 19:16  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Fix indentation and capitalize some warning
 	  messages
 
-2004-12-14 20:13  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 19:13  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Use $pack->{log}() instead of warn(), so --quiet
 	  works again
 
-2004-12-14 11:38  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 10:38  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL: Don't hardcode version in several places
 
-2004-12-14 11:27  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 10:27  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.4
+	* ChangeLog, rpmtools.spec: 5.0.4
 
-2004-12-14 11:25  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 10:25  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Don't require Compress::Zlib (only suggest :)
 
-2004-12-14 11:24  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 10:24  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* packdrake.pm: extract_archive() should do nothing in no files are
-	  specified.  Add an extract_all_archive function.
+	* packdrake.pm: extract_archive() should do nothing in no files
+	  are specified.
+	  Add an extract_all_archive function.
 
-2004-12-14 02:44  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-14 01:44  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Packdrakeng.pm: - fix mkpath
 
-2004-12-14 01:22  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-14 00:23  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Makefile.PL, Packdrakeng.pm, rpmtools.spec: - 5.0.3 - fix mkpath
+	* ChangeLog: - update for 5.0.3
 
-2004-12-14 01:00  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-14 00:22  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* t/01packdrakeng.t, Packdrakeng.pm: - don't use File::* modules
+	* Makefile.PL, Packdrakeng.pm, rpmtools.spec: - 5.0.3
+	  - fix mkpath
 
-2004-12-13 18:54  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-14 00:02  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* Packdrakeng.pm, t/01packdrakeng.t: - don't use File::* modules
+
+2004-12-13 17:54  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: Fix a misplaced Provides in the specfile.
 
-2004-12-13 17:17  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-13 16:17  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Explicit import list for POSIX
 
-2004-12-13 16:57  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-13 15:57  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: - add conflicts to help update
 
-2004-12-13 16:48  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-13 15:49  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* ChangeLog: - update
+
+2004-12-13 15:48  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Makefile.PL, rpmtools.spec: - add missing file zlib.pm
 
-2004-12-13 16:29  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-13 15:29  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: - cosmetic change, make rpmlint happy
 
-2004-12-13 16:26  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-13 15:26  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Makefile.PL: - version is 5.0.1
 
-2004-12-13 16:13  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-13 15:20  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* ChangeLog: - update
+
+2004-12-13 15:13  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* MANIFEST: - add Packdrakeng/zlib.pm
 
-2004-12-13 16:10  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-13 15:10  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Packdrakeng/zlib.pm: - externalize Compress::Zlib
-
-2004-12-13 16:10  Olivier Thauvin <thauvin@aerov.jussieu.fr>
-
+	* Packdrakeng, Packdrakeng/zlib.pm: - externalize Compress::Zlib
 	* Packdrakeng.pm: - s/use/eval {require}/ on Compress::Zlib, so it
 	  can works without it
 
-2004-12-13 16:06  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-13 15:06  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* rpmtools.spec: - split package - 5.0.1
+	* rpmtools.spec: - split package
+	  - 5.0.1
 
-2004-12-09 14:04  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-09 13:04  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 5.0.0-2mdk
+	* ChangeLog, rpmtools.spec: 5.0.0-2mdk
 
-2004-12-09 13:56  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-09 12:56  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL: Refine "rpm" make target
 
-2004-12-09 13:46  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-09 12:46  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Pull $VERSION from CVS
 
-2004-12-09 13:43  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-09 12:43  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake: Adjust copyright
 
-2004-12-09 13:34  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-09 12:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake.pm: POD fixes.
 
-2004-12-07 11:19  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-07 10:19  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* t/01packdrakeng.t: - minor fix
 
-2004-12-07 10:57  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-07 09:57  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* t/02packdrake.t: Compare strings with eq, not ==
 
-2004-12-07 10:47  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-07 09:47  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: POD fix
 
-2004-12-07 10:34  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-07 09:34  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Packdrakeng.pm: Minor doc fixes
 
-2004-12-07 09:10  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-12-07 08:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile.PL: Improve distclean make target
 
-2004-12-07 00:29  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-06 23:29  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* MANIFEST: - ChangeLog
+	* ChangeLog, MANIFEST: - ChangeLog
 
-2004-12-07 00:27  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-06 23:27  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* MANIFEST, Makefile, Makefile.PL, Packdrakeng.pm, packdrake.pm,
-	  rpmtools.spec, t/02packdrake.t: - 5.0.0 - more test and fix
+	  rpmtools.spec, t/02packdrake.t: - 5.0.0
+	  - more test and fix
 
-2004-12-06 17:42  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-06 16:42  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Packdrakeng.pm, t/01packdrakeng.t: - fix dir / symlink creation -
-	  add test
+	* Packdrakeng.pm, t/01packdrakeng.t: - fix dir / symlink creation
+	  - add test
 
-2004-12-06 16:40  Michael Scherer <mscherer@mandrake.org>
+2004-12-06 15:40  Michael Scherer <misc at mandriva.org>
 
 	* Packdrakeng.pm: - fix small typos in docs
 
-2004-12-06 12:15  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-06 11:15  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* distriblint: - removing this ugly script
 
-2004-12-06 12:11  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-06 11:11  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* MANIFEST, Makefile, Makefile.PL, packdrake.pm, rpmtools.spec,
-	  packdrake-pm/Makefile.PL, packdrake-pm/packdrake.pm: - bump to
-	  packdrakeng
+	* MANIFEST, Makefile, Makefile.PL, packdrake-pm, packdrake.pm,
+	  rpmtools.spec: - bump to packdrakeng
 
-2004-12-05 22:05  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-05 21:05  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* Packdrakeng.pm, t/01packdrakeng.t: - fix data length detection in
-	  extern_compress - add test
+	* Packdrakeng.pm, t/01packdrakeng.t: - fix data length detection
+	  in extern_compress
+	  - add test
 
-2004-12-05 17:36  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-05 16:36  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Packdrakeng.pm, packdrakeng.pm: - rename packdrakeng.pm to
 	  Packdrakeng.pm to follow perl policy
 
-2004-12-05 08:13  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-05 07:13  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* packdrakeng.pm, t/01packdrakeng.t: - fix data length to write -
-	  test: use strict ;) then fix it !!
+	* packdrakeng.pm, t/01packdrakeng.t: - fix data length to write
+	  - test: use strict ;) then fix it !!
 
-2004-12-04 05:32  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-12-04 04:32  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* packdrakeng.pm, t/01packdrakeng.t: - add external call to
-	  compress programs - clean code - fix bugs...	- start doc - add
-	  test
+	  compress programs
+	  - clean code
+	  - fix bugs...
+	  - start doc
+	  - add test
 
-2004-11-29 11:11  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-11-29 10:11  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* t/01packdrakeng.t: - first commit
+	* t, t/01packdrakeng.t: - first commit
 
-2004-11-29 09:45  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-11-29 08:45  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* packdrakeng.pm: - managed more than one file by bloc - add few
-	  comment
+	* packdrakeng.pm: - managed more than one file by bloc
+	  - add few comment
 
-2004-11-29 01:30  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-11-29 00:30  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* packdrake-pm/packdrake.pm: - cosmectic fix
 
-2004-11-27 15:08  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-11-27 14:08  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* packdrakeng.pm: - fix compressed size read - some return on error
-	  add
+	* packdrakeng.pm: - fix compressed size read
+	  - some return on error add
 
-2004-11-26 01:34  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-11-26 00:34  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* packdrakeng.pm: - Update errors
 
-2004-11-25 23:27  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-11-25 22:27  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* packdrakeng.pm: - first commit for this wonderfull packdrake ng
 	  pm file
 
-2004-11-18 13:48  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-11-18 12:48  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Logging nits
 
-2004-11-17 18:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-11-17 17:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* gendistrib: Fix usage notes
 
-2004-09-02 07:19  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-09-02 05:19  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 4.5-25mdk
+	* ChangeLog, rpmtools.spec: 4.5-25mdk
 
-2004-09-02 07:03  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-09-02 05:03  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* distriblint, gendistrib: Make rpm tools handle new keywords in
 	  hdlists file.
 
-2004-08-18 02:21  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-08-18 00:21  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 4.5-24mdk
+	* ChangeLog, rpmtools.spec: 4.5-24mdk
 
-2004-08-18 02:15  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-08-18 00:15  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile: Install rpm2cpio.pl
 
-2004-08-18 01:57  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-08-17 23:57  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpm2cpio.pl: Minor adjustements
 
-2004-08-18 01:50  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-08-17 23:50  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpm2cpio.pl: Add a pure-perl version of rpm2cpio (for emergency
-	  cases), written by Roger Espel Llima. (from
+	  cases),
+	  written by Roger Espel Llima. (from
 	  http://www.iagora.com/~espel/rpm2cpio)
 
-2004-08-11 07:22  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-08-11 05:22  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 4.5-23mdk
+	* ChangeLog, rpmtools.spec: 4.5-23mdk
 
-2004-08-11 07:10  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-08-11 05:10  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: Don't include internal dependencies of the rpmlib
 	  in the parsehdlist output
 
-2004-07-22 10:25  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-07-22 08:25  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* distriblint, gendistrib, rpmtools.spec,
-	  packdrake-pm/packdrake.pm: 4.5-22mdk: Updates for the new media
-	  layout in cooker
+	* distriblint, gendistrib, packdrake-pm/packdrake.pm,
+	  rpmtools.spec: 4.5-22mdk: Updates for the new media layout in
+	  cooker
 
-2004-07-05 08:47  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-07-05 06:47  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
-	* rpmtools.spec: 4.5-21mdk
+	* ChangeLog, rpmtools.spec: 4.5-21mdk
 
-2004-07-05 08:23  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-07-05 06:23  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: Fix error message
 
-2004-07-05 07:40  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-07-05 05:40  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: Minor fixes in help message
-
-2004-07-05 07:40  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
-
 	* Makefile: Add a rule for changelog generation
 
-2004-04-23 14:39  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-04-23 12:39  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* rpmtools.spec: 4.5-20mdk
 
-2004-04-23 11:04  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-04-23 09:04  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* Makefile: Fix CFLAGS in the Makefile for compilation with
 	  versions of rpm >= 4.2.
 
-2004-04-23 10:49  Rafael Garcia-Suarez <rgarciasuarez@mandrakesoft.com>
+2004-04-23 08:49  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* packdrake, packdrake-pm/packdrake.pm: Add a --quiet option to
 	  packdrake
 
-2004-04-21 11:17  Warly <warly@mandrakesoft.com>
+2004-04-21 09:17  Warly <warly at mandriva.com>
 
 	* gendistrib: make $ENV{TMPDIR} the default cache location
 
-2004-02-25 14:35  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-02-25 13:35  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: rebuild for perl
 
-2004-01-18 03:30  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-01-18 02:30  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* genhdlist: - Don't put wrong rpm in list file when using dontdie
 
-2004-01-16 19:04  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-01-16 18:05  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* ChangeLog: Generated by cvs2cl the 16_Jan
+
+2004-01-16 18:04  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* genhdlist, rpmtools.spec: fix genhdlist without arg
 
-2004-01-16 01:58  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-01-16 00:58  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* rpmtools.spec: - 17mdk
 
-2004-01-16 01:53  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-01-16 00:53  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* genhdlist: - add --dest option - fix dir parsing
+	* genhdlist: - add --dest option
+	  - fix dir parsing
 
-2004-01-09 16:49  Warly <warly@mandrakesoft.com>
+2004-01-09 15:49  Warly <warly at mandriva.com>
 
 	* rpmtools.spec: add provides perl(packdrake)
 
-2004-01-05 23:14  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-01-05 22:15  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
-	* rpmtools.spec: -15mdk
+	* ChangeLog, rpmtools.spec: -15mdk
 
-2004-01-05 23:09  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-01-05 22:09  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* Makefile: use %_topdir instead /home/users/olivier
 
-2004-01-05 22:51  Olivier Thauvin <thauvin@aerov.jussieu.fr>
+2004-01-05 21:51  Olivier Thauvin <thauvin at aerov.jussieu.fr>
 
 	* gendistrib, genhdlist: add somes feature
 
-2003-12-09 20:38  François Pons <fpons@mandrakesoft.com>
+2003-12-09 19:38  Fançois Pons
 
 	* Makefile, rpmtools.spec: added RH 7.3 support
 
-2003-08-28 15:44  François Pons <fpons@mandrakesoft.com>
+2003-08-28 13:44  Fançois Pons
 
 	* gendistrib: fixed MD5SUM files to be removed, added noarch for
 	  %{ARCH} possible substitution.
 
-2003-08-28 15:40  François Pons <fpons@mandrakesoft.com>
+2003-08-28 13:40  Fançois Pons
 
 	* rpmtools.spec: 4.5-13mdk
 
-2003-08-28 15:39  François Pons <fpons@mandrakesoft.com>
+2003-08-28 13:39  Fançois Pons
 
 	* gendistrib: added %{ARCH} management
 
-2003-08-01 15:17  François Pons <fpons@mandrakesoft.com>
+2003-08-01 13:17  Fançois Pons
 
 	* rpmtools.spec: final 4.5-12mdk
 
-2003-08-01 14:21  François Pons <fpons@mandrakesoft.com>
+2003-08-01 12:21  Fançois Pons
 
 	* rpmtools.spec: 4.5-12mdk
 
-2003-05-19 17:26  Thierry Vignaud <tvignaud@mandrakesoft.com>
+2003-05-19 15:26  Thierry Vignaud <tvignaud at mandriva.com>
 
 	* packdrake-pm/packdrake.pm: perl_checker fixes
 
-2003-05-12 18:47  Guillaume Cottenceau <gc@mandrakesoft.com>
+2003-05-12 16:47  Guillaume Cottenceau
 
 	* rpmtools.spec: rebuild for new perl requires/provides
 
-2003-04-29 22:19  Frederic Lepied <flepied@mandrakesoft.com>
+2003-04-29 20:19  Frederic Lepied <flepied at mandriva.com>
 
 	* rpmtools.spec: 4.5-10mdk
 
-2003-04-29 22:18  Frederic Lepied <flepied@mandrakesoft.com>
+2003-04-29 20:18  Frederic Lepied <flepied at mandriva.com>
 
 	* Makefile: use rpmbuild instead of rpm
 
-2003-04-29 22:17  Frederic Lepied <flepied@mandrakesoft.com>
+2003-04-29 20:17  Frederic Lepied <flepied at mandriva.com>
 
 	* rpm2header.c: added rpm 4.2 support
 
-2003-03-10 11:42  François Pons <fpons@mandrakesoft.com>
+2003-03-10 10:42  Fançois Pons
 
 	* rpmtools.spec: added URL tag.
 
-2003-03-10 11:39  François Pons <fpons@mandrakesoft.com>
+2003-03-10 10:39  Fançois Pons
 
 	* gendistrib, rpmtools.spec: 4.5-9mdk
 
-2003-02-20 16:54  François Pons <fpons@mandrakesoft.com>
+2003-02-20 15:54  Fançois Pons
 
-	* rpmtools.spec, packdrake-pm/packdrake.pm: 4.5-8mdk
+	* packdrake-pm/packdrake.pm, rpmtools.spec: 4.5-8mdk
 
-2002-12-06 00:43  Pixel <pixel@mandrakesoft.com>
+2002-12-05 23:43  Pixel <pixel at mandriva.com>
 
-	* rpmtools.spec, packdrake-pm/packdrake.pm: fix a bug in an error
+	* packdrake-pm/packdrake.pm, rpmtools.spec: fix a bug in an error
 	  message (as detected by perl_checker)
 
-2002-12-04 22:44  Pixel <pixel@mandrakesoft.com>
+2002-12-04 21:44  Pixel <pixel at mandriva.com>
 
-	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
+	* packdrake-pm/packdrake.pm, rpmtools.spec: packdrake.pm is now
 	  perl_checker compliant
 
-2002-11-28 02:01  Pixel <pixel@mandrakesoft.com>
+2002-11-28 01:01  Pixel <pixel at mandriva.com>
 
-	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
+	* packdrake-pm/packdrake.pm, rpmtools.spec: packdrake.pm is now
 	  perl_checker compliant
 
-2002-11-26 19:30  Pixel <pixel@mandrakesoft.com>
+2002-11-26 18:30  Pixel <pixel at mandriva.com>
 
-	* rpmtools.spec, packdrake-pm/packdrake.pm: packdrake.pm is now
+	* packdrake-pm/packdrake.pm, rpmtools.spec: packdrake.pm is now
 	  perl_checker compliant
 
-2002-11-26 15:12  François Pons <fpons@mandrakesoft.com>
+2002-11-26 14:12  Fançois Pons
 
 	* packdrake-pm/packdrake.pm: fix of pixel from perl-checker.
 
-2002-10-16 16:08  François Pons <fpons@mandrakesoft.com>
+2002-10-16 14:08  Fançois Pons
 
 	* rpmtools.spec: updated spec file with obsoletes changed by
 	  conflicts.
 
-2002-10-16 16:07  François Pons <fpons@mandrakesoft.com>
+2002-10-16 14:07  Fançois Pons
 
-	* gendistrib, rpmtools.spec, packdrake-pm/packdrake.pm: 4.5-3mdk
+	* gendistrib, packdrake-pm/packdrake.pm, rpmtools.spec: 4.5-3mdk
 
-2002-08-05 21:04  Pixel <pixel@mandrakesoft.com>
+2002-08-05 19:04  Pixel <pixel at mandriva.com>
 
 	* Makefile, Makefile.PL, build_archive, extract_archive,
 	  genbasefiles, gendepslist2.cc, genfilelist, genhdlist_cz2,
 	  genhdlists, hdlist2files.cc, hdlist2groups.cc, hdlist2names.cc,
-	  hdlist2prereq.cc, packdrake.pm, rpm-find-leaves.c, rpmtools.pm,
-	  rpmtools.spec, rpmtools.xs, packdrake-pm/Makefile.PL,
-	  packdrake-pm/packdrake.pm: - remove obsolete stuff - move
-	  packdrake.pm in its own directory to make MakeMaker happy
+	  hdlist2prereq.cc, packdrake-pm, packdrake-pm/Makefile.PL,
+	  packdrake-pm/packdrake.pm, packdrake.pm, rpm-find-leaves.c,
+	  rpmtools.pm, rpmtools.spec, rpmtools.xs: - remove obsolete stuff
+	  - move packdrake.pm in its own directory to make MakeMaker happy
 
-2002-08-05 17:05  Guillaume Cottenceau <gc@mandrakesoft.com>
+2002-08-05 15:05  Guillaume Cottenceau
 
-	* Makefile, parsehdlist.c, rpmtools.spec: add --fileswinfo query to
-	  parsehdlist so that we can know more informations on the package
-	  for which we print the files (needed by upcoming rpmdrake
-	  supporting searching in files)
+	* Makefile, parsehdlist.c, rpmtools.spec: add --fileswinfo query
+	  to parsehdlist so that we can know more
+	  informations on the package for which we print the files (needed
+	  by
+	  upcoming rpmdrake supporting searching in files)
 
-2002-07-23 20:43  François Pons <fpons@mandrakesoft.com>
+2002-07-23 18:43  Fançois Pons
 
 	* rpmtools.spec: 4.4-1mdk
 
-2002-07-23 20:31  François Pons <fpons@mandrakesoft.com>
+2002-07-23 18:31  Fançois Pons
 
 	* Makefile, rpmtools.pm, rpmtools.spec: 4.4-1mdk
 
-2002-07-09 13:00  Pixel <pixel@mandrakesoft.com>
+2002-07-09 11:00  Pixel <pixel at mandriva.com>
 
 	* rpmtools.spec: adapt to perl 5.8.0
 
-2002-06-28 09:10  François Pons <fpons@mandrakesoft.com>
+2002-06-28 07:10  Fançois Pons
 
 	* distriblint, rpmtools.spec: 4.3-5mdk
 
-2002-06-27 20:28  François Pons <fpons@mandrakesoft.com>
+2002-06-27 18:28  Fançois Pons
 
 	* Makefile, rpmtools.spec: 4.3-4mdk (forget installation of
 	  distriblint)
 
-2002-06-27 20:27  François Pons <fpons@mandrakesoft.com>
+2002-06-27 18:27  Fançois Pons
 
 	* distriblint, rpmtools.spec: 4.3-4mdk
 
-2002-06-18 18:02  François Pons <fpons@mandrakesoft.com>
+2002-06-18 16:02  Fançois Pons
 
 	* Makefile, rpmtools.spec: fixes for real addition and
 	  installation.
 
-2002-06-18 17:57  François Pons <fpons@mandrakesoft.com>
+2002-06-18 15:57  Fançois Pons
 
 	* genhdlist, rpmtools.spec: 4.3-3mdk (added genhdlist)
 
-2002-06-03 14:04  François Pons <fpons@mandrakesoft.com>
+2002-06-03 12:04  Fançois Pons
 
 	* gendistrib: added missing log removed since gendistrib use
 	  perl-URPM.
 
-2002-06-03 13:06  François Pons <fpons@mandrakesoft.com>
+2002-06-03 11:06  Fançois Pons
 
 	* gendistrib, rpmtools.spec: synced gendistrib with URPM 0.02 or
 	  later.
 
-2002-05-31 12:58  François Pons <fpons@mandrakesoft.com>
+2002-05-31 10:58  Fançois Pons
 
 	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec: start using
 	  perl-URPM
 
-2002-05-29 10:11  François Pons <fpons@mandrakesoft.com>
+2002-05-29 08:11  Fançois Pons
 
 	* rpmtools.spec: latest rpmtools 4.2.
 
-2002-05-29 10:10  François Pons <fpons@mandrakesoft.com>
+2002-05-29 08:10  Fançois Pons
 
 	* rpmtools.xs: back fix from URPM module.
 
-2002-04-22 17:59  François Pons <fpons@mandrakesoft.com>
+2002-04-22 15:59  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: improved generation of
 	  synthesis (smaller)
 
-2002-04-15 15:25  François Pons <fpons@mandrakesoft.com>
+2002-04-15 13:25  Fançois Pons
 
 	* packdrake.pm, rpmtools.spec: fixed with NIS and packdrake
 	  --extract.
 
-2002-04-10 16:33  François Pons <fpons@mandrakesoft.com>
+2002-04-10 14:33  Fançois Pons
 
 	* packdrake.pm, rpmtools.pm, rpmtools.spec: compatible with perl
 	  5.005 and above.
 
-2002-03-20 20:58  Frederic Lepied <flepied@mandrakesoft.com>
+2002-03-20 19:58  Frederic Lepied <flepied at mandriva.com>
 
 	* rpmtools.spec: 4.2-9mdk
 
-2002-03-06 19:59  François Pons <fpons@mandrakesoft.com>
+2002-03-06 18:59  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: 4.2-8mdk, now final 8.2 ?
 
-2002-03-06 19:51  François Pons <fpons@mandrakesoft.com>
+2002-03-06 18:51  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: 4.2-7mdk, final ?
 
-2002-02-27 12:02  François Pons <fpons@mandrakesoft.com>
+2002-02-27 11:02  Fançois Pons
 
 	* rpmtools.spec, rpmtools.xs: 4.2-6mdk
 
-2002-02-18 11:54  François Pons <fpons@mandrakesoft.com>
+2002-02-18 10:54  Fançois Pons
 
-	* rpmtools.spec: 4.2-4mdk
+	* parsehdlist.c, rpmtools.spec: 4.2-4mdk
 
-2002-02-18 11:50  François Pons <fpons@mandrakesoft.com>
-
-	* parsehdlist.c: 4.2-4mdk
-
-2002-02-14 17:26  François Pons <fpons@mandrakesoft.com>
+2002-02-14 16:26  Fançois Pons
 
 	* rpmtools.spec, rpmtools.xs: 4.2-3mdk, memory leak fixed.
 
-2002-02-11 14:32  François Pons <fpons@mandrakesoft.com>
+2002-02-11 13:32  Fançois Pons
 
 	* rpmtools.spec: update date changelog.
 
-2002-02-08 18:06  François Pons <fpons@mandrakesoft.com>
+2002-02-08 17:06  Fançois Pons
 
 	* rpmtools.spec, rpmtools.xs: 4.2-2mdk
 
-2002-02-08 17:55  François Pons <fpons@mandrakesoft.com>
+2002-02-08 16:55  Fançois Pons
 
 	* Makefile, parsehdlist.c, rpmtools.pm, rpmtools.spec: 4.2-1mdk
 
-2002-02-05 17:55  François Pons <fpons@mandrakesoft.com>
+2002-02-05 16:55  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: 4.1-4mdk
 
-2002-01-30 12:45  François Pons <fpons@mandrakesoft.com>
+2002-01-30 11:45  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: 4.1-3mdk
 
-2002-01-24 10:39  François Pons <fpons@mandrakesoft.com>
+2002-01-24 09:39  Fançois Pons
 
 	* rpmtools.spec, rpmtools.xs: 4.1-2mdk
 
-2002-01-22 19:39  François Pons <fpons@mandrakesoft.com>
+2002-01-22 18:39  Fançois Pons
 
 	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec: new 4.1
 	  version.
 
-2002-01-17 13:01  François Pons <fpons@mandrakesoft.com>
+2002-01-17 12:01  Fançois Pons
 
 	* parsehdlist.c, rpmtools.spec, rpmtools.xs: 4.0-7mdk
 
-2002-01-17 11:05  François Pons <fpons@mandrakesoft.com>
+2002-01-17 10:05  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: 4.0-6mdk
 
-2002-01-16 19:21  François Pons <fpons@mandrakesoft.com>
+2002-01-16 18:21  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: 4.0-5mdk
 
-2002-01-15 18:08  François Pons <fpons@mandrakesoft.com>
+2002-01-15 17:08  Fançois Pons
 
 	* parsehdlist.c, rpmtools.pm, rpmtools.spec: 4.0-4mdk
 
-2002-01-10 10:27  François Pons <fpons@mandrakesoft.com>
+2002-01-10 09:27  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: fixed stupid bug in read_hdlist.
 
-2002-01-09 17:32  François Pons <fpons@mandrakesoft.com>
+2002-01-09 16:32  Fançois Pons
 
 	* gendistrib, rpmtools.pm, rpmtools.spec: first snapshot candidate
 	  for first alpha of 8.2.
 
-2001-12-05 17:42  François Pons <fpons@mandrakesoft.com>
+2001-12-05 16:42  Fançois Pons
 
 	* Makefile, gendistrib, rpmtools.pm, rpmtools.spec, rpmtools.xs:
 	  4.0 release (changes of provides internally).
 
-2001-12-05 15:42  François Pons <fpons@mandrakesoft.com>
+2001-12-05 14:42  Fançois Pons
 
 	* parsehdlist.c: fixed bad alloca size.
 
-2001-12-05 12:24  François Pons <fpons@mandrakesoft.com>
+2001-12-05 11:24  Fançois Pons
 
 	* Makefile, parsehdlist.c, rpmtools.pm, rpmtools.spec: 3.2 for
 	  newer urpmi.
 
-2001-11-26 18:46  François Pons <fpons@mandrakesoft.com>
+2001-11-26 17:46  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: fixes for alpha.
 
-2001-11-26 17:54  François Pons <fpons@mandrakesoft.com>
+2001-11-26 16:54  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: fixed compss file reading.
 
-2001-11-16 15:01  François Pons <fpons@mandrakesoft.com>
+2001-11-16 14:01  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-11-16 10:32  François Pons <fpons@mandrakesoft.com>
+2001-11-16 09:32  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-11-14 21:15  François Pons <fpons@mandrakesoft.com>
+2001-11-14 20:15  Fançois Pons
 
 	* rpmtools.spec: new release.
 
-2001-11-14 21:14  François Pons <fpons@mandrakesoft.com>
+2001-11-14 20:14  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-11-14 21:11  François Pons <fpons@mandrakesoft.com>
+2001-11-14 20:11  Fançois Pons
 
 	* parsehdlist.c: fixed core dump when name is given with other
-	  argument on some case.  changed --name behaviour to give filename
-	  along with fullname.
+	  argument on some case.
+	  changed --name behaviour to give filename along with fullname.
 
-2001-08-09 18:47  Pixel <pixel@mandrakesoft.com>
+2001-08-09 16:47  Pixel <pixel at mandriva.com>
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-07-25 17:12  François Pons <fpons@mandrakesoft.com>
+2001-07-25 15:12  Fançois Pons
 
 	* Makefile: avoid using version_compare.
 
-2001-07-25 16:59  François Pons <fpons@mandrakesoft.com>
+2001-07-25 14:59  Fançois Pons
 
 	* Makefile.PL, rpmtools.pm, rpmtools.spec, rpmtools.xs: use rpmlib
 	  version comparison function, force destiny.
 
-2001-07-23 17:15  François Pons <fpons@mandrakesoft.com>
+2001-07-23 15:15  Fançois Pons
 
 	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: first 3.1
 	  major relase, with fullname in info hash.
 
-2001-07-21 12:34  Warly <warly@mandrakesoft.com>
+2001-07-21 10:34  Warly <warly at mandriva.com>
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: add sourcerpm tag
 
-2001-07-18 14:50  François Pons <fpons@mandrakesoft.com>
+2001-07-18 12:50  Fançois Pons
 
 	* Makefile, Makefile.PL, rpmtools.spec: new release with new rpm.
 
-2001-07-05 15:32  François Pons <fpons@mandrakesoft.com>
+2001-07-05 13:32  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: added compute_id method.
 
-2001-07-02 14:39  François Pons <fpons@mandrakesoft.com>
+2001-07-02 12:39  Fançois Pons
 
 	* parsehdlist.c, rpmtools.spec: added arch support for parsehdlist.
 
-2001-06-28 18:40  François Pons <fpons@mandrakesoft.com>
+2001-06-28 16:40  Fançois Pons
 
 	* rpmtools.pm: dependencies is right.
 
-2001-06-28 17:42  François Pons <fpons@mandrakesoft.com>
+2001-06-28 15:42  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: cleaned rpmtools.
 
-2001-06-27 17:18  François Pons <fpons@mandrakesoft.com>
+2001-06-27 15:18  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-06-27 11:53  François Pons <fpons@mandrakesoft.com>
+2001-06-27 09:53  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-06-26 17:10  François Pons <fpons@mandrakesoft.com>
+2001-06-26 15:10  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: fixes for bad behaviour of
-	  build_hdlist.  added better relocation code.
+	  build_hdlist.
+	  added better relocation code.
 
-2001-06-25 14:55  François Pons <fpons@mandrakesoft.com>
+2001-06-25 12:55  Fançois Pons
 
 	* rpmtools.spec: late time fix.
 
-2001-06-25 14:54  François Pons <fpons@mandrakesoft.com>
+2001-06-25 12:54  Fançois Pons
 
 	* rpmtools.pm: updated to use @ separator char instead of : in
 	  provides file.
 
-2001-06-25 13:54  François Pons <fpons@mandrakesoft.com>
+2001-06-25 11:54  Fançois Pons
 
 	* rpmtools.spec: fix version_compare 3.0-2mdk
 
-2001-06-25 13:49  François Pons <fpons@mandrakesoft.com>
+2001-06-25 11:49  Fançois Pons
 
 	* rpmtools.pm: fix version compare for string like "0.beta4"
-	  compared to "0.rc1", the latest should be the greatest on
-	  comparing "beta" and "rc".
+	  compared to "0.rc1", the latest
+	  should be the greatest on comparing "beta" and "rc".
 
-2001-06-21 18:25  François Pons <fpons@mandrakesoft.com>
+2001-06-21 16:25  Fançois Pons
 
-	* Makefile, Makefile.PL, parsehdlist.c, rpmtools.pm, rpmtools.spec,
-	  rpmtools.xs: new 3.0 release, see rpmtools.spec.
+	* Makefile, Makefile.PL, parsehdlist.c, rpmtools.pm,
+	  rpmtools.spec, rpmtools.xs: new 3.0 release, see rpmtools.spec.
 
-2001-06-14 10:59  François Pons <fpons@mandrakesoft.com>
+2001-06-14 08:59  Fançois Pons
 
-	* Makefile, Makefile.PL, rpmtools.spec: [no log message]
+	* Makefile, Makefile.PL, rpmtools.spec: *** empty log message ***
 
-2001-06-06 15:34  François Pons <fpons@mandrakesoft.com>
+2001-06-06 13:34  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec: fix ordering of packages to avoid
-	  some nasty loop in prerequisite chain as for GConf and libGConf
-	  currently.
+	  some nasty loop in prerequisite chain
+	  as for GConf and libGConf currently.
 
-2001-05-22 15:36  François Pons <fpons@mandrakesoft.com>
+2001-05-22 13:36  Fançois Pons
 
 	* rpmtools.pm, rpmtools.spec, rpmtools.xs: added arch support.
 
-2001-04-16 18:47  François Pons <fpons@mandrakesoft.com>
+2001-04-16 16:47  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-04-16 18:46  François Pons <fpons@mandrakesoft.com>
+2001-04-16 16:46  Fançois Pons
 
-	* parsehdlist.c: added back kill to child process as some report of
-	  locking ?
+	* parsehdlist.c: added back kill to child process as some report
+	  of locking ?
 
-2001-04-14 16:27  François Pons <fpons@mandrakesoft.com>
+2001-04-14 14:27  Fançois Pons
 
 	* rpmtools.spec: final for 8.0 ?
 
-2001-04-14 16:23  François Pons <fpons@mandrakesoft.com>
+2001-04-14 14:23  Fançois Pons
 
 	* rpmtools.pm: fixed absurd mismatch of use <=> and cmp.
 
-2001-04-14 13:55  François Pons <fpons@mandrakesoft.com>
+2001-04-14 11:55  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-04-14 13:52  François Pons <fpons@mandrakesoft.com>
+2001-04-14 11:52  Fançois Pons
 
-	* parsehdlist.c: fixed interactive mode with provides tag to return
-	  flags and version, commented print_list no more used.
+	* parsehdlist.c: fixed interactive mode with provides tag to
+	  return flags and version,
+	  commented print_list no more used.
 
-2001-04-14 13:47  François Pons <fpons@mandrakesoft.com>
+2001-04-14 11:47  Fançois Pons
 
-	* parsehdlist.c: simplified header construction and fixed --compact
-	  to match exactly what is needed for synthesis file.
+	* parsehdlist.c: simplified header construction and fixed
+	  --compact to match exactly what
+	  is needed for synthesis file.
 
-2001-04-12 14:58  François Pons <fpons@mandrakesoft.com>
+2001-04-12 12:58  Fançois Pons
 
-	* packdrake.pm, rpmtools.spec: [no log message]
+	* packdrake.pm, rpmtools.spec: *** empty log message ***
 
-2001-04-03 14:50  François Pons <fpons@mandrakesoft.com>
+2001-04-03 12:50  Fançois Pons
 
-	* parsehdlist.c, rpmtools.pm, rpmtools.spec: [no log message]
+	* parsehdlist.c, rpmtools.pm, rpmtools.spec: *** empty log message
+	  ***
 
-2001-03-26 17:14  François Pons <fpons@mandrakesoft.com>
+2001-03-26 15:14  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-03-26 15:39  François Pons <fpons@mandrakesoft.com>
+2001-03-26 13:39  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-03-23 15:20  François Pons <fpons@mandrakesoft.com>
+2001-03-23 14:20  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-03-23 15:14  François Pons <fpons@mandrakesoft.com>
+2001-03-23 14:14  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: *** empty log message
+	  ***
 
-2001-03-23 14:37  François Pons <fpons@mandrakesoft.com>
+2001-03-23 13:37  Fançois Pons
 
-	* parsehdlist.c: added --compact option to help producing synthesis
-	  file (need s/:/@/g).
+	* parsehdlist.c: added --compact option to help producing
+	  synthesis file (need s/:/@/g).
 
-2001-03-23 14:36  François Pons <fpons@mandrakesoft.com>
+2001-03-23 13:36  Fançois Pons
 
 	* rpmtools.xs: try to be cleaner for subscript but not enough.
 
-2001-03-23 14:35  François Pons <fpons@mandrakesoft.com>
+2001-03-23 13:35  Fançois Pons
 
 	* rpmtools.pm: workarount hashes subscript error of perl.
-
-2001-03-23 14:35  François Pons <fpons@mandrakesoft.com>
-
 	* rpmtools.spec: 2.3-13mdk.
 
-2001-03-12 16:25  François Pons <fpons@mandrakesoft.com>
+2001-03-12 15:25  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-03-12 16:20  François Pons <fpons@mandrakesoft.com>
+2001-03-12 15:21  Fançois Pons
 
-	* packdrake.pm, parsehdlist.c, rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-03-12 15:02  Frederic Lepied <flepied@mandrakesoft.com>
+2001-03-12 15:20  Fançois Pons
+
+	* packdrake.pm, parsehdlist.c, rpmtools.spec: *** empty log
+	  message ***
+
+2001-03-12 14:02  Frederic Lepied <flepied at mandriva.com>
 
 	* Makefile.PL: don't link explicitly with db libs.
 
-2001-03-08 18:15  François Pons <fpons@mandrakesoft.com>
+2001-03-08 17:15  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-03-07 16:34  François Pons <fpons@mandrakesoft.com>
+2001-03-07 15:34  Fançois Pons
 
-	* parsehdlist.c, rpmtools.spec: [no log message]
+	* parsehdlist.c, rpmtools.spec: *** empty log message ***
 
-2001-03-05 14:40  François Pons <fpons@mandrakesoft.com>
+2001-03-05 13:40  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-03-04 19:22  Warly <warly@mandrakesoft.com>
+2001-03-04 18:22  Warly <warly at mandriva.com>
 
 	* Makefile: add db1 and db-3.1 to the static build for
 	  rpm2header_static
 
-2001-03-01 18:06  François Pons <fpons@mandrakesoft.com>
+2001-03-01 17:06  Fançois Pons
 
-	* gendistrib, rpmtools.pm, rpmtools.spec: [no log message]
+	* gendistrib, rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-02-27 18:05  François Pons <fpons@mandrakesoft.com>
+2001-02-27 17:05  Fançois Pons
 
-	* gendistrib, rpmtools.spec: [no log message]
+	* gendistrib, rpmtools.spec: *** empty log message ***
 
-2001-02-26 16:06  François Pons <fpons@mandrakesoft.com>
+2001-02-26 15:06  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-02-19 17:45  François Pons <fpons@mandrakesoft.com>
+2001-02-19 16:45  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: *** empty log message
+	  ***
 
-2001-02-19 15:56  François Pons <fpons@mandrakesoft.com>
+2001-02-19 14:56  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log message]
+	* rpmtools.pm, rpmtools.spec, rpmtools.xs: *** empty log message
+	  ***
 
-2001-02-16 14:00  François Pons <fpons@mandrakesoft.com>
+2001-02-16 13:00  Fançois Pons
 
-	* parsehdlist.c, rpmtools.spec, rpmtools.xs: [no log message]
+	* parsehdlist.c, rpmtools.spec, rpmtools.xs: *** empty log message
+	  ***
 
-2001-02-14 14:29  François Pons <fpons@mandrakesoft.com>
+2001-02-14 13:29  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-02-14 14:20  François Pons <fpons@mandrakesoft.com>
+2001-02-14 13:20  Fançois Pons
 
-	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: [no log
-	  message]
+	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: *** empty log
+	  message ***
 
-2001-02-13 16:01  François Pons <fpons@mandrakesoft.com>
+2001-02-13 15:01  Fançois Pons
 
 	* Makefile, rpmtools.pm, rpmtools.spec, rpmtools.xs: added faster
 	  method to rpmtools.xs, fixed code and added exit too.
 
-2001-01-30 18:47  François Pons <fpons@mandrakesoft.com>
+2001-01-30 17:47  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2001-01-23 20:30  François Pons <fpons@mandrakesoft.com>
+2001-01-23 19:30  Fançois Pons
 
 	* rpmtools.spec: 2.1-9mdk
 
-2001-01-23 20:20  François Pons <fpons@mandrakesoft.com>
+2001-01-23 19:20  Fançois Pons
 
 	* gendistrib: updated to use new build_hdlist.
 
-2001-01-23 20:18  François Pons <fpons@mandrakesoft.com>
+2001-01-23 19:18  Fançois Pons
 
 	* packdrake, packdrake.pm, rpmtools.pm, rpmtools.spec: added --dir
-	  and -d flag for packdrake*.  management of specific directory for
-	  building archive.
+	  and -d flag for packdrake*.
+	  management of specific directory for building archive.
 
-2001-01-22 18:35  François Pons <fpons@mandrakesoft.com>
+2001-01-22 17:35  Fançois Pons
 
-	* rpmtools.pm: added base selection in choices, for glibc.  so when
-	  glibc or compat-glibc are required, only glibc is requested.
+	* rpmtools.pm: added base selection in choices, for glibc.
+	  so when glibc or compat-glibc are required, only glibc is
+	  requested.
 
-2001-01-22 13:53  François Pons <fpons@mandrakesoft.com>
+2001-01-22 12:53  Fançois Pons
 
 	* genhdlists: modified to use rpmtools module.
 
-2001-01-17 16:51  François Pons <fpons@mandrakesoft.com>
+2001-01-17 15:51  Fançois Pons
 
 	* Makefile: added gendistrib and removed obsolete tools.
 
-2001-01-17 16:50  François Pons <fpons@mandrakesoft.com>
+2001-01-17 15:50  Fançois Pons
 
 	* gendistrib: initial revision.
 
-2001-01-17 16:47  François Pons <fpons@mandrakesoft.com>
+2001-01-17 15:47  Fançois Pons
 
 	* rpmtools.pm: fixed volative current working directory in
-	  build_hdlist and use of noclean options.
+	  build_hdlist
+	  and use of noclean options.
 
-2001-01-17 16:46  François Pons <fpons@mandrakesoft.com>
+2001-01-17 15:46  Fançois Pons
 
-	* rpmtools.spec: added gendistrib in %files and removed genhdlists,
-	  genhdlist_cz2 and genbasefiles.
+	* rpmtools.spec: added gendistrib in %files and removed
+	  genhdlists, genhdlist_cz2 and genbasefiles.
 
-2001-01-17 16:45  François Pons <fpons@mandrakesoft.com>
+2001-01-17 15:45  Fançois Pons
 
 	* rpmtools.spec: 2.1-8mdk
 
-2001-01-16 17:40  François Pons <fpons@mandrakesoft.com>
+2001-01-16 16:40  Fançois Pons
 
 	* packdrake.pm: fixed use of white space in archive name.
 
-2001-01-16 17:39  François Pons <fpons@mandrakesoft.com>
+2001-01-16 16:39  Fançois Pons
 
 	* parsehdlist.c: added --output options.
+	* rpmtools.pm: add build_hdlist method.
+	  increase version to 0.03.
 
-2001-01-16 17:39  François Pons <fpons@mandrakesoft.com>
-
-	* rpmtools.pm: add build_hdlist method.  increase version to 0.03.
-
-2001-01-16 17:38  François Pons <fpons@mandrakesoft.com>
+2001-01-16 16:38  Fançois Pons
 
 	* rpmtools.spec: 2.1-7mdk snapshot.
 
-2001-01-05 16:54  François Pons <fpons@mandrakesoft.com>
+2001-01-05 15:54  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2001-01-05 16:24  François Pons <fpons@mandrakesoft.com>
+2001-01-05 15:24  Fançois Pons
 
 	* packdrake.pm: really fixe exit in child process (when used with
 	  DrakX, exit is not allowed)
 
-2001-01-05 15:40  François Pons <fpons@mandrakesoft.com>
+2001-01-05 14:40  Fançois Pons
 
 	* packdrake.pm: changed exit by exec 'true'
 
-2001-01-05 11:54  François Pons <fpons@mandrakesoft.com>
+2001-01-05 10:54  Fançois Pons
 
 	* packdrake.pm: fixed printing to STDOUT while extracting (usefull
 	  if extracting to STDOUT :-)
 
-2001-01-04 19:36  François Pons <fpons@mandrakesoft.com>
+2001-01-04 18:36  Fançois Pons
 
 	* parsehdlist.c: removed need of packdrake, so live update will be
 	  nicer
 
-2001-01-04 16:20  François Pons <fpons@mandrakesoft.com>
+2001-01-04 15:20  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-12-08 16:48  François Pons <fpons@mandrakesoft.com>
+2000-12-08 15:50  Fançois Pons
 
-	* packdrake, parsehdlist.c, rpmtools.pm, rpmtools.spec,
-	  rpmtools.xs, packdrake.pm: [no log message]
+	* packdrake, packdrake.pm, parsehdlist.c, rpmtools.pm,
+	  rpmtools.spec, rpmtools.xs: *** empty log message ***
 
-2000-11-23 19:14  François Pons <fpons@mandrakesoft.com>
+2000-11-23 18:14  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-11-23 19:12  François Pons <fpons@mandrakesoft.com>
+2000-11-23 18:12  Fançois Pons
 
 	* parsehdlist.c: fixed memory leaks that were causing problems if
 	  used interactively.
 
-2000-11-23 19:11  François Pons <fpons@mandrakesoft.com>
+2000-11-23 18:11  Fançois Pons
 
 	* rpmtools.pm: fixed deadlock in some case on version_compare.
 
-2000-11-20 19:47  François Pons <fpons@mandrakesoft.com>
+2000-11-20 18:47  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-11-20 19:46  François Pons <fpons@mandrakesoft.com>
+2000-11-20 18:46  Fançois Pons
 
 	* parsehdlist.c: removed extra log on stdout (killer this one)
 
-2000-11-20 18:17  François Pons <fpons@mandrakesoft.com>
+2000-11-20 17:17  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-11-20 18:15  François Pons <fpons@mandrakesoft.com>
+2000-11-20 17:15  Fançois Pons
 
 	* Makefile, parsehdlist.c: fixed big bug for execvl (thanks to
 	  francis)
 
-2000-11-20 17:32  François Pons <fpons@mandrakesoft.com>
+2000-11-20 16:32  Fançois Pons
 
 	* parsehdlist.c: added fflush after (avoid deadock with DrakX)
 
-2000-11-20 16:25  François Pons <fpons@mandrakesoft.com>
+2000-11-20 15:25  Fançois Pons
 
-	* Makefile: [no log message]
+	* Makefile: *** empty log message ***
 
-2000-11-20 15:44  François Pons <fpons@mandrakesoft.com>
+2000-11-20 14:44  Fançois Pons
 
-	* Makefile, rpmtools.spec: [no log message]
+	* Makefile, rpmtools.spec: *** empty log message ***
 
-2000-11-20 15:12  François Pons <fpons@mandrakesoft.com>
+2000-11-20 14:12  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-11-20 14:59  François Pons <fpons@mandrakesoft.com>
+2000-11-20 13:59  Fançois Pons
 
 	* parsehdlist.c: adding interactive mode for DrakX client/server
 	  approach.
 
-2000-11-16 17:28  François Pons <fpons@mandrakesoft.com>
+2000-11-16 16:28  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2000-11-15 14:25  Pixel <pixel@mandrakesoft.com>
+2000-11-15 13:25  Pixel <pixel at mandriva.com>
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-10-19 17:28  François Pons <fpons@mandrakesoft.com>
+2000-10-19 15:28  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2000-10-19 14:26  Frederic Lepied <flepied@mandrakesoft.com>
+2000-10-19 12:26  Frederic Lepied <flepied at mandriva.com>
 
+	* rpm-find-leaves.c, rpmtools.xs: use iterators.
 	* rpmtools.spec: 2.0-1mdk
 
-2000-10-19 14:25  Frederic Lepied <flepied@mandrakesoft.com>
-
-	* rpmtools.xs, rpm-find-leaves.c: use iterators.
-
-2000-10-19 14:24  Frederic Lepied <flepied@mandrakesoft.com>
+2000-10-19 12:25  Frederic Lepied <flepied at mandriva.com>
 
 	* Makefile, Makefile.PL: added new lib for rpm.
 
-2000-09-15 12:55  Pixel <pixel@mandrakesoft.com>
+2000-09-15 10:55  Pixel <pixel at mandriva.com>
 
-	* build_archive, genhdlist_cz2, packdrake, rpmtools.spec: use
-	  TMPDIR if available
+	* ChangeLog, build_archive, genhdlist_cz2, packdrake,
+	  rpmtools.spec: use TMPDIR if available
 
-2000-09-04 18:41  François Pons <fpons@mandrakesoft.com>
+2000-09-04 16:41  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2000-09-03 19:28  François Pons <fpons@mandrakesoft.com>
+2000-09-03 17:28  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-09-03 19:18  François Pons <fpons@mandrakesoft.com>
+2000-09-03 17:18  Fançois Pons
 
-	* rpmtools.pm: [no log message]
+	* rpmtools.pm: *** empty log message ***
 
-2000-09-03 19:03  François Pons <fpons@mandrakesoft.com>
+2000-09-03 17:03  Fançois Pons
 
-	* genbasefiles, rpmtools.pm, rpmtools.spec: [no log message]
+	* genbasefiles, rpmtools.pm, rpmtools.spec: *** empty log message
+	  ***
 
-2000-09-03 16:43  François Pons <fpons@mandrakesoft.com>
+2000-09-03 14:43  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2000-08-29 17:50  François Pons <fpons@mandrakesoft.com>
+2000-08-29 15:50  Fançois Pons
 
-	* rpmtools.pm, rpmtools.spec: [no log message]
+	* rpmtools.pm, rpmtools.spec: *** empty log message ***
 
-2000-08-29 15:51  François Pons <fpons@mandrakesoft.com>
+2000-08-29 13:51  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-08-29 14:35  François Pons <fpons@mandrakesoft.com>
+2000-08-29 12:35  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-08-28 17:00  François Pons <fpons@mandrakesoft.com>
+2000-08-28 15:00  Fançois Pons
 
-	* packdrake: [no log message]
+	* packdrake: *** empty log message ***
 
-2000-08-28 12:24  François Pons <fpons@mandrakesoft.com>
+2000-08-28 10:24  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-08-28 10:58  François Pons <fpons@mandrakesoft.com>
+2000-08-28 08:58  Fançois Pons
 
-	* Makefile, Makefile.PL, rpmtools.spec: [no log message]
+	* Makefile, Makefile.PL, rpmtools.spec: *** empty log message ***
 
-2000-08-25 17:33  François Pons <fpons@mandrakesoft.com>
+2000-08-25 15:33  Fançois Pons
 
-	* rpmtools.pm, Makefile: [no log message]
+	* Makefile, rpmtools.pm: *** empty log message ***
 
-2000-08-25 16:49  François Pons <fpons@mandrakesoft.com>
+2000-08-25 14:49  Fançois Pons
 
 	* Makefile, Makefile.PL, genbasefiles, rpmtools.pm, rpmtools.spec,
-	  rpmtools.xs: [no log message]
+	  rpmtools.xs: *** empty log message ***
 
-2000-08-24 18:20  François Pons <fpons@mandrakesoft.com>
+2000-08-24 16:20  Fançois Pons
 
-	* rpmtools.spec: [no log message]
+	* rpmtools.spec: *** empty log message ***
 
-2000-08-24 18:13  François Pons <fpons@mandrakesoft.com>
+2000-08-24 16:13  Fançois Pons
 
-	* parsehdlist.c: [no log message]
+	* parsehdlist.c: *** empty log message ***
 
-2000-08-24 18:04  François Pons <fpons@mandrakesoft.com>
+2000-08-24 16:04  Fançois Pons
 
-	* Makefile, gendepslist2.cc, genhdlist_cz2, rpm2header.c,
-	  rpmtools.spec: [no log message]
+	* ChangeLog, Makefile, gendepslist2.cc, genhdlist_cz2,
+	  rpm2header.c, rpmtools.spec: *** empty log message ***
 
-2000-08-11 19:18  François Pons <fpons@mandrakesoft.com>
+2000-08-11 17:18  Fançois Pons
 
-	* packdrake: [no log message]
+	* packdrake: *** empty log message ***
 
-2000-08-05 20:03  Pixel <pixel@mandrakesoft.com>
+2000-08-05 18:03  Pixel <pixel at mandriva.com>
 
-	* gendepslist2.cc, rpmtools.spec: no_comment
+	* ChangeLog, gendepslist2.cc, rpmtools.spec: no_comment
 
-2000-07-27 20:23  Pixel <pixel@mandrakesoft.com>
+2000-07-27 18:23  Pixel <pixel at mandriva.com>
 
 	* rpmtools.spec: no_comment
 
-2000-07-27 20:01  Pixel <pixel@mandrakesoft.com>
+2000-07-27 18:01  Pixel <pixel at mandriva.com>
+
+	* ChangeLog, gendepslist2.cc: no_comment
+
+2000-07-12 10:17  Pixel <pixel at mandriva.com>
+
+	* rpmtools.spec: no_comment
+
+2000-07-12 10:16  Pixel <pixel at mandriva.com>
+
+	* rpmtools.spec: no_comment
+
+2000-06-13 19:02  Pixel <pixel at mandriva.com>
+
+	* ChangeLog, gendepslist2.cc, rpmtools.spec: no_comment
+
+2000-06-08 09:14  Fançois Pons
+
+	* rpmtools.spec: *** empty log message ***
+
+2000-05-25 15:59  Fançois Pons
+
+	* genhdlist_cz2: *** empty log message ***
+
+2000-05-22 18:44  Fançois Pons
+
+	* build_archive, gendepslist2.cc, genhdlist_cz2: *** empty log
+	  message ***
+
+2000-05-02 13:11  Fançois Pons
+
+	* rpmtools.spec: *** empty log message ***
+
+2000-05-02 13:02  Fançois Pons
+
+	* extract_archive: *** empty log message ***
+
+2000-05-02 12:52  Pixel <pixel at mandriva.com>
+
+	* rpmtools.spec: no_comment
+
+2000-04-28 02:56  Pixel <pixel at mandriva.com>
+
+	* gendepslist2.cc: *** empty log message ***
+
+2000-04-20 18:48  Fançois Pons
+
+	* rpmtools.spec: *** empty log message ***
+
+2000-04-20 18:45  Fançois Pons
+
+	* build_archive, extract_archive, genfilelist, rpmtools.spec: ***
+	  empty log message ***
+
+2000-04-19 12:42  Pixel <pixel at mandriva.com>
 
 	* gendepslist2.cc: no_comment
 
-2000-07-12 12:16  Pixel <pixel@mandrakesoft.com>
+2000-04-19 12:38  Fançois Pons
 
-	* rpmtools.spec: no_comment
+	* rpmtools.spec: *** empty log message ***
 
-2000-06-13 21:02  Pixel <pixel@mandrakesoft.com>
-
-	* gendepslist2.cc, rpmtools.spec: no_comment
-
-2000-06-08 11:14  François Pons <fpons@mandrakesoft.com>
-
-	* rpmtools.spec: [no log message]
-
-2000-05-25 17:59  François Pons <fpons@mandrakesoft.com>
-
-	* genhdlist_cz2: [no log message]
-
-2000-05-22 20:44  François Pons <fpons@mandrakesoft.com>
-
-	* build_archive, gendepslist2.cc, genhdlist_cz2: [no log message]
-
-2000-05-02 15:11  François Pons <fpons@mandrakesoft.com>
-
-	* rpmtools.spec: [no log message]
-
-2000-05-02 15:02  François Pons <fpons@mandrakesoft.com>
-
-	* extract_archive: [no log message]
-
-2000-05-02 14:52  Pixel <pixel@mandrakesoft.com>
-
-	* rpmtools.spec: no_comment
-
-2000-04-28 04:56  Pixel <pixel@mandrakesoft.com>
-
-	* gendepslist2.cc: [no log message]
-
-2000-04-20 20:45  François Pons <fpons@mandrakesoft.com>
-
-	* build_archive, extract_archive, genfilelist, rpmtools.spec: [no
-	  log message]
-
-2000-04-19 14:42  Pixel <pixel@mandrakesoft.com>
-
-	* gendepslist2.cc: no_comment
-
-2000-04-19 14:38  François Pons <fpons@mandrakesoft.com>
-
-	* rpmtools.spec: [no log message]
-
-2000-04-17 14:35  Pixel <pixel@mandrakesoft.com>
+2000-04-17 12:35  Pixel <pixel at mandriva.com>
 
 	* extract_archive, genhdlists, rpmtools.spec: no_comment
 
-2000-04-14 21:50  Pixel <pixel@mandrakesoft.com>
+2000-04-14 19:50  Pixel <pixel at mandriva.com>
 
 	* rpmtools.spec: no_comment
 
-2000-04-14 12:02  François Pons <fpons@mandrakesoft.com>
+2000-04-14 10:02  Fançois Pons
 
-	* genhdlists: [no log message]
+	* genhdlists: *** empty log message ***
 
-2000-04-04 15:08  François Pons <fpons@mandrakesoft.com>
+2000-04-04 13:08  Fançois Pons
 
-	* genfilelist: [no log message]
+	* genfilelist: *** empty log message ***
 
-2000-04-04 13:14  François Pons <fpons@mandrakesoft.com>
+2000-04-04 11:14  Fançois Pons
 
-	* extract_archive: [no log message]
+	* ChangeLog, extract_archive: *** empty log message ***
 
-2000-03-31 18:40  François Pons <fpons@mandrakesoft.com>
+2000-03-31 16:40  Fançois Pons
 
-	* genfilelist: [no log message]
+	* genfilelist: *** empty log message ***
 
-2000-03-31 17:05  François Pons <fpons@mandrakesoft.com>
+2000-03-31 15:05  Fançois Pons
 
-	* Makefile, rpmtools.spec: [no log message]
+	* Makefile, rpmtools.spec: *** empty log message ***
 
-2000-03-31 16:40  Pixel <pixel@mandrakesoft.com>
+2000-03-31 14:41  Pixel <pixel at mandriva.com>
 
-	* gendepslist2.cc, rpmtools.spec, hdlist2groups.cc: no_comment
+	* gendepslist2.cc, hdlist2groups.cc, rpmtools.spec: no_comment
 
-2000-03-31 16:37  François Pons <fpons@mandrakesoft.com>
+2000-03-31 14:40  Pixel <pixel at mandriva.com>
 
-	* genfilelist, rpmtools.spec: [no log message]
+	* ChangeLog: *** empty log message ***
 
-2000-03-28 00:59  Pixel <pixel@mandrakesoft.com>
+2000-03-31 14:37  Fançois Pons
+
+	* ChangeLog, genfilelist, rpmtools.spec: *** empty log message ***
+
+2000-03-27 22:59  Pixel <pixel at mandriva.com>
 
 	* Makefile, hdlist2names.cc, rpmtools.spec: no_comment
 
-2000-03-26 19:24  Pixel <pixel@mandrakesoft.com>
+2000-03-26 17:24  Pixel <pixel at mandriva.com>
 
-	* build_archive, gendepslist2.cc, rpmtools.spec: no_comment
+	* ChangeLog, build_archive, gendepslist2.cc, rpmtools.spec:
+	  no_comment
 
-2000-03-25 13:58  Pixel <pixel@mandrakesoft.com>
+2000-03-25 12:58  Pixel <pixel at mandriva.com>
 
 	* rpmtools.spec: no_comment
 
-2000-03-24 15:29  Pixel <pixel@mandrakesoft.com>
+2000-03-24 14:29  Pixel <pixel at mandriva.com>
 
 	* gendepslist2.cc, genhdlist_cz2, rpmtools.spec: no_comment
 
-2000-03-23 13:24  François Pons <fpons@mandrakesoft.com>
+2000-03-23 12:24  Fançois Pons
 
-	* genhdlist_cz2: [no log message]
+	* genhdlist_cz2: *** empty log message ***
 
-2000-03-23 13:20  Pixel <pixel@mandrakesoft.com>
+2000-03-23 12:20  Pixel <pixel at mandriva.com>
 
 	* Makefile, gendepslist2.cc, genhdlist_cz2, rpmtools.spec:
 	  no_comment
 
-2000-03-10 16:44  Pixel <pixel@mandrakesoft.com>
+2000-03-10 15:44  Pixel <pixel at mandriva.com>
 
-	* gendepslist2.cc: [no log message]
+	* gendepslist2.cc: *** empty log message ***
 
-2000-03-10 16:38  Pixel <pixel@mandrakesoft.com>
+2000-03-10 15:38  Pixel <pixel at mandriva.com>
 
-	* gendepslist2.cc: [no log message]
+	* gendepslist2.cc: *** empty log message ***
 
-2000-03-10 16:34  Pixel <pixel@mandrakesoft.com>
+2000-03-10 15:34  Pixel <pixel at mandriva.com>
 
-	* gendepslist2.cc: [no log message]
+	* gendepslist2.cc: *** empty log message ***
 
-2000-03-10 15:39  Pixel <pixel@mandrakesoft.com>
+2000-03-10 14:39  Pixel <pixel at mandriva.com>
 
-	* gendepslist2.cc: [no log message]
+	* gendepslist2.cc: *** empty log message ***
 
-2000-03-10 15:34  Pixel <pixel@mandrakesoft.com>
+2000-03-10 14:34  Pixel <pixel at mandriva.com>
 
 	* Makefile, gendepslist2.cc: no_comment
 
-2000-03-10 14:44  Pixel <pixel@mandrakesoft.com>
+2000-03-10 13:44  Pixel <pixel at mandriva.com>
 
 	* gendepslist2.cc, rpmtools.spec: no_comment
 
-2000-03-10 13:36  François Pons <fpons@mandrakesoft.com>
+2000-03-10 12:36  Fançois Pons
 
-	* Makefile, genhdlists: [no log message]
+	* ChangeLog, Makefile, genhdlists: *** empty log message ***
 
-2000-03-08 00:36  Pixel <pixel@mandrakesoft.com>
+2000-03-07 23:37  Pixel <pixel at mandriva.com>
 
-	* Makefile, rpmtools.spec, gendepslist2.cc, genhdlist_cz2,
-	  build_archive, extract_archive, hdlist2prereq.cc: no_comment
+	* build_archive, extract_archive, gendepslist2.cc, genhdlist_cz2,
+	  hdlist2prereq.cc, rpmtools.spec: no_comment
 
-2000-03-08 00:32  Pixel <pixel@mandrakesoft.com>
+2000-03-07 23:36  Pixel <pixel at mandriva.com>
+
+	* Makefile, rpmtools.spec: no_comment
+
+2000-03-07 23:32  Pixel <pixel at mandriva.com>
 
 	* Makefile, gendepslist.cc, hdlist2files.cc, rpmtools.spec:
 	  no_comment
 
-2000-02-23 18:49  Chmouel Boudjnah <chmouel@mandrakesoft.com>
+2000-02-23 17:49  Chmouel Boudjnah
 
-	* rpmtools.spec: "See_The_Changelog"
+	* ChangeLog, rpmtools.spec: "See_The_Changelog"
 
-2000-02-18 20:27  Chmouel Boudjnah <chmouel@mandrakesoft.com>
+2000-02-18 19:27  Chmouel Boudjnah
 
-	* .cvsignore, rpmtools.spec: "See_The_Changelog"
+	* ., .cvsignore, ChangeLog, rpmtools.spec: "See_The_Changelog"
 
-2000-02-18 18:21  Frederic Lepied <flepied@mandrakesoft.com>
+2000-02-18 17:21  Frederic Lepied <flepied at mandriva.com>
 
-	* hdlist2files.cc, gendepslist.cc:	* new way to retrieve file
+	* gendepslist.cc, hdlist2files.cc: * new way to retrieve file
 	  names in 3.0.4.
 
-2000-02-18 18:19  Frederic Lepied <flepied@mandrakesoft.com>
+2000-02-18 17:19  Frederic Lepied <flepied at mandriva.com>
 
-	* rpm2header.c: 	* close files !
-		  * don't dup many times.
+	* rpm2header.c: * close files !
+	  * don't dup many times.
 
-2000-02-17 19:04  Chmouel Boudjnah <chmouel@mandrakesoft.com>
+2000-02-17 18:05  Chmouel Boudjnah
 
-	* Makefile, rpmtools.spec: "See_The_Changelog"
+	* ChangeLog, Makefile, rpmtools.spec: "See_The_Changelog"
 
-2000-02-17 18:58  Chmouel Boudjnah <chmouel@mandrakesoft.com>
-
-	* Makefile, gendepslist.cc, hdlist2files.cc, hdlist2names.cc,
-	  rpm-find-leaves.c, rpm2header.c, rpmtools.spec: First_Import
-
-2000-02-17 18:58  Chmouel Boudjnah <chmouel@mandrakesoft.com>
+2000-02-17 17:58  Chmouel Boudjnah
 
 	* Makefile, gendepslist.cc, hdlist2files.cc, hdlist2names.cc,
 	  rpm-find-leaves.c, rpm2header.c, rpmtools.spec: Initial revision
+
+2000-02-17 17:58  
+
+	* soft/rpm/rpmtools/branches, soft/rpm/rpmtools/tags, .: New
+	  repository initialized by cvs2svn.
 
