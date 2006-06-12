@@ -13,7 +13,7 @@ Release:	%{release}
 Source0:	%{name}-%{version}.tar.bz2
 License:	GPL
 Group:		%{group}
-URL:		http://cvs.mandriva.com/cgi-bin/cvsweb.cgi/soft/rpmtools
+URL:		https://svn.mandriva.com/svn/soft/rpm/rpmtools/
 BuildRoot:	%{_tmppath}/%{name}-buildroot
 BuildRequires:	perl%{?mdkversion:-devel}
 BuildRequires:	rpm-devel >= 4.2.3
