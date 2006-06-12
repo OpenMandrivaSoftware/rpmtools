@@ -175,7 +175,7 @@ void print_list_name(Header header, char *format, char print_sep, int extension)
   char *name = get_name(header, RPMTAG_NAME);
   char *version = get_name(header, RPMTAG_VERSION);
   char *release = get_name(header, RPMTAG_RELEASE);
-  char *arch = headerIsEntry(header, RPMTAG_SOURCEPACKAGE) ? "src" : get_name(header, RPMTAG_ARCH);
+  char *arch = headerIsEntry(header, RPMTAG_SOURCERPM) ? get_name(header, RPMTAG_ARCH) : "src";
   char *buff = alloca(strlen(name) + strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 5);
 
   printf(format, name, "");
