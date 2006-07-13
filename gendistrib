@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
+(our $VERSION) = q$Id$ =~ /(\d+)/;
 
 use strict;
 use Cwd;
@@ -522,11 +522,11 @@ readable label for the media.
 
 =head2 Operation
 
-F<genhdlist> should be passed the F<ROOT> directory as parameter. It will
+F<gendistrib> should be passed the F<ROOT> directory as parameter. It will
 then generate the hdlist and synthesis files and all other files needed
 for proper repository operation.
 
-F<genhdlist> will also verify any broken dependencies in your repository
+F<gendistrib> will also verify any broken dependencies in your repository
 and report them.
 
 =head1 SEE ALSO
