@@ -1,3 +1,23 @@
+2006-08-21 15:06  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* MANIFEST, Makefile.PL, rpmtools.spec: - do no longer use
+	  specfile from here
+
+2006-08-21 15:00  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* gendistrib: - exit on error
+
+2006-08-21 14:58  Olivier Thauvin <thauvin at aerov.jussieu.fr>
+
+	* gendistrib: - nochkdep is default, use chkdep
+	  - die ASAP if no work need
+	  - make more error fatal, using Distribconf::Checks
+
+2006-07-13 11:53  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
+
+	* gendistrib: This man page is about gendistrib, not genhdlist.
+	  Also, fix $VERSION under svn.
+
 2006-06-12 13:11  Rafael Garcia-Suarez <rgarciasuarez at mandriva.com>
 
 	* parsehdlist.c: RPMTAG_SOURCEPACKAGE is deprecated, use
