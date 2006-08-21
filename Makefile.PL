@@ -3,17 +3,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 
-my $spec;
-{
-    local $/ = undef;
-    open my $specfh, 'rpmtools.spec' or die "Can't open rpmtools.spec: $!\n";
-    $spec = <$specfh>;
-    close $specfh;
-}
-
-(my $rpmtools_version) = $spec =~ /define\s+version\s+(\d+\.\d+\.\d+)/
-    or die "no version found\n";
-warn "building rpmtools version v$rpmtools_version\n";
+my $rpmtools_version = "5.0.29";
 
 # to generate the ChangeLog depending on the checkout layout
 my $commonusername = "../common/";
@@ -45,8 +35,6 @@ ChangeLog:
 	LC_ALL=C svn2cl --accum --strip-prefix=soft/rpm/rpmtools/trunk --authors ${commonusername}username.xml
 	rm -f *.bak
 
-rpm: dist
-	rpm --define "_sourcedir `pwd`" -ba --clean --rmsource rpmtools.spec
 MAKEMAKEFILE
 }
 

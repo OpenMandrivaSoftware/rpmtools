@@ -14,7 +14,5 @@ packdrake.pm
 parsehdlist.c
 rpm2cpio.pl
 rpm2header.c
-rpmtools.spec
 t/01packdrakeng.t
 t/02packdrake.t
-META.yml                                 Module meta-data (added by MakeMaker)
