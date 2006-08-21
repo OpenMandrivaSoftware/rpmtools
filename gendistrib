@@ -137,7 +137,7 @@ foreach ($distrib->listmedia) {
     $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
 
     if (!-d $distrib->getfullpath($_, 'path')) {
-        next; # this has checked earlier
+        next; # this has been checked earlier
     }
 
     push @hdlists, {
@@ -170,11 +170,6 @@ foreach ($distrib->listmedia) {
     };
 }
 
-if (!grep { !($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
-    print "No action need, existing\n" unless($nooutput);
-    exit(0);
-}
-
 if (!-d $destinfodir) {
     mkdir $destinfodir, 0755
         or die qq(Can't create directory "$destinfodir": $!\n);
@@ -199,8 +194,7 @@ sub clean_cache {
 
 clean_cache();
 
-foreach (0..$#hdlists) {
-    my $e = $hdlists[$_];
+foreach my $e (@hdlists) {
     my $r;
 
     #- try to find the right repository where can be found the directory
@@ -219,27 +213,29 @@ foreach (0..$#hdlists) {
     #- fake build of architecture dependent directory.
     # Nanar: I am curious to know how this can works with current urpmi
     # Sub dir are deny, this should die !!!!!!!!!
-    my @files;
     if ($e->{dir} =~ /%{ARCH}/) {
 	foreach my $arch (qw(i686 i586 i486 i386 k8 k7 k6 amd64 amd32 x86_64 x86_32 ia64 ia32
                              ppc sparc sparc32 sparc64 alpha noarch)) {
 	    my $dir = $e->{dir};
 	    $dir =~ s|%{ARCH}|$arch|g;
-	    push @files, glob("$r/$dir/*.$arch.rpm");
+	    push @{$e->{files}}, glob("$r/$dir/*.$arch.rpm");
 	}
     } else {
-	push @files, glob("$r/$e->{dir}/*.rpm");
+	push @{$e->{files}}, glob("$r/$e->{dir}/*.rpm");
     }
-    @files or do {
+    @{$e->{files} || []} or do {
         print STDERR "unable to find rpm files in $e->{dir}\n" unless $nooutput;
         next;
     };
+}
 
-    print STDERR "parsing rpm files in directory $r/$e->{dir}\n" unless $nooutput;
+if (grep { ! $_->{noneedrebuild} } @hdlists) {
+foreach my $e (@hdlists) {
+    print STDERR "parsing rpm files in directory $e->{dir}\n" unless $nooutput;
     # NOYET open(my $hnsynth, "|gzip --best > $e->{synthesis}.yaml");
     my @headers = $urpm->parse_rpms_build_headers(
 	dir  => $headers_dir,
-	rpms => \@files,
+	rpms => $e->{files},
 	dontdie => $dontdie,
 	silent => $nooutput,
 # NOTYET    callback => sub {
@@ -261,6 +257,7 @@ foreach (0..$#hdlists) {
         }
     }
 }
+}
 
 if ($noemptymedia) {
     foreach my $e (@hdlists) {
@@ -275,10 +272,9 @@ $urpm->unresolved_provides_clean;
 #- temporary file where to build hdlists
 my $temp_hdlist = mktemp("$tempdir/hdlistXXXXX");
 
-foreach (0..$#hdlists) {
-    my $e = $hdlists[$_];
-
-    if ($e->{headers}) { # We have rpms in this media
+if (grep { ! $_->{noneedrebuild} } @hdlists) {
+foreach my $e (@hdlists) {
+    if (@{$e->{headers} || []}) { # We have rpms in this media
 
 	print STDERR qq(parsing headers for "$e->{descr}"\n) unless $nooutput;
 	my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
@@ -290,7 +286,7 @@ foreach (0..$#hdlists) {
 	$urpm->compute_deps;
 
 	# No media change, nothing to write
-	next if $e->{noneedrebuild};
+	if (!$e->{noneedrebuild}) {
 
 	print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
 	unlink $temp_hdlist;
@@ -305,29 +301,36 @@ foreach (0..$#hdlists) {
 	$urpm->build_synthesis(start     => $start,
 	    end       => $end,
 	    synthesis => $e->{synthesis});
-
-    } else { # no rpm, creating empty but valid index
+    }
+    } elsif(!$e->{noneedrebuild}) { # no rpm, creating empty but valid index
         if (my $pack = MDV::Packdrakeng->new(archive => $temp_hdlist)) {
 	    $pack = undef; # closing archive
 	    system('/bin/mv', $temp_hdlist, $e->{hdlist});
-	} else {
+	    } else {
 	    print STDERR "Can't create empty archive $temp_hdlist: $MDV::Packdrakeng::error\n";
-	}
+	    }
         open(my $hsynth, "| /bin/gzip > $e->{synthesis}")
 	    or print STDERR "Can't create empty synthesis $e->{synthesis}: $!\n";
         close($hsynth);
     }
+}
+}
 
+foreach my $e (@hdlists) {
     unless ($nomediainfo) {
-	print STDERR qq(link alternate locations of synthesis and hdlists\n) unless $nooutput;
-	unlink $e->{hdlist2}, $e->{synthesis2};
-	link $e->{hdlist}, $e->{hdlist2}
-	    or print STDERR qq(link failed for "$e->{hdlist2}": $!\n);
-	link $e->{synthesis}, $e->{synthesis2}
-	    or print STDERR qq(link failed for "$e->{synthesis2}": $!\n);
+    foreach (qw(hdlist synthesis)) {
+        # checking inode are same (case for link)
+        my $f2 = $_ . '2';
+        if (!-f $e->{$f2} || (stat($e->{$f2}))[1] != (stat($e->{$_}))[1]) {
+	    print STDERR qq(link alternate locations of $_ for $e->{dir}\n) unless $nooutput;
+        unlink($e->{$f2});
+        link $e->{$_}, $e->{$f2} or 
+        print STDERR qq(link failed for "$e->{$f2}": $!\n);
+        }
+    }
     }
 
-    unless ($nomd5sum) {
+    unless ($nomd5sum || ($e->{noneedrebuild} && $e->{noneedredomd5})) {
 	print STDERR qq(generate media-specific MD5SUM in $e->{thismediainfo}\n) unless $nooutput;
 	my $here = getcwd();
 	chdir $e->{thismediainfo};
@@ -362,7 +365,8 @@ if (grep { ! $_->{noneedrebuild} } @hdlists) {
 		or print STDERR "Can't write $destinfodir/hdlists file\n";
 	}
     }
-
+}
+if (grep { ! ($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
     #- safety cleaning
     unlink $urpmfiles{md5sum};
     unless ($nomd5sum) {
