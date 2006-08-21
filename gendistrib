@@ -128,7 +128,7 @@ Fix this erreur in media.cfg and retry:
 
 EOF
     print "$_\n" foreach(@fatalerrors);
-    # exit(1);
+    exit(1);
 }
 
 my @hdlists;
