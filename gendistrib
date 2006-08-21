@@ -16,6 +16,32 @@ my $urpm = new URPM;
 my $tempdir = -d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp";
 my $headers_dir = $tempdir . "/.build_hdlist";
 
+my $yamlout= join('',
+    '- !!omap\n',
+    '[%{PKGID:yaml}\n]',
+    '[%{NAME:yaml}\n]',
+    '[%{VERSION:yaml}\n]',
+    '[%{RELEASE:yaml}\n]',
+    '[%{EPOCH:yaml}\n]',
+    '[%{ARCH:yaml}\n]',
+    '[%{SOURCERPM:yaml}\n]',
+    '[%{PROVIDENAME:yaml}\n]',
+    '[%{PROVIDEFLAGS:yaml}\n]',
+    '[%{PROVIDEVERSION:yaml}\n]',
+    '[%{REQUIRENAME:yaml}\n]',
+    '[%{REQUIREFLAGS:yaml}\n]',
+    '[%{REQUIREVERSION:yaml}\n]',
+    '[%{CONFLICTNAME:yaml}\n]',
+    '[%{CONFLICTFLAGS:yaml}\n]',
+    '[%{CONFLICTVERSION:yaml}\n]',
+    '[%{OBSOLETENAME:yaml}\n]',
+    '[%{OBSOLETEFLAGS:yaml}\n]',
+    '[%{OBSOLETEVERSION:yaml}\n]',
+    '[%{DIRNAMES:yaml}\n]',
+    '[%{DIRINDEXES:yaml}\n]',
+    '[%{BASENAMES:yaml}\n]',
+);
+
 sub usage () {
     pod2usage({ -verbose => 1 });
     exit 0;
@@ -33,7 +59,8 @@ GetOptions(
     'help|h' => \&usage,
     'mediacfg=s' => \$urpmfiles{mediacfg},
     'nobadrpm' => \my $dontdie,
-    'nochkdep' => \my $nochkdep,
+    'nochkdep' => \my $nochkdep, # compatibility, default now
+    'chkdep' => \my $chkdep,
     'noclean' => \my $noclean,
     'noemptymedia' => \my $noemptymedia,
     'nomd5sum' => \my $nomd5sum,
@@ -76,27 +103,45 @@ while (my ($k, $v) = each(%default_urpmfiles)) {
     $urpmfiles{$k} ||= $v;
 }
 
-$distrib->check(\*STDERR) unless $nooutput;
+# Error which are fatale
+my @fatal = qw(SAME_INDEX);
+push(@fatal, 'MISSING_MEDIADIR') unless ($skipmissingdir);
+my @IGNORE = qw(MISSING_INDEX);
+my @fatalerrors; # fatales error show at the end
+$distrib->check(sub {
+        my %info = @_;
+        grep { $_ eq $info{errcode} } @IGNORE and next;
+        if (grep { $_ eq $info{errcode} } @fatal) {
+            push(@fatalerrors, "$info{level}: $info{message}");
+        } else {
+            printf STDERR "$info{level}: $info{message}\n" unless($nooutput);
+        }
+    }
+);
+
+if (@fatalerrors) {
+    printf STDERR <<EOF;
+
+Fatal error detected, continue is likely to produce an invalid tree.
+(Missing directory can ignore with --skipmissingdir.)
+Fix this erreur in media.cfg and retry:
+
+EOF
+    print "$_\n" foreach(@fatalerrors);
+    # exit(1);
+}
 
 my @hdlists;
 my @media_missing_dirs;
 foreach ($distrib->listmedia) {
     $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
 
-    if (! -d ($distrib->getfullpath($_, 'path'))) {
-        if ($skipmissingdir) {
-            printf(STDERR
-                "Skipping missing media %s\n",
-                $distrib->getpath($_, 'path')
-            ) unless $nooutput;
-        } else {
-            # delaying error report to report all errors, not only the first ones
-            push(@media_missing_dirs, $_);
-        }
-        next;
+    if (!-d $distrib->getfullpath($_, 'path')) {
+        next; # this has checked earlier
     }
 
     push @hdlists, {
+        media => $_,
         synthesis => $destdir ?
             $destdir . '/' . $distrib->getpath($_, 'synthesis') :
             $distrib->getfullpath($_, 'synthesis'),
@@ -120,19 +165,14 @@ foreach ($distrib->listmedia) {
         md5sum => ($destdir ?
             $destdir . '/' . $distrib->getpath($_, 'path') :
             $distrib->getfullpath($_, 'path')) . "/media_info/MD5SUM",
+        noneedrebuild => $blind ? 0 : $distrib->check_index_sync($_),
+        noneedredomd5 => $distrib->check_media_md5($_),
     };
 }
 
-#- die if there are unspecified missing directories
-if (@media_missing_dirs) {
-    foreach my $media (@media_missing_dirs) {
-        printf(STDERR
-            "Missing dir '%s' for media '%s'\n",
-            $distrib->getpath($media, 'path'),
-            $distrib->getvalue($media, 'name')
-        ) unless $nooutput;
-    }
-    die "Stopping because dirs are missing, specify --skipmissingdir to ignore\n";
+if (!grep { !($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
+    print "No action need, existing\n" unless($nooutput);
+    exit(0);
 }
 
 if (!-d $destinfodir) {
@@ -177,6 +217,8 @@ foreach (0..$#hdlists) {
     }
 
     #- fake build of architecture dependent directory.
+    # Nanar: I am curious to know how this can works with current urpmi
+    # Sub dir are deny, this should die !!!!!!!!!
     my @files;
     if ($e->{dir} =~ /%{ARCH}/) {
 	foreach my $arch (qw(i686 i586 i486 i386 k8 k7 k6 amd64 amd32 x86_64 x86_32 ia64 ia32
@@ -194,52 +236,30 @@ foreach (0..$#hdlists) {
     };
 
     print STDERR "parsing rpm files in directory $r/$e->{dir}\n" unless $nooutput;
+    # NOYET open(my $hnsynth, "|gzip --best > $e->{synthesis}.yaml");
     my @headers = $urpm->parse_rpms_build_headers(
 	dir  => $headers_dir,
 	rpms => \@files,
 	dontdie => $dontdie,
 	silent => $nooutput,
+# NOTYET    callback => sub {
+# NOTYET        my ($urpmc, $id, %options) = @_;
+# NOTYET        print $hnsynth $urpmc->{depslist}[$id]->queryformat($yamlout);
+# NOTYET        $urpmc->{depslist}[$id]->pack_header;
+# NOTYET    },
     );
+    # NOTYET close($hnsynth);
     # TODO if @headers is empty ?
     $e->{headers} = \@headers;
 
     if (!$blind) {
-        # checking if hdlist rebuild is needed
         print STDERR "Checking if hdlist need to be rebuild for media $e->{descr}\n" unless $nooutput;
-        if(!compare_headers_with_hdlist($e->{hdlist}, @headers)) {
-            $e->{noneedrebuild} = 1;
+        if($e->{noneedrebuild}) {
             print "No\n" unless $nooutput;
         } else {
             print "Yes\n" unless $nooutput;
         }
     }
-}
-
-# return 1 if differ, 0 otherwise
-sub compare_headers_with_hdlist {
-    my ($hdlist, @headers) = @_;
-    if (my $pack = MDV::Packdrakeng->open(archive => $hdlist)) {
-        my %exists_headers;
-        $exists_headers{$_} = 0 foreach(@headers);
-        my (undef, $files, undef) = $pack->getcontent();
-        foreach my $file (@{$files || []}) {
-            if (exists($exists_headers{$file})) {
-                # TODO checking somethings else that name
-                delete($exists_headers{$file});
-            } else {
-                # one file is in hdlist, not in our headers => differ
-                return 1;
-            }
-        }
-        # if the same files are in hdlist, and headers list,
-        # nothing left
-        if (keys %exists_headers) {
-            return 1;
-        }
-    } else {
-        return 1;
-    }
-    return 0; # no diff
 }
 
 if ($noemptymedia) {
@@ -363,7 +383,7 @@ if (grep { ! $_->{noneedrebuild} } @hdlists) {
 }
 
 #- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
-if ($nooutput || !$nochkdep) {
+if (!$nooutput && $chkdep) {
     foreach (0 .. $#{$urpm->{depslist}}) {
         my $pkg = $urpm->{depslist}[$_];
 
@@ -438,9 +458,9 @@ Use the specified F<media.cfg> file (defaults to F<media/media_info/media.cfg>).
 
 Don't abort when encountering bad rpms.
 
-=item --nochkdep
+=item --chkdep
 
-Don't search for missing dependencies.
+Search for missing dependencies.
 
 =item --noclean
 
