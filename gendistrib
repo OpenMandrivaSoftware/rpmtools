@@ -127,7 +127,8 @@ Fatal error detected, continue is likely to produce an invalid tree.
 Fix this erreur in media.cfg and retry:
 
 EOF
-    print "$_\n" foreach(@fatalerrors);
+    print STDERR "$_\n" foreach(@fatalerrors);
+    print STDERR "\n";
     exit(1);
 }
 
