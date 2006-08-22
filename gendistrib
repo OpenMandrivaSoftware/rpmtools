@@ -142,10 +142,10 @@ foreach ($distrib->listmedia) {
 
     push @hdlists, {
         media => $_,
-        synthesis => $destdir ?
+        synthesis2 => $destdir ?
             $destdir . '/' . $distrib->getpath($_, 'synthesis') :
             $distrib->getfullpath($_, 'synthesis'),
-        hdlist => $destdir ?
+        hdlist2 => $destdir ?
             $destdir . '/' .$distrib->getpath($_, 'hdlist') :
             $distrib->getfullpath($_, 'hdlist'),
         dir => $distrib->getpath($_, 'path'),
@@ -156,16 +156,16 @@ foreach ($distrib->listmedia) {
         thismediainfo => ($destdir ?
             $destdir . '/' . $distrib->getpath($_, 'path') :
             $distrib->getfullpath($_, 'path')) . "/media_info",
-        synthesis2 => ($destdir ?
+        synthesis => ($destdir ?
             $destdir . '/' . $distrib->getpath($_, 'path') :
             $distrib->getfullpath($_, 'path')) . "/media_info/synthesis.hdlist.cz",
-        hdlist2 => ($destdir ?
+        hdlist => ($destdir ?
             $destdir . '/' . $distrib->getpath($_, 'path') :
             $distrib->getfullpath($_, 'path')) . "/media_info/hdlist.cz",
         md5sum => ($destdir ?
             $destdir . '/' . $distrib->getpath($_, 'path') :
             $distrib->getfullpath($_, 'path')) . "/media_info/MD5SUM",
-        noneedrebuild => $blind ? 0 : $distrib->check_index_sync($_),
+        noneedrebuild => $blind ? 0 : $distrib->check_index_sync($_, 'formedia'),
         noneedredomd5 => $distrib->check_media_md5($_),
     };
 }
