@@ -134,40 +134,40 @@ EOF
 
 my @hdlists;
 my @media_missing_dirs;
-foreach ($distrib->listmedia) {
-    $distrib->getvalue($_, 'askmedia') || $distrib->getvalue($_, 'suppl') and next;
+foreach my $m ($distrib->listmedia) {
+    $distrib->getvalue($m, 'askmedia') || $distrib->getvalue($m, 'suppl') and next;
 
-    if (!-d $distrib->getfullpath($_, 'path')) {
+    if (!-d $distrib->getfullpath($m, 'path')) {
         next; # this has been checked earlier
     }
 
     push @hdlists, {
-        media => $_,
+        media => $m,
         synthesis2 => $destdir ?
-            $destdir . '/' . $distrib->getpath($_, 'synthesis') :
-            $distrib->getfullpath($_, 'synthesis'),
+            $destdir . '/' . $distrib->getpath($m, 'synthesis') :
+            $distrib->getfullpath($m, 'synthesis'),
         hdlist2 => $destdir ?
-            $destdir . '/' .$distrib->getpath($_, 'hdlist') :
-            $distrib->getfullpath($_, 'hdlist'),
-        dir => $distrib->getpath($_, 'path'),
-        descr => $distrib->getvalue($_, 'name'),
+            $destdir . '/' .$distrib->getpath($m, 'hdlist') :
+            $distrib->getfullpath($m, 'hdlist'),
+        dir => $distrib->getpath($m, 'path'),
+        descr => $distrib->getvalue($m, 'name'),
         mediainfo => $destdir ?
             $destdir . '/' . $distrib->getpath(undef, 'infodir') :
             $distrib->getfullpath(undef, 'infodir'),
         thismediainfo => ($destdir ?
-            $destdir . '/' . $distrib->getpath($_, 'path') :
-            $distrib->getfullpath($_, 'path')) . "/media_info",
+            $destdir . '/' . $distrib->getpath($m, 'path') :
+            $distrib->getfullpath($m, 'path')) . "/media_info",
         synthesis => ($destdir ?
-            $destdir . '/' . $distrib->getpath($_, 'path') :
-            $distrib->getfullpath($_, 'path')) . "/media_info/synthesis.hdlist.cz",
+            $destdir . '/' . $distrib->getpath($m, 'path') :
+            $distrib->getfullpath($m, 'path')) . "/media_info/synthesis.hdlist.cz",
         hdlist => ($destdir ?
-            $destdir . '/' . $distrib->getpath($_, 'path') :
-            $distrib->getfullpath($_, 'path')) . "/media_info/hdlist.cz",
+            $destdir . '/' . $distrib->getpath($m, 'path') :
+            $distrib->getfullpath($m, 'path')) . "/media_info/hdlist.cz",
         md5sum => ($destdir ?
-            $destdir . '/' . $distrib->getpath($_, 'path') :
-            $distrib->getfullpath($_, 'path')) . "/media_info/MD5SUM",
-        noneedrebuild => $blind ? 0 : $distrib->check_index_sync($_, 'formedia'),
-        noneedredomd5 => $distrib->check_media_md5($_),
+            $destdir . '/' . $distrib->getpath($m, 'path') :
+            $distrib->getfullpath($m, 'path')) . "/media_info/MD5SUM",
+        noneedrebuild => $blind ? 0 : $distrib->check_index_sync($m, 'formedia'),
+        noneedredomd5 => $distrib->check_media_md5($m),
     };
 }
 
@@ -382,6 +382,29 @@ if (grep { ! ($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
 	    print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
 	}
     }
+
+    print STDERR "Calculating size of medias\n" unless $nooutput;
+    foreach my $e (@hdlists) {
+        my $size = 0;
+        foreach (@{$e->{files} || []}) {
+            $size += (stat($_))[7];
+        }
+        my $blk = 1;
+        my $showsize = $size;
+        my @unit = (' ', qw(k m g));
+        while (@unit) {
+            my $u = shift(@unit);
+            if ($size / $blk < 1) {
+                last;
+            }
+            $showsize = sprintf('%d%s', $size / $blk, $u);
+            $blk *= 1024;
+        }
+        $distrib->setvalue($e->{media}, 'size', $showsize);
+    }
+
+    print STDERR "Rewriting media.cfg file\n" unless $nooutput;
+    $distrib->write_mediacfg($urpmfiles{mediacfg});
 
     print STDERR "Building version file\n" unless $nooutput;
     $distrib->write_version($urpmfiles{version});
