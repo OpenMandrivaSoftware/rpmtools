@@ -1,0 +1,112 @@
+Olivier Thauvin <nanardon@mandriva.org>
+This patch is a tried to make gendistrib faster, but I suspect
+it to be unsafe and have wrong effect on generate files.
+Until review, keeping it in mind.
+Index: gendistrib
+===================================================================
+--- gendistrib	(révision 57544)
++++ gendistrib	(copie de travail)
+@@ -127,8 +127,7 @@
+ Fix this erreur in media.cfg and retry:
+ 
+ EOF
+-    print STDERR "$_\n" foreach(@fatalerrors);
+-    print STDERR "\n";
++    print "$_\n" foreach(@fatalerrors);
+     exit(1);
+ }
+ 
+@@ -230,35 +229,36 @@
+     };
+ }
+ 
+-if (grep { ! $_->{noneedrebuild} } @hdlists) {
+ foreach my $e (@hdlists) {
+-    print STDERR "parsing rpm files in directory $e->{dir}\n" unless $nooutput;
+-    # NOYET open(my $hnsynth, "|gzip --best > $e->{synthesis}.yaml");
+-    my @headers = $urpm->parse_rpms_build_headers(
+-	dir  => $headers_dir,
+-	rpms => $e->{files},
+-	dontdie => $dontdie,
+-	silent => $nooutput,
+-# NOTYET    callback => sub {
++    if (!$blind) {
++        printf(STDERR "hdlist need to be rebuild for media $e->{descr}: %s\n",
++        $e->{noneedrebuild} ? "No" : "Yes") unless $nooutput;
++    }
++
++# NOTYET open(my $hnsynth, "|gzip --best > $e->{synthesis}.yaml");
++    my $callback => sub {
+ # NOTYET        my ($urpmc, $id, %options) = @_;
+ # NOTYET        print $hnsynth $urpmc->{depslist}[$id]->queryformat($yamlout);
+ # NOTYET        $urpmc->{depslist}[$id]->pack_header;
+-# NOTYET    },
++    };
++    if (!$e->{noneedrebuild} && !$blind) {
++    print STDERR "parsing rpm files in directory $e->{dir}\n" unless $nooutput;
++    @{$e->{headers}} = $urpm->parse_rpms_build_headers(
++        dir  => $headers_dir,
++        rpms => $e->{files},
++        dontdie => $dontdie,
++        silent => $nooutput,
++#        callback => $callback,
+     );
+-    # NOTYET close($hnsynth);
+-    # TODO if @headers is empty ?
+-    $e->{headers} = \@headers;
+ 
+-    if (!$blind) {
+-        print STDERR "Checking if hdlist need to be rebuild for media $e->{descr}\n" unless $nooutput;
+-        if($e->{noneedrebuild}) {
+-            print "No\n" unless $nooutput;
+-        } else {
+-            print "Yes\n" unless $nooutput;
+-        }
++    } else {
++    $urpm->parse_hdlist(
++        $e->{hdlist},
++        #callback => $callback,
++    );
+     }
++    # NOTYET close($hnsynth);
+ }
+-}
+ 
+ if ($noemptymedia) {
+     foreach my $e (@hdlists) {
+@@ -273,19 +273,30 @@
+ #- temporary file where to build hdlists
+ my $temp_hdlist = mktemp("$tempdir/hdlistXXXXX");
+ 
++my $callback = sub {};
++
+ if (grep { ! $_->{noneedrebuild} } @hdlists) {
+ foreach my $e (@hdlists) {
+-    if (@{$e->{headers} || []}) { # We have rpms in this media
+-
+-	print STDERR qq(parsing headers for "$e->{descr}"\n) unless $nooutput;
+-	my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
++    my ($start, $end);
++    if ($e->{noneedrebuild} && !$blind) {
++    $urpm->parse_hdlist(
++        $e->{hdlist},
++        #callback => $callback,
++    );
++    } else {
++    ($start, $end) = $urpm->parse_headers(
++        dir     => $headers_dir,
+ 	    headers => $e->{headers},
+ 	    dontdie => $dontdie,
+-	    silent  => $nooutput);
++	    silent  => $nooutput,
++        #callback => $callback,
++    );
++    }
+ 
+ 	print STDERR "computing deps\n" unless $nooutput;
+ 	$urpm->compute_deps;
+ 
++    if (@{$e->{headers} || []}) { # We have rpms in this media
+ 	# No media change, nothing to write
+ 	if (!$e->{noneedrebuild}) {
+ 
