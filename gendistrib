@@ -122,9 +122,9 @@ $distrib->check(sub {
 if (@fatalerrors) {
     printf STDERR <<EOF;
 
-Fatal error detected, continue is likely to produce an invalid tree.
-(Missing directory can ignore with --skipmissingdir.)
-Fix this erreur in media.cfg and retry:
+A fatal error has been detected, continueing is likely to produce an invalid
+tree. (Missing directories can be ignored with --skipmissingdir.)
+Fix the error in media.cfg and retry:
 
 EOF
     print STDERR "$_\n" foreach(@fatalerrors);
@@ -250,7 +250,7 @@ foreach my $e (@hdlists) {
     $e->{headers} = \@headers;
 
     if (!$blind) {
-        print STDERR "Checking if hdlist need to be rebuild for media $e->{descr}\n" unless $nooutput;
+        print STDERR "Checking if hdlist need to be rebuilt for media $e->{descr}\n" unless $nooutput;
         if($e->{noneedrebuild}) {
             print "No\n" unless $nooutput;
         } else {
