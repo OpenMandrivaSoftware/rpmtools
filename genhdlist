@@ -32,6 +32,8 @@ GetOptions(
     'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
 );
 
+$list and die "--list is not handled anymore by urpmi, use hdlist/synthesis instead\n";
+
 my $urpm = new URPM;
 if ($subdir && $subdir !~ m{/$}) { $subdir .= '/' }
 my $hdlist_base = "hdlist$suffix.cz";
@@ -55,18 +57,10 @@ if ($subdir) {
 my $tmpdir = tempdir($tmpdir_tpl, CLEANUP => !$noclean);
 
 my @rpms;
-my %rpmslist;
 
-# get rpm list
-my $listfh;
-if ($list) {
-    open $listfh, ">", "${subdir}list$suffix"
-	or die "Can't create list file [${subdir}list$suffix]: $!\n";
-}
 foreach my $dir (@dir) {
     print "parsing $dir\n" unless $nooutput;
     @rpms = ();
-    %rpmslist = ();
     File::Find::find(
 	{
 	    wanted => sub {
@@ -83,23 +77,13 @@ foreach my $dir (@dir) {
 	rpms => \@rpms,
 	dontdie => $nobadrpm,
 	silent => $nooutput,
-	callback => sub {
-	    my ($urpm, $id, %options) = @_;
-	    $rpmslist{scalar($urpm->{depslist}[$id]->fullname) . ".rpm"} = 1;
-	    $urpm->{depslist}[$id]->pack_header;
-	},
+	packing => 1,
     );
-    # This code will become useless... see above
-    foreach my $rpm (@rpms) {
-	$rpmslist{($rpm =~ m!.*/(.*)\z!)[0]} or next;
-	print $listfh "$rpm\n" if $list;
-    }
 }
-close $listfh if $listfh;
 
 # create hdlist file
 # No rpms, exit !
-@{$urpm->{depslist}} or die "Nothing read, no file to write\n";
+#@{$urpm->{depslist}} or die "Nothing read, no file to write\n";
 
 $urpm->build_hdlist(
     start  => 0,
@@ -141,10 +125,6 @@ genhdlist - generates an hdlist and a synthesis file
 
 Build indexes from this directory (that is, chdir's to this directory
 before operation).
-
-=item --list
-
-Creates a list file.
 
 =item --md5sum
 
