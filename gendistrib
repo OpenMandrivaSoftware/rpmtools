@@ -472,7 +472,9 @@ repository.
 
 =item --hdlists file
 
-Path of the F<hdlists> file (defaults to F<media/media_info/hdlists>)
+Path of the F<hdlists> file (defaults to F<media/media_info/hdlists>). This is
+deprecated; if gendistrib finds a F<media.cfg> file, it will use it and ignore
+the F<hdlists> file unless this option is given.
 
 =item --headersdir dir
 
