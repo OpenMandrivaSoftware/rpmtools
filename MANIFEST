@@ -8,8 +8,6 @@ genhdlist
 Makefile.PL
 MANIFEST
 packdrake
-Packdrakeng.pm
-Packdrakeng/zlib.pm
 packdrake.pm
 parsehdlist.c
 rpm2cpio.pl

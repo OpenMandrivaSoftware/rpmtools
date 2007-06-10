@@ -53,8 +53,6 @@ WriteMakefile(
         pm_to_blib => 'buildc',
     },
     PM => {
-        'Packdrakeng.pm' => '$(INST_LIBDIR)/Packdrakeng.pm',
-        'Packdrakeng/zlib.pm' => '$(INST_LIBDIR)/Packdrakeng/zlib.pm',
         'packdrake.pm' => '$(INST_LIBDIR)/packdrake.pm',
         'Distribconf.pm' => '$(INST_LIBDIR)/Distribconf.pm',
         'Distribconf/Build.pm' => '$(INST_LIBDIR)/Distribconf/Build.pm',
