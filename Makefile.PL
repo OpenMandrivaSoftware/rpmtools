@@ -3,7 +3,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 
-my $rpmtools_version = "5.1.0";
+my $rpmtools_version = "5.2.0";
 
 # to generate the ChangeLog depending on the checkout layout
 my $commonusername = "../common/";
