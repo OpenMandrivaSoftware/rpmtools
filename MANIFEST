@@ -1,6 +1,4 @@
 ChangeLog
-Distribconf/Build.pm
-Distribconf.pm
 dumpdistribconf
 editdistrib
 gendistrib
