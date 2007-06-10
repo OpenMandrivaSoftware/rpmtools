@@ -5,16 +5,6 @@ use ExtUtils::MakeMaker;
 
 my $rpmtools_version = "5.2.0";
 
-# to generate the ChangeLog depending on the checkout layout
-my $commonusername = "../common/";
--d $commonusername or do {
-    $commonusername = "../../common/";
-    -d $commonusername or do {
-	$commonusername = "../../../common/";
-	-d $commonusername or $commonusername = "";
-    };
-};
-
 sub MY::postamble {
     <<MAKEMAKEFILE;
 .PHONY: ChangeLog
@@ -32,7 +22,7 @@ cleanc:
 	rm -rf *.cz test
 
 ChangeLog:
-	LC_ALL=C svn2cl --accum --strip-prefix=soft/rpm/rpmtools/trunk --authors ${commonusername}username.xml
+	LC_ALL=C svn2cl --accum --strip-prefix=soft/rpm/rpmtools/trunk 
 	rm -f *.bak
 
 MAKEMAKEFILE
