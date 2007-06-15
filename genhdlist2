@@ -20,6 +20,7 @@ sub main() {
 	'clean' => \$options{no_incremental},
 	'no-bad-rpm' => \$options{no_bad_rpm},
 	'no-md5sum' => \$options{no_md5sum},
+	'nolock' => \$options{nolock},
 	'file-deps=s' => \$options{file_deps},
 	'h|help' => sub { usage(); exit 0 },
 	'q|quiet' => sub { $options{verbose} = -1 },
@@ -52,7 +53,7 @@ sub do_it {
     my $lock_file = "$media_info_dir/UPDATING";
     $tmp_header = "$media_info_dir/.tmp-header";
 
-    my $lock = lock_file($lock_file);
+    my $lock = !$options{nolock} && lock_file($lock_file);
 
     $SIG{INT} = sub { 
 	unlink "$hdlist.tmp", "$synthesis.tmp", $tmp_header;
@@ -228,6 +229,10 @@ Do not generate MD5SUM file.
 =item --no-bad-rpm
 
 Do not abort on bad rpms.
+
+=item B<--nolock>
+
+Don't lock the media (can be useful when locks fail, eg NFS)
 
 =item --clean
 
