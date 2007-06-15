@@ -1,0 +1,272 @@
+#!/usr/bin/perl
+
+(our $VERSION) = q(Id: genhdlist2 20460 2006-11-23 13:19:11Z pixel ) =~ /(\d+\.\d+)/;
+
+use URPM;
+use MDV::Packdrakeng;
+use Getopt::Long;
+
+main();
+
+sub usage () {
+    require Pod::Usage;
+    Pod::Usage::pod2usage({ '-verbose' => 1 });
+}
+
+sub main() {
+    my %options;
+
+    GetOptions(
+	'clean' => \$options{no_incremental},
+	'no-bad-rpm' => \$options{no_bad_rpm},
+	'no-md5sum' => \$options{no_md5sum},
+	'file-deps=s' => \$options{file_deps},
+	'h|help' => sub { usage(); exit 0 },
+	'q|quiet' => sub { $options{verbose} = -1 },
+	'v|verbose' => sub { $options{verbose}++ },
+	'version' => sub { warn "$0 version $VERSION\n"; exit 0 },
+    );
+
+    @ARGV <= 1 or usage();
+    my $rpms_dir = $ARGV[0] || '.';
+
+    do_it($rpms_dir, %options);
+}
+
+# global vars
+my ($no_bad_rpm, $verbose);
+my $tmp_header;
+
+sub do_it {
+    my ($rpms_dir, %options) = @_;
+
+    $verbose  = $options{verbose};
+    $no_bad_rpm = $options{no_bad_rpm};
+
+    my $media_info_dir = "$rpms_dir/media_info";
+    -e $media_info_dir || mkdir $media_info_dir or die "Can't mkdir $media_info_dir: $!n";
+    -d $media_info_dir && -w _ && -x _ or die "$media_info_dir isn't a writable directory, bailing out\n";
+
+    my $hdlist = "$media_info_dir/hdlist.cz";
+    my $synthesis = "$media_info_dir/synthesis.hdlist.cz";
+    my $lock_file = "$media_info_dir/UPDATING";
+    $tmp_header = "$media_info_dir/.tmp-header";
+
+    my $lock = lock_file($lock_file);
+
+    $SIG{INT} = sub { 
+	unlink "$hdlist.tmp", "$synthesis.tmp", $tmp_header;
+	unlink $lock_file if $lock;
+	exit 1;
+    };
+    END { unlink $lock_file if $lock }
+
+    my @rpms = grep { /\.rpm$/ } all($rpms_dir);
+    my %rpms_todo = map { /(.*)\.rpm/ => 1 } @rpms;
+
+    my $urpm = new URPM;
+
+    read_file_deps($urpm, $options{file_deps}) if $options{file_deps};
+
+    build_hdlist($urpm, \%rpms_todo, $hdlist, $rpms_dir, $options{no_incremental});
+    build_synthesis($urpm, "$synthesis.tmp");
+
+    if (1) {
+	print "replacing $hdlist with $hdlist.tmp\n" if $verbose >= 0;
+	rename "$hdlist.tmp", $hdlist or die "rename $hdlist failed: $?\n";
+	print "replacing $synthesis with $synthesis.tmp\n" if $verbose >= 0;
+	rename "$synthesis.tmp", $synthesis or die "ERROR: this should not happen: rename $synthesis failed\n";
+	generate_md5sum($media_info_dir, $hdlist, $synthesis) if !$options{no_md5sum};
+    }
+}
+
+sub lock_file {
+    my ($file) = @_;
+    #- avoid putting a require on Fcntl ':flock' (which is perl and not perl-base).
+    my ($LOCK_EX, $LOCK_NB) = (2, 4);
+
+    print "locking $file\n" if $verbose > 0;
+    open(my $lock, '>', $file) or die "lock_file $file failed\n";
+    flock $lock, $LOCK_EX|$LOCK_NB or die "another genhdlist2 already running\n";
+    $lock;
+}
+
+sub read_file_deps {
+    my ($urpm, $file_deps) = @_;
+
+    -r $file_deps or die "can't read $file_deps: $?\n";
+
+    foreach (cat_($file_deps)) {
+	chomp;
+	$urpm->{provides}{$_} = undef;
+    }
+}
+
+sub build_hdlist {
+    my ($urpm, $rpms_todo, $hdlist, $rpms_dir, $b_no_incremental) = @_;
+
+    my $out = MDV::Packdrakeng->new(
+	archive => "$hdlist.tmp",
+	compress => "gzip",
+	uncompress => "gzip -d",
+	comp_level => 9,
+    ) or die "Can't create archive";
+
+    if (-e $hdlist && !$b_no_incremental) {
+	print "filtering $hdlist into $hdlist.tmp\n" if $verbose >= 0;
+	filter_existing_hdlist($urpm, $rpms_todo, $hdlist, $out);
+    }
+
+    add_new_rpms_to_hdlist($urpm, $rpms_todo, $out, $rpms_dir);
+}
+
+sub filter_existing_hdlist {
+    my ($urpm, $rpms_todo, $in_hdlist, $out) = @_;
+
+    $urpm->parse_hdlist($in_hdlist, packing => 1, callback => sub {
+	my (undef, $pkg) = @_;
+	my $fullname = $pkg->fullname;
+	if (delete $rpms_todo->{$fullname}) {
+	    print "keeping $fullname\n" if $verbose > 1;
+	    add_pkg_header($out, $pkg);
+	    1; # do keep in memory
+	} else {
+	    print "removing $fullname\n" if $verbose > 0;
+	    0; # don't keep in memory
+	}
+    });
+}
+
+sub add_new_rpms_to_hdlist {
+    my ($urpm, $rpms_todo, $out, $rpms_dir) = @_;
+
+    my @rpms = keys %$rpms_todo or return;
+    print "adding ", join(' ', @rpms), "\n" if $verbose > 0;
+
+    foreach (@rpms) {
+	print "adding $_" if $verbose > 1;
+
+	my $rpm = "$rpms_dir/$_.rpm";
+	my ($id, undef) = $urpm->parse_rpm($rpm);
+	if (!defined $id) {
+	    if ($no_bad_rpm) {
+		print STDERR "bad rpm $rpm\n";
+		next;
+	    } else {
+		die "bad rpm $rpm\n";
+	    }
+	}
+	my $pkg = $urpm->{depslist}[$id];
+	add_pkg_header($out, $pkg);
+
+	$pkg->pack_header; # for synthesis
+    }
+}
+
+sub add_pkg_header {
+    my ($out, $pkg) = @_;
+    {
+	open(my $fh, ">", $tmp_header);
+	$pkg->build_header(fileno $fh);
+    }
+    {
+	open(my $fh, "<", $tmp_header);
+	$out->add_virtual('f', scalar($pkg->fullname), $fh);
+    }
+    unlink $tmp_header;
+}
+
+sub build_synthesis {
+    my ($urpm, $synthesis) = @_;
+    $urpm->build_synthesis(
+	start     => 0,
+	end       => $#{$urpm->{depslist}},
+	synthesis => $synthesis,
+    );
+}
+
+sub generate_md5sum {
+    my ($media_info_dir, $hdlist, $synthesis) = @_;
+    print "updating $media_info_dir/MD5SUM\n" if $verbose >= 0;
+    my $m = `/usr/bin/md5sum '$hdlist' '$synthesis'`;
+    open my $f, '>', "$media_info_dir/MD5SUM" or die "Can't write MD5SUM: $!\n";
+    print $f $m;
+}
+
+
+sub cat_ { my @l = map { my $F; open($F, '<', $_) ? <$F> : () } @_; wantarray() ? @l : join '', @l }
+
+sub all {
+    my $d = shift;
+
+    local *F;
+    opendir F, $d or return;
+    my @l = grep { $_ ne '.' && $_ ne '..' } readdir F;
+    closedir F;
+
+    @l;
+}
+
+__END__
+
+=head1 NAME
+
+genhdlist2 - generates an hdlist and a synthesis file
+
+=head1 SYNOPSIS
+
+    genhdlist2 [options] [dir]
+
+=head1 OPTIONS
+
+=over 4
+
+=item --no-md5sum
+
+Do not generate MD5SUM file.
+
+=item --no-bad-rpm
+
+Do not abort on bad rpms.
+
+=item --clean
+
+Do not use existing hdlist.cz, build hdlist from scratch
+
+=item --quiet
+
+Quiet mode.
+
+=back
+
+=head1 DESCRIPTION
+
+F<genhdlist2> is used to generate an hdlist and an associated synthesis file
+from a set of RPM packages found in the directories passed on the command-line.
+By default it will put the hdlist and synthesis files in the current directory.
+
+=head1 SEE ALSO
+
+gendistrib(1), parsehdlist(1)
+
+=head1 COPYRIGHT
+
+Copyright (C) 1999, 2000, 2001, 2002, 2003, 2004, 2005 MandrakeSoft SA
+
+Copyright (C) 2005, 2006 Mandriva SA
+
+This program is free software; you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation; either version 2, or (at your option)
+any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program; if not, write to the Free Software
+Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
+
+=cut
