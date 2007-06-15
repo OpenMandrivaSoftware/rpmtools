@@ -28,8 +28,8 @@ sub main() {
 	'version' => sub { warn "$0 version $VERSION\n"; exit 0 },
     );
 
-    @ARGV <= 1 or usage();
-    my $rpms_dir = $ARGV[0] || '.';
+    @ARGV == 1 or usage();
+    my $rpms_dir = $ARGV[0];
 
     do_it($rpms_dir, %options);
 }
@@ -43,6 +43,8 @@ sub do_it {
 
     $verbose  = $options{verbose};
     $no_bad_rpm = $options{no_bad_rpm};
+
+    my @rpms = grep { /\.rpm$/ } all($rpms_dir) or die "no *.rpm found in $rpms_dir\n";
 
     my $media_info_dir = "$rpms_dir/media_info";
     -e $media_info_dir || mkdir $media_info_dir or die "Can't mkdir $media_info_dir: $!n";
@@ -62,7 +64,6 @@ sub do_it {
     };
     END { unlink $lock_file if $lock }
 
-    my @rpms = grep { /\.rpm$/ } all($rpms_dir);
     my %rpms_todo = map { /(.*)\.rpm/ => 1 } @rpms;
 
     my $urpm = new URPM;
@@ -222,7 +223,7 @@ genhdlist2 - generates an hdlist and a synthesis file
 
 =head1 SYNOPSIS
 
-    genhdlist2 [options] [dir]
+    genhdlist2 [options] dir
 
 =head1 OPTIONS
 
