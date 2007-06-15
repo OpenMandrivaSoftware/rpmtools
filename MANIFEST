@@ -3,6 +3,7 @@ dumpdistribconf
 editdistrib
 gendistrib
 genhdlist
+genhdlist2
 Makefile.PL
 MANIFEST
 packdrake
