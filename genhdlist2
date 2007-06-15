@@ -142,10 +142,16 @@ sub add_new_rpms_to_hdlist {
     my ($urpm, $rpms_todo, $out, $rpms_dir) = @_;
 
     my @rpms = keys %$rpms_todo or return;
-    print "adding ", join(' ', @rpms), "\n" if $verbose > 0;
+    if ($verbose >= 0) {
+	if (@rpms > 100 || $verbose == 0) {
+	    print "adding ", int(@rpms), " rpms\n";
+	} else {
+	    print "adding ", join(' ', @rpms), "\n";
+	}
+    }
 
     foreach (@rpms) {
-	print "adding $_" if $verbose > 1;
+	print "adding $_\n" if $verbose > 1;
 
 	my $rpm = "$rpms_dir/$_.rpm";
 	my ($id, undef) = $urpm->parse_rpm($rpm);
