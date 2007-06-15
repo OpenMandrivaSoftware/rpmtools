@@ -144,7 +144,7 @@ sub add_new_rpms_to_hdlist {
     my @rpms = keys %$rpms_todo or return;
     if ($verbose >= 0) {
 	if (@rpms > 100 || $verbose == 0) {
-	    print "adding ", int(@rpms), " rpms\n";
+	    print "adding ", int(@rpms), " new rpms not available in existing hdlist\n";
 	} else {
 	    print "adding ", join(' ', @rpms), "\n";
 	}
@@ -189,7 +189,7 @@ sub build_synthesis {
 	start     => 0,
 	end       => $#{$urpm->{depslist}},
 	synthesis => $synthesis,
-    );
+    ) or die "build_synthesis failed (disk full?)\n";
 }
 
 sub generate_md5sum {
