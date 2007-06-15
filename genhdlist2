@@ -228,23 +228,29 @@ genhdlist2 - generates an hdlist and a synthesis file
 
 =over 4
 
-=item --no-md5sum
+=item B<--clean>
+
+Do not use existing hdlist.cz, build hdlist from scratch.
+
+=item B<--no-md5sum>
 
 Do not generate MD5SUM file.
 
-=item --no-bad-rpm
+=item B<--no-bad-rpm>
 
 Do not abort on bad rpms.
 
 =item B<--nolock>
 
-Don't lock the media (can be useful when locks fail, eg NFS)
+Don't lock the media (can be useful when locks fail, eg NFS). Since the lock
+is used to verify no other genhdlist2 process is running on the same media, it
+is a dangerous option.
 
-=item --clean
+=item B<-v>
 
-Do not use existing hdlist.cz, build hdlist from scratch
+Be verbose. Use one more B<-v> to get even more verbose.
 
-=item --quiet
+=item B<--quiet>
 
 Quiet mode.
 
@@ -253,8 +259,15 @@ Quiet mode.
 =head1 DESCRIPTION
 
 F<genhdlist2> is used to generate an hdlist and an associated synthesis file
-from a set of RPM packages found in the directories passed on the command-line.
-By default it will put the hdlist and synthesis files in the current directory.
+from a set of RPM packages found in the directory passed on the command-line.
+It will put the hdlist and synthesis files in media_info/ sub-directory.
+
+Without B<--clean>, F<genhdlist2> is incremental, ie it will modify existing
+media_info/hdlist.cz: it will first remove package headers for packages that
+are no more in the directory. It will then add new packages. This makes an
+important assumption: name-version-release-arch is enough to uniquely
+indentify a package. So if foo-1-1 is in hdlist, genhdlist2 will keep it and
+not bother verifying if it really is the same package.
 
 =head1 SEE ALSO
 
