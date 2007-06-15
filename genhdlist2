@@ -232,6 +232,21 @@ genhdlist2 - generates an hdlist and a synthesis file
 
 Do not use existing hdlist.cz, build hdlist from scratch.
 
+=item B<--file-deps>
+
+Use the given file to know which file dependencies are used by other media.
+Here is an example of use:
+
+    package foo in medium contrib requires /bin/bar
+    package bar in medium main has file /bin/bar
+
+    % echo /bin/bar > media/media_info/file-deps
+    % genhdlist2 --file-deps media/media_info/file-deps media/main/release
+
+    without file-deps, media/main/release/media_info/synthesis.hdlist.cz would not provide /bin/bar.
+
+This option is not needed for file-deps inside a same medium.
+
 =item B<--no-md5sum>
 
 Do not generate MD5SUM file.
@@ -268,6 +283,11 @@ are no more in the directory. It will then add new packages. This makes an
 important assumption: name-version-release-arch is enough to uniquely
 indentify a package. So if foo-1-1 is in hdlist, genhdlist2 will keep it and
 not bother verifying if it really is the same package.
+
+Contrary to F<gendistrib>, F<genhdlist2> doesn't have to be work on all media
+at once. For this, it assumes no inter media file dependencies are used. If
+you still have inter media file dependencies, you can use option
+B<--file-deps>.
 
 =head1 SEE ALSO
 
