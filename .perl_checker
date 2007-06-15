@@ -3,3 +3,5 @@ Carp::Heavy
 constant
 IO::Handle
 warnings
+File::Path
+Pod::Usage
