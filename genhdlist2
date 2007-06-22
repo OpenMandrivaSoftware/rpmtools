@@ -188,11 +188,18 @@ sub add_pkg_header {
 
 sub build_synthesis {
     my ($urpm, $synthesis) = @_;
-    $urpm->build_synthesis(
-	start     => 0,
-	end       => $#{$urpm->{depslist}},
-	synthesis => $synthesis,
-    ) or die "build_synthesis failed (disk full?)\n";
+    # for compatibility with perl-URPM < 1.48 (ie < 2007.1),
+    # creating empty synthesis by hand. This is only needed to run on old distros
+    if (@{$urpm->{depslist}} == 0) {
+        open(my $hsynth, "| /bin/gzip > $synthesis");
+	close $hsynth or die "Can't create empty synthesis $synthesis: $!\n";
+    } else {
+	$urpm->build_synthesis(
+	    start     => 0,
+	    end       => $#{$urpm->{depslist}},
+	    synthesis => $synthesis,
+	) or die "build_synthesis failed (disk full?)\n";
+    }
 }
 
 sub generate_md5sum {
