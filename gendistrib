@@ -171,6 +171,15 @@ if (grep { ! $_->{noneedrebuild} } @hdlists) {
     }
 }
 if (grep { ! ($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
+    unlink "$destinfodir/MD5SUM"; #- safety cleaning
+    unless ($nomd5sum) {
+	# this MD5SUM is mostly obsolete, but is still needed up to 2007.1
+	# (and even on cooker for existing urpmi.cfg)
+	my $md5sum = `cd $destinfodir ; /usr/bin/md5sum hdlist_* synthesis*`;
+	open my $md5sumfh, '>', "$destinfodir/MD5SUM" or die "Can't create $destinfodir/MD5SUM: $!\n";
+	print $md5sumfh $md5sum;
+    }
+
     print STDERR "Calculating size of medias\n" unless $nooutput;
     foreach my $e (@hdlists) {
         my $size = 0;
