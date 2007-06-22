@@ -5,3 +5,4 @@ IO::Handle
 warnings
 File::Path
 Pod::Usage
+MDV::Distribconf::Build
