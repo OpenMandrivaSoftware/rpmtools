@@ -6,6 +6,7 @@ genhdlist
 genhdlist2
 Makefile.PL
 MANIFEST
+NEWS
 packdrake
 packdrake.pm
 parsehdlist.c
