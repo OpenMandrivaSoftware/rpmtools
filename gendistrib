@@ -1,81 +1,52 @@
 #!/usr/bin/perl
 
-(our $VERSION) = q$Id$ =~ /(\d+)/;
+(our $VERSION) = q(Id: gendistrib 20724 2006-11-30 13:13:27Z rafael ) =~ /(\d+)/;
 
 use strict;
-use Cwd;
-use URPM;
-use URPM::Build;
-use Getopt::Long;
 use MDV::Distribconf::Build;
-use MDV::Packdrakeng;
-use Pod::Usage;
-use File::Temp 'mktemp';
-
-my $urpm = new URPM;
-my $tempdir = -d $ENV{TMPDIR} ? $ENV{TMPDIR} : -d "$ENV{HOME}/tmp" ? "$ENV{HOME}/tmp" : "/tmp";
-my $headers_dir = $tempdir . "/.build_hdlist";
-
-my $yamlout= join('',
-    '- !!omap\n',
-    '[%{PKGID:yaml}\n]',
-    '[%{NAME:yaml}\n]',
-    '[%{VERSION:yaml}\n]',
-    '[%{RELEASE:yaml}\n]',
-    '[%{EPOCH:yaml}\n]',
-    '[%{ARCH:yaml}\n]',
-    '[%{SOURCERPM:yaml}\n]',
-    '[%{PROVIDENAME:yaml}\n]',
-    '[%{PROVIDEFLAGS:yaml}\n]',
-    '[%{PROVIDEVERSION:yaml}\n]',
-    '[%{REQUIRENAME:yaml}\n]',
-    '[%{REQUIREFLAGS:yaml}\n]',
-    '[%{REQUIREVERSION:yaml}\n]',
-    '[%{CONFLICTNAME:yaml}\n]',
-    '[%{CONFLICTFLAGS:yaml}\n]',
-    '[%{CONFLICTVERSION:yaml}\n]',
-    '[%{OBSOLETENAME:yaml}\n]',
-    '[%{OBSOLETEFLAGS:yaml}\n]',
-    '[%{OBSOLETEVERSION:yaml}\n]',
-    '[%{DIRNAMES:yaml}\n]',
-    '[%{DIRINDEXES:yaml}\n]',
-    '[%{BASENAMES:yaml}\n]',
-);
+use Getopt::Long;
 
 sub usage () {
-    pod2usage({ -verbose => 1 });
+    require Pod::Usage;
+    Pod::Usage::pod2usage({ '-verbose' => 1 });
     exit 0;
 }
 
 my %urpmfiles;
+my %old;
 
 GetOptions(
     'blind' => \my $blind,
-    'compss=s' => \$urpmfiles{compss},
-    'depslist=s' => \$urpmfiles{depslist},
-    'destdir=s' => \my $destdir,
     'hdlists=s' => \$urpmfiles{hdlists},
-    'headersdir=s' => \$headers_dir,
     'help|h' => \&usage,
     'mediacfg=s' => \$urpmfiles{mediacfg},
-    'nobadrpm' => \my $dontdie,
-    'nochkdep' => \my $nochkdep, # compatibility, default now
-    'chkdep' => \my $chkdep,
-    'noclean' => \my $noclean,
+    'nobadrpm' => \my $nobadrpm,
     'noemptymedia' => \my $noemptymedia,
     'nomd5sum' => \my $nomd5sum,
-    'nomediainfo' => \my $nomediainfo,
-    'provides=s' => \$urpmfiles{provides},
     'skipmissingdir' => \my $skipmissingdir,
     's' => \my $nooutput,
     'v|version' => sub { warn "$0 version $VERSION\n"; exit 0 },
+
+# old stuff
+    'chkdep' => \$old{chkdep},
+    'compss=s' => \$old{compss},
+    'depslist=s' => \$old{depslist},
+    'noclean' => \$old{noclean},
+    'provides=s' => \$old{provides},
+    'headersdir=s' => \$old{headersdir},
+    'nomediainfo' => \$old{nomediainfo},
 );
 
-(my @root = grep { $_ } @ARGV) > 0 or usage();
+foreach (qw(chkdep compss depslist noclean headersdir provides nomediainfo)) {
+    $old{$_} and warn "--$_ is obsolete (not used anymore)\n";
+}
 
-my $distrib = MDV::Distribconf::Build->new($root[0]);
+@ARGV == 1 or usage();
+my ($root) = @ARGV;
 
-$distrib->loadtree or die "$root[0] does not seem to be a distribution tree\n";
+my $distrib = MDV::Distribconf::Build->new($root);
+
+$distrib->loadtree or die "$root does not seem to be a distribution tree\n";
 
 if (defined($urpmfiles{mediacfg})) {
     $distrib->parse_mediacfg($urpmfiles{mediacfg}) or die "Can't read $urpmfiles{mediacfg}\n";
@@ -85,27 +56,12 @@ if (defined($urpmfiles{mediacfg})) {
     $distrib->parse_mediacfg || $distrib->parse_hdlists or die "Can't read the distrib config\n";
 }
 
-my $destinfodir = $destdir ?
-    $destdir . '/' . $distrib->getpath(undef, "infodir") :
-    $distrib->getfullpath(undef, "infodir");
-
-my %default_urpmfiles = (
-    depslist => $destinfodir . "/depslist.ordered",
-    provides => $destinfodir . "/provides",
-    compss =>   $destinfodir . "/compss",
-    version =>  $destdir ?
-        $destdir . $distrib->getpath(undef, "VERSION") :
-        $distrib->getfullpath(undef, "VERSION"),
-    md5sum =>   $destinfodir . "/MD5SUM",
-);
-
-while (my ($k, $v) = each(%default_urpmfiles)) {
-    $urpmfiles{$k} ||= $v;
-}
+my $destinfodir = $distrib->getfullpath(undef, "infodir");
+$urpmfiles{version} = $distrib->getfullpath(undef, "VERSION"),
 
 # Error which are fatale
 my @fatal = qw(SAME_INDEX);
-push(@fatal, 'MISSING_MEDIADIR') unless ($skipmissingdir);
+push @fatal, 'MISSING_MEDIADIR' if !$skipmissingdir;
 my @IGNORE = qw(MISSING_INDEX);
 my @fatalerrors; # fatales error show at the end
 $distrib->check(sub {
@@ -114,7 +70,7 @@ $distrib->check(sub {
         if (grep { $_ eq $info{errcode} } @fatal) {
             push(@fatalerrors, "$info{level}: $info{message}");
         } else {
-            printf STDERR "$info{level}: $info{message}\n" unless($nooutput);
+            printf STDERR "$info{level}: $info{message}\n" unless $nooutput;
         }
     }
 );
@@ -127,45 +83,27 @@ tree. (Missing directories can be ignored with --skipmissingdir.)
 Fix the error in media.cfg and retry:
 
 EOF
-    print STDERR "$_\n" foreach(@fatalerrors);
+    print STDERR "$_\n" foreach @fatalerrors;
     print STDERR "\n";
     exit(1);
 }
 
 my @hdlists;
-my @media_missing_dirs;
 foreach my $m ($distrib->listmedia) {
     $distrib->getvalue($m, 'askmedia') || $distrib->getvalue($m, 'suppl') and next;
 
-    if (!-d $distrib->getfullpath($m, 'path')) {
-        next; # this has been checked earlier
-    }
+    my $path = $distrib->getfullpath($m, 'path');
+    -d $path or next; # this has been checked earlier
 
     push @hdlists, {
-        media => $m,
-        synthesis2 => $destdir ?
-            $destdir . '/' . $distrib->getpath($m, 'synthesis') :
-            $distrib->getfullpath($m, 'synthesis'),
-        hdlist2 => $destdir ?
-            $destdir . '/' .$distrib->getpath($m, 'hdlist') :
-            $distrib->getfullpath($m, 'hdlist'),
-        dir => $distrib->getpath($m, 'path'),
-        descr => $distrib->getvalue($m, 'name'),
-        mediainfo => $destdir ?
-            $destdir . '/' . $distrib->getpath(undef, 'infodir') :
-            $distrib->getfullpath(undef, 'infodir'),
-        thismediainfo => ($destdir ?
-            $destdir . '/' . $distrib->getpath($m, 'path') :
-            $distrib->getfullpath($m, 'path')) . "/media_info",
-        synthesis => ($destdir ?
-            $destdir . '/' . $distrib->getpath($m, 'path') :
-            $distrib->getfullpath($m, 'path')) . "/media_info/synthesis.hdlist.cz",
-        hdlist => ($destdir ?
-            $destdir . '/' . $distrib->getpath($m, 'path') :
-            $distrib->getfullpath($m, 'path')) . "/media_info/hdlist.cz",
-        md5sum => ($destdir ?
-            $destdir . '/' . $distrib->getpath($m, 'path') :
-            $distrib->getfullpath($m, 'path')) . "/media_info/MD5SUM",
+        media         => $m,
+        dir           => $distrib->getpath($m, 'path'),
+        descr         => $distrib->getvalue($m, 'name'),
+        hdlist2       => $distrib->getfullpath($m, 'hdlist'),
+        synthesis2    => $distrib->getfullpath($m, 'synthesis'),
+        thismediainfo => "$path/media_info",
+        hdlist        => "$path/media_info/hdlist.cz",
+        synthesis     => "$path/media_info/synthesis.hdlist.cz",
         noneedrebuild => $blind ? 0 : $distrib->check_index_sync($m, 'formedia'),
         noneedredomd5 => $distrib->check_media_md5($m),
     };
@@ -176,191 +114,56 @@ if (!-d $destinfodir) {
         or die qq(Can't create directory "$destinfodir": $!\n);
 }
 
-foreach my $e (@hdlists) {
-    for my $d (qw(mediainfo thismediainfo)) {
-	if (! -d $e->{$d}) {
-	    mkdir $e->{$d}, 0755
-		or die qq(Can't create directory "$e->{$d}": $!\n);
-	}
+my $infodir = $distrib->getfullpath(undef, 'infodir');
+
+foreach my $d ($infodir, map { $_->{thismediainfo} } @hdlists) {
+    if (! -d $d) {
+	mkdir $d, 0755 or die qq(Can't create directory "$d": $!\n);
     }
 }
 
-sub clean_cache {
-    unless ($noclean) {
-	system($ENV{LD_LOADER} ? $ENV{LD_LOADER} : @{[]}, "rm", "-rf", $headers_dir);
-	mkdir $headers_dir
-	    or die qq(Can't create directory "$headers_dir": $!\n);
-    }
-}
-
-clean_cache();
-
 foreach my $e (@hdlists) {
-    my $r;
-
-    #- try to find the right repository where can be found the directory
-    #- listed in the hdlist file.
-    #- if the number of roots is equal to the number of media, assume one
-    #- media per root, else try to find a valid root containing the media.
-    $r ||= $root[0];
-    if (scalar(@hdlists) == scalar(@root)) {
-	$r = $root[$_];
-    } else {
-	foreach (@root) {
-	    -d "$_/$e->{dir}" and $r = $_, last;
-	}
-    }
-
-    #- fake build of architecture dependent directory.
-    # Nanar: I am curious to know how this can works with current urpmi
-    # Sub dir are deny, this should die !!!!!!!!!
     if ($e->{dir} =~ /%{ARCH}/) {
-	foreach my $arch (qw(i686 i586 i486 i386 k8 k7 k6 amd64 amd32 x86_64 x86_32 ia64 ia32
-                             ppc sparc sparc32 sparc64 alpha noarch)) {
-	    my $dir = $e->{dir};
-	    $dir =~ s|%{ARCH}|$arch|g;
-	    push @{$e->{files}}, glob("$r/$dir/*.$arch.rpm");
-	}
-    } else {
-	push @{$e->{files}}, glob("$r/$e->{dir}/*.rpm");
+	die "sorry, %{ARCH} not supported anymore\n";
     }
-    @{$e->{files} || []} or do {
+    @{$e->{files}} = glob("$root/$e->{dir}/*.rpm") or do {
         print STDERR "unable to find rpm files in $e->{dir}\n" unless $nooutput;
         next;
     };
 }
 
-if (grep { ! $_->{noneedrebuild} } @hdlists) {
-foreach my $e (@hdlists) {
-    print STDERR "parsing rpm files in directory $e->{dir}\n" unless $nooutput;
-    # NOYET open(my $hnsynth, "|gzip --best > $e->{synthesis}.yaml");
-    my @headers = $urpm->parse_rpms_build_headers(
-	dir  => $headers_dir,
-	rpms => $e->{files},
-	dontdie => $dontdie,
-	silent => $nooutput,
-# NOTYET    callback => sub {
-# NOTYET        my ($urpmc, $id, %options) = @_;
-# NOTYET        print $hnsynth $urpmc->{depslist}[$id]->queryformat($yamlout);
-# NOTYET        $urpmc->{depslist}[$id]->pack_header;
-# NOTYET    },
-    );
-    # NOTYET close($hnsynth);
-    # TODO if @headers is empty ?
-    $e->{headers} = \@headers;
-
-    if (!$blind) {
-        print STDERR "Checking if hdlist need to be rebuilt for media $e->{descr}\n" unless $nooutput;
-        if($e->{noneedrebuild}) {
-            print "No\n" unless $nooutput;
-        } else {
-            print "Yes\n" unless $nooutput;
-        }
-    }
-}
-}
-
 if ($noemptymedia) {
-    foreach my $e (@hdlists) {
-        $e->{headers} or die "Empty media were found, stopping\n";
+    if (grep { @{$_->{files}} == 0 } @hdlists) {
+	die "Empty media were found, stopping\n";
     }
 }
 
-#- clean everything to start second pass.
-print STDERR "clean data for second pass\n" unless $nooutput;
-$urpm->unresolved_provides_clean;
-
-#- temporary file where to build hdlists
-my $temp_hdlist = mktemp("$tempdir/hdlistXXXXX");
-
-if (grep { ! $_->{noneedrebuild} } @hdlists) {
-foreach my $e (@hdlists) {
-    if (@{$e->{headers} || []}) { # We have rpms in this media
-
-	print STDERR qq(parsing headers for "$e->{descr}"\n) unless $nooutput;
-	my ($start, $end) = $urpm->parse_headers(dir     => $headers_dir,
-	    headers => $e->{headers},
-	    dontdie => $dontdie,
-	    silent  => $nooutput);
-
-	print STDERR "computing deps\n" unless $nooutput;
-	$urpm->compute_deps;
-
-	# No media change, nothing to write
-	if (!$e->{noneedrebuild}) {
-
-	print STDERR qq(building hdlist for medium "$e->{descr}"\n) unless $nooutput;
-	unlink $temp_hdlist;
-	$urpm->build_hdlist(start  => $start,
-	    end    => $end,
-	    dir    => $headers_dir,
-	    hdlist => $temp_hdlist,
-	    ratio  => 9);
-	system('/bin/mv', $temp_hdlist, $e->{hdlist});
-
-	print STDERR qq(building synthesis for medium "$e->{descr}"\n) unless $nooutput;
-	$urpm->build_synthesis(start     => $start,
-	    end       => $end,
-	    synthesis => $e->{synthesis});
-    }
-    } elsif(!$e->{noneedrebuild}) { # no rpm, creating empty but valid index
-        if (my $pack = MDV::Packdrakeng->new(archive => $temp_hdlist)) {
-	    $pack = undef; # closing archive
-	    system('/bin/mv', $temp_hdlist, $e->{hdlist});
-	    } else {
-	    print STDERR "Can't create empty archive $temp_hdlist: $MDV::Packdrakeng::error\n";
-	    }
-        open(my $hsynth, "| /bin/gzip > $e->{synthesis}")
-	    or print STDERR "Can't create empty synthesis $e->{synthesis}: $!\n";
-        close($hsynth);
-    }
-}
+foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
+    print STDERR qq(building hdlist & synthesis for medium "$e->{descr}"\n) unless $nooutput;
+    my $file_deps = "$destinfodir/file-deps";
+    my $options = join(' ', 
+		       '--allow-empty-media', 
+		       $nooutput ? '--quiet' : (),
+		       $nobadrpm ? '--no-bad-rpm' : (),
+		       $nomd5sum || $e->{noneedredomd5} ? "--no-md5sum" : (),
+		       -e "file-deps" ? "--file-deps $file_deps" : (),
+		   );
+    my $cmd = "genhdlist2 $options $e->{thismediainfo}";
+    print "running $cmd\n" unless $nooutput;
+    system($cmd) == 0 or die "$cmd failed\n";
 }
 
 foreach my $e (@hdlists) {
-    unless ($nomediainfo) {
-    foreach (qw(hdlist synthesis)) {
-        # checking inode are same (case for link)
-        my $f2 = $_ . '2';
-        if (!-f $e->{$f2} || (stat($e->{$f2}))[1] != (stat($e->{$_}))[1]) {
-	    print STDERR qq(link alternate locations of $_ for $e->{dir}\n) unless $nooutput;
-        unlink($e->{$f2});
-        link $e->{$_}, $e->{$f2} or 
-        print STDERR qq(link failed for "$e->{$f2}": $!\n);
-        }
-    }
-    }
-
-    unless ($nomd5sum || ($e->{noneedrebuild} && $e->{noneedredomd5})) {
-	print STDERR qq(generate media-specific MD5SUM in $e->{thismediainfo}\n) unless $nooutput;
-	my $here = getcwd();
-	chdir $e->{thismediainfo};
-	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
-	chdir $here;
-	if (open my $md5sumfh, '>', $e->{md5sum}) {
-	    print $md5sumfh $md5sum;
-	    close $md5sumfh;
-	} else {
-	    print STDERR qq(Can't create "$e->{md5sum}": $!\n);
-	}
-    }
+    hdlist_alternate_location($e->{hdlist2}, $e->{hdlist});
+    hdlist_alternate_location($e->{synthesis2}, $e->{synthesis});
 }
 
-clean_cache();
-
 if (grep { ! $_->{noneedrebuild} } @hdlists) {
-
-    print STDERR "building base files\n" unless $nooutput;
-    $urpm->build_base_files(
-	depslist => $urpmfiles{depslist},
-	provides => $urpmfiles{provides},
-	compss   => $urpmfiles{compss},
-    );
 
     if (-f $destinfodir . '/media.cfg') {
-	if (! -f $destinfodir . '/hdlists' ||
-	    ((stat($distrib->getfullpath(undef, 'infodir') . '/media.cfg'))[9] >
-		(stat($destinfodir . '/hdlists'))[9])) {
+	if (! -f "$destinfodir/hdlists" ||
+	    (stat($distrib->getfullpath(undef, 'infodir') . '/media.cfg'))[9] >
+		(stat($destinfodir . '/hdlists'))[9]) {
 	    print STDERR "Write hdlists file\n" unless $nooutput;
 	    $distrib->write_hdlists($destinfodir . '/hdlists')
 		or print STDERR "Can't write $destinfodir/hdlists file\n";
@@ -368,21 +171,6 @@ if (grep { ! $_->{noneedrebuild} } @hdlists) {
     }
 }
 if (grep { ! ($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
-    #- safety cleaning
-    unlink $urpmfiles{md5sum};
-    unless ($nomd5sum) {
-	my $here = getcwd();
-	chdir $destinfodir;
-	my $md5sum = `/usr/bin/md5sum hdlist* synthesis*`;
-	chdir $here;
-	if (open my $md5sumfh, '>', $urpmfiles{md5sum}) {
-	    print $md5sumfh $md5sum;
-	    close $md5sumfh;
-	} else {
-	    print STDERR qq(Can't create "$urpmfiles{md5sum}": $!\n);
-	}
-    }
-
     print STDERR "Calculating size of medias\n" unless $nooutput;
     foreach my $e (@hdlists) {
         my $size = 0;
@@ -410,32 +198,48 @@ if (grep { ! ($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
     $distrib->write_version($urpmfiles{version});
 }
 
-#- check if there are NOTFOUND in dependencies, check if they are in other media, warn the user.
-if (!$nooutput && $chkdep) {
-    foreach (0 .. $#{$urpm->{depslist}}) {
-        my $pkg = $urpm->{depslist}[$_];
+sub hdlist_alternate_location {
+    my ($alternate, $main) = @_;
 
-        foreach (split " ", $urpm->{deps}[$_]) {
-	    /NOTFOUND_(.*)/ or next;
-	    print STDERR $pkg->fullname . " requires [$1] which\n";
-	    if ($urpm->{provides}{$1}) {
-	        print STDERR "  is available on packages not listed in this medium or previous medium:\n";
-	        foreach (keys %{$urpm->{provides}{$1}}) {
-		    my $dep_pkg = $urpm->{depslist}[$_];
-		    print STDERR "    " . $dep_pkg->fullname . "\n";
-	        }
-	    } else {
-	        print STDERR "  is not available in any medium listed\n";
-	        if (/NOTFOUND_(\D*)(\d+[\.\-\d]*)?(.*)?\.so\./) {
-		    my $re = (quotemeta $1) . '(\d+[\.\-\d]*)' . (!$2 && "?") . '\.so\.';
-		    foreach (keys %{$urpm->{provides}}) {
-		        /$re/ or next;
-		        print STDERR "  but a similar provides is available as [$_], need rebuild ?\n";
-		    }
-	        }
-            }
-        }
+    if (-l $alternate && inode($alternate) == inode($main)) {
+	# ok
+    } else {
+	if (-l $alternate) {
+	    print STDERR "bad alternate location " . readlink($alternate) . ", replacing it\n";
+	    unlink $alternate;
+	} elsif (-e $alternate) {
+	    print STDERR "replacing existing plain file $alternate with a symlink\n";
+	    unlink $alternate;
+	}
+	print STDERR qq(link alternate location $alternate\n) unless $nooutput;
+	relative_symlink($main, $alternate);
     }
+}
+
+sub inode {
+    my ($f) = @_;
+    (stat($f))[1];
+}
+
+sub relative_symlink {
+    my ($src, $dest) = @_;
+
+    # cleanup
+    foreach ($src, $dest) {
+	s!//!/!g;
+	s!/\./!/!g;
+	m!^/! or die "relative_symlink: $_ is not an absolute filename";
+    }
+
+    my @src = split('/', $src);
+    my @dest = split('/', $dest);
+    pop @dest;
+
+    while (@src && @dest && $src[0] eq $dest[0]) {
+	shift @src;
+	shift @dest;
+    }
+    symlink join('/', ('..') x @dest, @src), $dest;
 }
 
 __END__
@@ -456,29 +260,11 @@ gendistrib - generates a mirror tree for a distribution
 
 Always rebuild indexes, without checking whether it's needed.
 
-=item --compss file
-
-Path of F<compss> file (defaults to F<media/media_info/compss>).
-
-=item --depslist file
-
-Path of F<depslist> file (defaults to F<media/media_info/depslist.ordered>).
-
-=item --destdir dir
-
-Create all new files in the specified directory. All subdirectories should
-exist. This option is mostly useful for testing, or while using a read-only
-repository.
-
 =item --hdlists file
 
 Path of the F<hdlists> file (defaults to F<media/media_info/hdlists>). This is
 deprecated; if gendistrib finds a F<media.cfg> file, it will use it and ignore
 the F<hdlists> file unless this option is given.
-
-=item --headersdir dir
-
-Put temporary files in this directory (defaults to TMPDIR).
 
 =item --mediacfg file
 
@@ -488,14 +274,6 @@ Use the specified F<media.cfg> file (defaults to F<media/media_info/media.cfg>).
 
 Don't abort when encountering bad rpms.
 
-=item --chkdep
-
-Search for missing dependencies.
-
-=item --noclean
-
-Keep cache files.
-
 =item --noemptymedia
 
 Stop and abort if an empty media is found.
@@ -503,14 +281,6 @@ Stop and abort if an empty media is found.
 =item --nomd5sum
 
 Don't generate MD5SUM files.
-
-=item --nomediainfo
-
-Don't create per-media F<media_info> subdirectories.
-
-=item --provides file
-
-Path of F<provides> file (defaults to F<media/media_info/provides>)
 
 =item --skipmissingdir
 
@@ -576,12 +346,9 @@ F<gendistrib> should be passed the F<ROOT> directory as parameter. It will
 then generate the hdlist and synthesis files and all other files needed
 for proper repository operation.
 
-F<gendistrib> will also verify any broken dependencies in your repository
-and report them.
-
 =head1 SEE ALSO
 
-genhdlist(1), and MDV::Distribconf(3) for description of the format of the
+genhdlist2(1), and MDV::Distribconf(3) for description of the format of the
 F<media.cfg> file.
 
 =head1 COPYRIGHT
