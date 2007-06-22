@@ -76,9 +76,9 @@ sub do_it {
     build_synthesis($urpm, "$synthesis.tmp");
 
     if (1) {
-	print "replacing $hdlist with $hdlist.tmp\n" if $verbose >= 0;
+	print "replacing $hdlist with hdlist.cz.tmp\n" if $verbose >= 0;
 	rename "$hdlist.tmp", $hdlist or die "rename $hdlist failed: $?\n";
-	print "replacing $synthesis with $synthesis.tmp\n" if $verbose >= 0;
+	print "replacing $synthesis with synthesis.hdlist.cz.tmp\n" if $verbose >= 0;
 	rename "$synthesis.tmp", $synthesis or die "ERROR: this should not happen: rename $synthesis failed\n";
 	generate_md5sum($media_info_dir) if !$options{no_md5sum};
     }
