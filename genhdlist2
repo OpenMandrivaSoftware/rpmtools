@@ -117,7 +117,7 @@ sub build_hdlist {
     ) or die "Can't create archive";
 
     if (-e $hdlist && !$b_no_incremental) {
-	print "filtering $hdlist into $hdlist.tmp\n" if $verbose >= 0;
+	print "filtering $hdlist into hdlist.cz.tmp\n" if $verbose >= 0;
 	filter_existing_hdlist($urpm, $rpms_todo, $hdlist, $out);
     }
 
