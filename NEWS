@@ -1,0 +1,8 @@
+- genhdlist2:
+  o add --allow-empty-media
+  o fix MD5SUM generation
+  o allow using this script with perl-URPM 1.47 (ie mdv2007.0)
+- gendistrib:
+  o call genhdlist2 instead of doing things here
+  o media/media_info/hdlist_xxx_yyy.cz is now a symlink to media/xxx/yyy/media_info/hdlist.cz
+  o synthesis.hdlist_xxx_yyy.cz and pubkey_xxx_yyy are also symlinks now
