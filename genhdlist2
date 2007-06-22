@@ -46,7 +46,7 @@ sub do_it {
     $no_bad_rpm = $options{no_bad_rpm};
 
     my @rpms = grep { /\.rpm$/ } all($rpms_dir);
-    @rpms || $options{allow_empty_media} or die "no *.rpm found in $rpms_dir\n";
+    @rpms || $options{allow_empty_media} or die "no *.rpm found in $rpms_dir (use --allow-empty-media?)\n";
 
     my $media_info_dir = "$rpms_dir/media_info";
     -e $media_info_dir || mkdir $media_info_dir or die "Can't mkdir $media_info_dir: $!n";
