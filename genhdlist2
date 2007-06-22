@@ -293,7 +293,7 @@ F<genhdlist2> is used to generate an hdlist and an associated synthesis file
 from a set of RPM packages found in the directory passed on the command-line.
 It will put the hdlist and synthesis files in media_info/ sub-directory.
 
-Without B<--clean>, F<genhdlist2> is incremental, ie it will modify existing
+Without B<--clean>, F<genhdlist2> is incremental, ie it will use existing
 media_info/hdlist.cz: it will first remove package headers for packages that
 are no more in the directory. It will then add new packages. This makes an
 important assumption: name-version-release-arch is enough to uniquely
