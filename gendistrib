@@ -146,7 +146,7 @@ foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
 		       $nooutput ? '--quiet' : (),
 		       $nobadrpm ? '--no-bad-rpm' : (),
 		       $nomd5sum || $e->{noneedredomd5} ? "--no-md5sum" : (),
-		       -e "file-deps" ? "--file-deps $file_deps" : (),
+		       -e $file_deps ? "--file-deps $file_deps" : (),
 		   );
     my $cmd = "genhdlist2 $options $e->{path}";
     print "running $cmd\n" unless $nooutput;
