@@ -228,7 +228,6 @@ sub relative_symlink {
     foreach ($src, $dest) {
 	s!//!/!g;
 	s!/\./!/!g;
-	m!^/! or die "relative_symlink: $_ is not an absolute filename";
     }
 
     my @src = split('/', $src);
