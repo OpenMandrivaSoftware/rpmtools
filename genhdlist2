@@ -21,6 +21,7 @@ sub main() {
 	'no-bad-rpm' => \$options{no_bad_rpm},
 	'no-md5sum' => \$options{no_md5sum},
 	'nolock' => \$options{nolock},
+	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
 	'h|help' => sub { usage(); exit 0 },
 	'q|quiet' => sub { $options{verbose} = -1 },
@@ -44,7 +45,8 @@ sub do_it {
     $verbose  = $options{verbose};
     $no_bad_rpm = $options{no_bad_rpm};
 
-    my @rpms = grep { /\.rpm$/ } all($rpms_dir) or die "no *.rpm found in $rpms_dir\n";
+    my @rpms = grep { /\.rpm$/ } all($rpms_dir);
+    @rpms || $options{allow_empty_media} or die "no *.rpm found in $rpms_dir\n";
 
     my $media_info_dir = "$rpms_dir/media_info";
     -e $media_info_dir || mkdir $media_info_dir or die "Can't mkdir $media_info_dir: $!n";
@@ -262,6 +264,11 @@ Do not abort on bad rpms.
 Don't lock the media (can be useful when locks fail, eg NFS). Since the lock
 is used to verify no other genhdlist2 process is running on the same media, it
 is a dangerous option.
+
+=item B<--allow-empty-media>
+
+By default if no *.rpm files are found, F<genhdlist2> will exit on error.
+To allow building empty media, use this option.
 
 =item B<-v>
 
