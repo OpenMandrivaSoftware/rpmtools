@@ -8,3 +8,5 @@ Version 5.3.0 - 22 June 2007, by Pascal "Pixel" Rigaux
   o call genhdlist2 instead of doing things here
   o media/media_info/hdlist_xxx_yyy.cz is now a symlink to media/xxx/yyy/media_info/hdlist.cz
   o synthesis.hdlist_xxx_yyy.cz and pubkey_xxx_yyy are also symlinks now
+- parsehdlist:
+  o display pkgsize with --all (Christiaan Welvaart)

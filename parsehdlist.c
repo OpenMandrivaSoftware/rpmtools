@@ -37,6 +37,7 @@ static int print_quiet = 0;
 static int print_name = 0;
 static int print_info = 0;
 static int print_group = 0;
+static int print_packagesize = 0;
 static int print_size = 0;
 static int print_epoch = 0;
 static int print_summary = 0;
@@ -84,7 +85,7 @@ printable_header(int quiet, char *name, char sep, char* final)
   static char buff[128];
   int n = sprintf(buff, "%%s%c", sep ? sep : ':');
   if (!quiet) n += sprintf(buff + n, "%s%c", name, sep ? sep : ':');
-  n += sprintf(buff + n, !strcmp(name, "size") || !strcmp(name, "epoch") ? "%%d" : "%%s");
+  n += sprintf(buff + n, !strcmp(name, "size") || !strcmp(name, "epoch") || !strcmp(name, "pkgsize") ? "%%d" : "%%s");
   if (final) n += sprintf(buff + n, "%s", final);
   return buff; /* static string, this means to use result before calling again */
 }
@@ -158,7 +159,7 @@ void print_list_files(Header header, char *format, char *name, int moreinfo) {
   if (moreinfo)
     printf("NAME<%s> VERSION<%s> RELEASE<%s> ARCH<%s> EPOCH<%d> SIZE<%d> GROUP<%s>\n",
 	   get_name(header, RPMTAG_NAME), get_name(header, RPMTAG_VERSION), get_name(header, RPMTAG_RELEASE),
-	   get_name(header, RPMTAG_ARCH), (int)get_name(header, RPMTAG_EPOCH), (int)get_name(header, RPMTAG_SIZE), get_name(header, RPMTAG_GROUP));
+	   get_name(header, RPMTAG_ARCH), (long)get_name(header, RPMTAG_EPOCH), (long)get_name(header, RPMTAG_SIZE), get_name(header, RPMTAG_GROUP));
   if (baseNames && dirNames && dirIndexes) {
     char buff[4096];
     for(i = 0; i < count; i++) {
@@ -377,6 +378,7 @@ int main(int argc, char **argv)
       } else if (strcmp(argv[i], "--all") == 0) {
 	print_info = 1;
 	print_group = 1;
+	print_packagesize = 1;
 	print_summary = 1;
 	print_provides = 1;
 	print_requires = 1;
@@ -523,6 +525,7 @@ int main(int argc, char **argv)
 	    if (print_files_more_info) print_list_files(header, printable_header(print_quiet, "files", print_sep, "\n"), name, 1);
 	    if (print_prereqs) print_list_prereqs(header, printable_header(print_quiet, "prereqs", print_sep, "\n"), name);
 	    if (print_group) printf(printable_header(print_quiet, "group", print_sep, "\n"), name, get_name(header, RPMTAG_GROUP));
+	    if (print_packagesize) printf(printable_header(print_quiet, "pkgsize", print_sep, "\n"), name, get_int(header, 1000001));
 	    if (print_size) printf(printable_header(print_quiet, "size", print_sep, "\n"), name, get_int(header, RPMTAG_SIZE));
 	    if (print_epoch) printf(printable_header(print_quiet, "epoch", print_sep, "\n"),
 				     name, get_int(header, RPMTAG_EPOCH));
