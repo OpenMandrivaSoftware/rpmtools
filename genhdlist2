@@ -20,6 +20,8 @@ sub main() {
 	'clean' => \$options{no_incremental},
 	'no-bad-rpm' => \$options{no_bad_rpm},
 	'no-md5sum' => \$options{no_md5sum},
+	'no-clean-old-rpms' => \$options{no_clean_old_rpms},
+	'only-clean-old-rpms' => \$options{only_clean_old_rpms},
 	'nolock' => \$options{nolock},
 	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
@@ -57,7 +59,7 @@ sub do_it {
     my $lock_file = "$media_info_dir/UPDATING";
     $tmp_header = "$media_info_dir/.tmp-header";
 
-    my $lock = !$options{nolock} && lock_file($lock_file);
+    my $lock = !$options{nolock} && global_lock($lock_file);
 
     $SIG{INT} = sub { 
 	unlink "$hdlist.tmp", "$synthesis.tmp", $tmp_header;
@@ -65,6 +67,20 @@ sub do_it {
 	exit 1;
     };
     END { unlink $lock_file if $lock }
+
+
+    #- handle old-rpms.lst
+    my $old_rpms_file = "$media_info_dir/old-rpms.lst";
+    my $old_rpms = read_old_rpms_lst($old_rpms_file, $options{nolock});
+    if ($old_rpms) {
+	filter_out_old_rpms($rpms_dir, $old_rpms, \@rpms);
+	if (!$options{no_clean_old_rpms}) {
+	    clean_old_rpms($rpms_dir, $old_rpms);
+	    write_old_rpms_lst($old_rpms, $old_rpms_file);
+	}
+    }
+    $options{only_clean_old_rpms} and return;
+
 
     my %rpms_todo = map { /(.*)\.rpm/ => 1 } @rpms;
 
@@ -91,7 +107,12 @@ sub lock_file {
 
     print "locking $file\n" if $verbose > 0;
     open(my $lock, '>', $file) or die "lock_file $file failed\n";
-    flock $lock, $LOCK_EX|$LOCK_NB or die "another genhdlist2 already running\n";
+    flock $lock, $LOCK_EX|$LOCK_NB or return;
+    $lock;
+}
+sub global_lock {
+    my ($file) = @_;
+    my $lock = lock_file($file) or die "another genhdlist2 already running\n";
     $lock;
 }
 
@@ -212,6 +233,106 @@ sub generate_md5sum {
 }
 
 
+################################################################################
+sub read_old_rpms_lst {
+    my ($file, $nolock) = @_;
+
+    -e $file or return;
+
+    my $lock = !$nolock && lock_file("$file.lock") 
+      or $verbose >= 0 && print "lock failed, we simply won't write the modified file\n";
+
+    require Config::IniFiles;
+    my $lst = Config::IniFiles->new('-file' => $file) or die "invalid $file\n";
+    { lst => $lst, lock => $lock };
+}
+
+sub write_old_rpms_lst {
+    my ($old_rpms, $file) = @_;
+
+    if ($old_rpms->{lock}) {
+	sleep 10;
+	$old_rpms->{lst}->WriteConfig($file); # no need to use a temp file + rename since WriteConfig is doing so
+
+	print "unlocking $file.lock\n" if $verbose > 0;
+	close(delete $old_rpms->{lock});
+	unlink "$file.lock";
+    } else {
+	# we don't have the lock, so don't write
+    }
+}
+
+sub clean_old_rpms {
+    my ($rpms_dir, $old_rpms) = @_;
+
+    my $lst = $old_rpms->{lst};
+    foreach my $pkg ($lst->Parameters('Remove')) {
+	my $keep;
+	if (-e "$rpms_dir/$pkg") {
+	    my $date = $lst->val('Remove', $pkg);
+	    if ($date >= time()) {
+		$keep = 1;
+		print "[OLD-RPMS] keeping $pkg (it is scheduled for " . $lst->GetParameterComment('Remove', $pkg) . "# )\n" if $verbose > 0;
+	    } else {
+		print "[OLD-RPMS] removing rpm file $pkg (was scheduled for " . $lst->GetParameterComment('Remove', $pkg) . "# )\n" if $verbose >= 0;
+		unlink "$rpms_dir/$pkg";
+	    }
+	} else {
+	    print "[OLD-RPMS] $pkg already removed\n" if $verbose >= 0;
+	}
+	$keep or $old_rpms->{lst}->delval('Remove', $pkg);
+    }
+}
+
+# 'Remove'
+
+sub clean_old_rpms {
+    my ($rpms_dir, $old_rpms) = @_;
+
+    _apply_date_old_rpms($rpms_dir, $old_rpms, 'Remove', 'OLD-RPMS', sub {
+	my ($pkg, $date) = @_;
+	print "[OLD-RPMS] removing rpm file $pkg (was scheduled for $date)\n" if $verbose >= 0;
+	unlink "$rpms_dir/$pkg";
+    });
+}
+
+sub _apply_date_old_rpms {
+    my ($rpms_dir, $old_rpms, $section, $section_tag, $do_it) = @_;
+
+    my $lst = $old_rpms->{lst};
+    foreach my $pkg ($lst->Parameters($section)) {
+	my $keep;
+	if (-e "$rpms_dir/$pkg") {
+	    my $date = $lst->val($section, $pkg);
+	    if ($date >= time()) {
+		$keep = 1;
+		print "[$section_tag] keeping $pkg (it is scheduled for " . $lst->GetParameterComment($section, $pkg) . "# )\n" if $verbose > 0;
+	    } else {
+		$do_it->($pkg, $verbose >= 0 && $lst->GetParameterComment($section, $pkg));
+	    }
+	} else {
+	    print "[$section_tag] $pkg already removed\n" if $verbose >= 0;
+	}
+	$keep or $old_rpms->{lst}->delval($section, $pkg);
+    }
+}
+
+sub filter_out_old_rpms {
+    my ($rpms_dir, $old_rpms, $rpms_list) = @_;
+
+    _apply_date_old_rpms($rpms_dir, $old_rpms, 'Keep-in-hdlist', 'KEEP-IN-HDLIST', sub {
+	my ($pkg, $date) = @_;
+	print "[KEEP-IN-HDLIST] removing $pkg from hdlist (was scheduled for $date)\n" if $verbose >= 0;
+    });
+
+    my %old = map { $_ => 1 } $old_rpms->{lst}->Parameters('Remove');
+    delete $old{$_} foreach $old_rpms->{lst}->Parameters('Keep-in-hdlist');
+
+    @$rpms_list = grep { !$old{$_} } @$rpms_list;
+}
+################################################################################
+
+
 sub cat_ { my @l = map { my $F; open($F, '<', $_) ? <$F> : () } @_; wantarray() ? @l : join '', @l }
 
 sub all {
@@ -265,6 +386,15 @@ Do not generate MD5SUM file.
 =item B<--no-bad-rpm>
 
 Do not abort on bad rpms.
+
+=item B<--no-clean-old-rpms>
+
+Take into account old-rpms.lst, but don't remove rpms from repository
+
+=item B<--only-clean-old-rpms>
+
+F<genhdlist2> will only clean old rpms from repository, it will not update
+hdlist/synthesis.
 
 =item B<--nolock>
 

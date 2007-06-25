@@ -6,3 +6,4 @@ warnings
 File::Path
 Pod::Usage
 MDV::Distribconf::Build
+Config::IniFiles
