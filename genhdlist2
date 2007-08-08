@@ -25,6 +25,7 @@ sub main() {
 	'nolock' => \$options{nolock},
 	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
+	'media_info-dir=s' => \$options{media_info_dir},
 	'h|help' => sub { usage(); exit 0 },
 	'q|quiet' => sub { $options{verbose} = -1 },
 	'v|verbose' => sub { $options{verbose}++ },
@@ -50,7 +51,7 @@ sub do_it {
     my @rpms = grep { /\.rpm$/ } all($rpms_dir);
     @rpms || $options{allow_empty_media} or die "no *.rpm found in $rpms_dir (use --allow-empty-media?)\n";
 
-    my $media_info_dir = "$rpms_dir/media_info";
+    my $media_info_dir = $options{media_info_dir} || "$rpms_dir/media_info";
     -e $media_info_dir || mkdir $media_info_dir or die "Can't mkdir $media_info_dir: $!n";
     -d $media_info_dir && -w _ && -x _ or die "$media_info_dir isn't a writable directory, bailing out\n";
 
@@ -406,6 +407,11 @@ is a dangerous option.
 
 By default if no *.rpm files are found, F<genhdlist2> will exit on error.
 To allow building empty media, use this option.
+
+=item --media_info-dir directory
+
+Write hdlist/synthesis in this directory instead of <dir>/media_info
+(mostly useful for debugging)
 
 =item B<-v>
 
