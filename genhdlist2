@@ -164,7 +164,7 @@ sub filter_existing_hdlist {
 	# ok
     } else {
 	my $nb = @{$urpm->{depslist}};
-	print STDERR "parse_hdlist has failed, keeping $nb headers succesfully parsed\n" if $verbose >= 0;
+	print STDERR "parse_hdlist has failed, keeping $nb headers successfully parsed\n" if $verbose >= 0;
     }
 }
 
