@@ -149,7 +149,7 @@ sub build_hdlist {
 sub filter_existing_hdlist {
     my ($urpm, $rpms_todo, $in_hdlist, $out) = @_;
 
-    $urpm->parse_hdlist($in_hdlist, packing => 1, callback => sub {
+    if ($urpm->parse_hdlist($in_hdlist, packing => 1, callback => sub {
 	my (undef, $pkg) = @_;
 	my $fullname = $pkg->fullname;
 	if (delete $rpms_todo->{$fullname}) {
@@ -160,7 +160,12 @@ sub filter_existing_hdlist {
 	    print "removing $fullname\n" if $verbose > 0;
 	    0; # don't keep in memory
 	}
-    });
+    })) {
+	# ok
+    } else {
+	my $nb = @{$urpm->{depslist}};
+	print STDERR "parse_hdlist has failed, keeping $nb headers succesfully parsed\n" if $verbose >= 0;
+    }
 }
 
 sub add_new_rpms_to_hdlist {
