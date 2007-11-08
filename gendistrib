@@ -105,7 +105,7 @@ foreach my $m ($distrib->listmedia) {
         hdlist        => "$path/media_info/hdlist.cz",
         synthesis     => "$path/media_info/synthesis.hdlist.cz",
         noneedrebuild => $blind ? 0 : $distrib->check_index_sync($m, 'formedia'),
-        noneedredomd5 => $distrib->check_media_md5($m),
+        noneedredomd5 => $blind ? 0 : $distrib->check_media_md5($m),
     };
 }
 
