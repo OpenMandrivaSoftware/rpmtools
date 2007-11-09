@@ -102,8 +102,10 @@ foreach my $m ($distrib->listmedia) {
         descr         => $distrib->getvalue($m, 'name'),
         hdlist2       => $distrib->getfullpath($m, 'hdlist'),
         synthesis2    => $distrib->getfullpath($m, 'synthesis'),
+        pubkey2       => $distrib->getfullpath($m, 'pubkey'),
         hdlist        => "$path/media_info/hdlist.cz",
         synthesis     => "$path/media_info/synthesis.hdlist.cz",
+        pubkey        => "$path/media_info/pubkey",
         noneedrebuild => $blind ? 0 : $distrib->check_index_sync($m, 'formedia'),
         noneedredomd5 => $blind ? 0 : $distrib->check_media_md5($m),
     };
@@ -156,6 +158,8 @@ foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
 foreach my $e (@hdlists) {
     hdlist_alternate_location($e->{hdlist2}, $e->{hdlist});
     hdlist_alternate_location($e->{synthesis2}, $e->{synthesis});
+    $e->{pubkey2} =~ s/ /_/g; # workaround MDV::Distribconf issue
+    hdlist_alternate_location($e->{pubkey2}, $e->{pubkey}) if -e $e->{pubkey};
 }
 
 if (grep { ! $_->{noneedrebuild} } @hdlists) {
