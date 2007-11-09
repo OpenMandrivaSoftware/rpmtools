@@ -159,7 +159,7 @@ foreach my $e (@hdlists) {
     hdlist_alternate_location($e->{hdlist2}, $e->{hdlist});
     hdlist_alternate_location($e->{synthesis2}, $e->{synthesis});
     $e->{pubkey2} =~ s/ /_/g; # workaround MDV::Distribconf issue
-    hdlist_alternate_location($e->{pubkey2}, $e->{pubkey}) if -e $e->{pubkey};
+    hdlist_alternate_location($e->{pubkey2}, $e->{pubkey});
 }
 
 if (grep { ! $_->{noneedrebuild} } @hdlists) {
@@ -214,7 +214,9 @@ if (grep { ! ($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
 sub hdlist_alternate_location {
     my ($alternate, $main) = @_;
 
-    if (-l $alternate && inode($alternate) == inode($main)) {
+    if (! -e $main) {
+	print STDERR "missing $main, not creating alternate location $alternate\n";
+    } elsif (-l $alternate && inode($alternate) == inode($main)) {
 	# ok
     } else {
 	if (-l $alternate) {
