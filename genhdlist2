@@ -55,7 +55,6 @@ sub do_it {
     -e $media_info_dir || mkdir $media_info_dir or die "Can't mkdir $media_info_dir: $!n";
     -d $media_info_dir && -w _ && -x _ or die "$media_info_dir isn't a writable directory, bailing out\n";
 
-    my $hdlist = "$media_info_dir/hdlist.cz";
     my $synthesis = "$media_info_dir/synthesis.hdlist.cz";
     my $lock_file = "$media_info_dir/UPDATING";
     $tmp_header = "$media_info_dir/.tmp-header";
@@ -63,7 +62,7 @@ sub do_it {
     my $lock = !$options{nolock} && global_lock($lock_file);
 
     $SIG{INT} = sub { 
-	unlink "$hdlist.tmp", "$synthesis.tmp", $tmp_header;
+	unlink "$media_info_dir/hdlist.cz.tmp", "$synthesis.tmp", $tmp_header;
 	unlink $lock_file if $lock;
 	exit 1;
     };
@@ -89,12 +88,14 @@ sub do_it {
 
     read_file_deps($urpm, $options{file_deps}) if $options{file_deps};
 
-    build_hdlist($urpm, \%rpms_todo, $hdlist, $rpms_dir, $options{no_incremental});
+    build_hdlist($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, $options{no_incremental});
     build_synthesis($urpm, "$synthesis.tmp");
 
     if (1) {
-	print "replacing $hdlist with hdlist.cz.tmp\n" if $verbose >= 0;
-	rename "$hdlist.tmp", $hdlist or die "rename $hdlist failed: $?\n";
+	foreach my $name ('hdlist.cz') {
+	    print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
+	    rename "$media_info_dir/$name.tmp", "$media_info_dir/$name" or die "rename $media_info_dir/$name failed: $?\n";
+	}
 	print "replacing $synthesis with synthesis.hdlist.cz.tmp\n" if $verbose >= 0;
 	rename "$synthesis.tmp", $synthesis or die "ERROR: this should not happen: rename $synthesis failed\n";
 	generate_md5sum($media_info_dir) if !$options{no_md5sum};
@@ -129,14 +130,20 @@ sub read_file_deps {
 }
 
 sub build_hdlist {
-    my ($urpm, $rpms_todo, $hdlist, $rpms_dir, $b_no_incremental) = @_;
+    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $b_no_incremental) = @_;
 
-    my $out = MDV::Packdrakeng->new(
+    my $hdlist = "$media_info_dir/hdlist.cz";
+
+    my $out_hdlist = MDV::Packdrakeng->new(
 	archive => "$hdlist.tmp",
 	compress => "gzip",
 	uncompress => "gzip -d",
 	comp_level => 9,
     ) or die "Can't create archive";
+
+    my $out = {
+	hdlist => $out_hdlist,
+    };
 
     if (-e $hdlist && !$b_no_incremental) {
 	print "filtering $hdlist into hdlist.cz.tmp\n" if $verbose >= 0;
@@ -154,7 +161,7 @@ sub filter_existing_hdlist {
 	my $fullname = $pkg->fullname;
 	if (delete $rpms_todo->{$fullname}) {
 	    print "keeping $fullname\n" if $verbose > 1;
-	    add_pkg_header($out, $pkg);
+	    add_pkg($out, $pkg);
 	    1; # do keep in memory
 	} else {
 	    print "removing $fullname\n" if $verbose > 0;
@@ -194,10 +201,15 @@ sub add_new_rpms_to_hdlist {
 	    }
 	}
 	my $pkg = $urpm->{depslist}[$id];
-	add_pkg_header($out, $pkg);
+	add_pkg($out, $pkg);
 
 	$pkg->pack_header; # for synthesis
     }
+}
+
+sub add_pkg {
+    my ($out, $pkg) = @_;
+    add_pkg_header($out->{hdlist}, $pkg);
 }
 
 sub add_pkg_header {
