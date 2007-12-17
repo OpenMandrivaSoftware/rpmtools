@@ -24,6 +24,7 @@ sub main() {
 	'no-clean-old-rpms' => \$options{no_clean_old_rpms},
 	'only-clean-old-rpms' => \$options{only_clean_old_rpms},
 	'nolock' => \$options{nolock},
+	'no-hdlist' => \$options{no_hdlist},
 	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
 	'xml-media-info!' => \$options{xml_media_info},
@@ -36,6 +37,8 @@ sub main() {
 
     @ARGV == 1 or usage();
     my $rpms_dir = $ARGV[0];
+
+    $options{no_incremental} ||= $options{no_hdlist};
 
     do_it($rpms_dir, %options);
 }
@@ -95,11 +98,12 @@ sub do_it {
     }
     my @xml_media_info = $options{xml_media_info} ? ('info', 'files', 'changelog') : ();
 
-    build_hdlist($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental});
+    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist});
     build_synthesis($urpm, "$synthesis.tmp");
 
     if (1) {
-	my @media_info_files = ('hdlist.cz', 'synthesis.hdlist.cz', map { "$_.xml.lzma" } @xml_media_info);
+	my @media_info_files = ($options{no_hdlist} ? () : 'hdlist.cz', 
+				'synthesis.hdlist.cz', map { "$_.xml.lzma" } @xml_media_info);
 	foreach my $name (@media_info_files) {
 	    print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
 	    rename "$media_info_dir/$name.tmp", "$media_info_dir/$name" or die "rename $media_info_dir/$name failed: $!\n";
@@ -135,17 +139,20 @@ sub read_file_deps {
     }
 }
 
-sub build_hdlist {
-    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental) = @_;
+sub build {
+    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist) = @_;
 
     my $hdlist = "$media_info_dir/hdlist.cz";
 
-    my $out_hdlist = MDV::Packdrakeng->new(
-	archive => "$hdlist.tmp",
-	compress => "gzip",
-	uncompress => "gzip -d",
-	comp_level => 9,
-    ) or die "Can't create archive";
+    my $out_hdlist;
+    if (!$b_no_hdlist) {
+	$out_hdlist = MDV::Packdrakeng->new(
+	    archive => "$hdlist.tmp",
+	    compress => "gzip",
+	    uncompress => "gzip -d",
+	    comp_level => 9,
+	) or die "Can't create archive";
+    }
 
     my $out = {
 	hdlist => $out_hdlist,
@@ -266,7 +273,9 @@ sub add_pkg {
     my ($out, $pkg) = @_;
     my $fullname = $pkg->fullname;
 
-    add_pkg_header($out->{hdlist}, $pkg, $fullname);
+    if ($out->{hdlist}) {
+	add_pkg_header($out->{hdlist}, $pkg, $fullname);
+    }
 
     if ($out->{files}) {
 	my $F = $out->{files};
@@ -514,7 +523,7 @@ is a dangerous option.
 By default if no *.rpm files are found, F<genhdlist2> will exit on error.
 To allow building empty media, use this option.
 
-=item --media_info-dir directory
+=item B<--media_info-dir> I<directory>
 
 Write hdlist/synthesis in this directory instead of <dir>/media_info
 (mostly useful for debugging)
