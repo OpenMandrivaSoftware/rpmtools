@@ -1,3 +1,5 @@
+Version 5.3.3 - 17 December 2007, by Pascal "Pixel" Rigaux
+
 - genhdlist2:
   o generate {info,changelog,files}.xml.lzma when they already exist, 
     or when --xml-media-info is used

@@ -3,7 +3,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 
-my $rpmtools_version = "5.3.2";
+my $rpmtools_version = "5.3.3";
 
 sub MY::postamble {
     <<MAKEMAKEFILE;
