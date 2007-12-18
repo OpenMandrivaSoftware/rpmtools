@@ -1,3 +1,5 @@
+Version 5.3.4 - 18 December 2007, by Pascal "Pixel" Rigaux
+
 - genhdlist2:
   o add --no-hdlist option (to be used by urpmi for --probe-rpms)
 
