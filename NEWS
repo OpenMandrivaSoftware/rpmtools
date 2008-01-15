@@ -1,3 +1,5 @@
+Version 5.3.5 - 15 January 2007, by Pascal "Pixel" Rigaux
+
 - genhdlist2:
   o rename --xml-media-info into --xml-info
     (to be coherent with urpmi)
