@@ -15,7 +15,7 @@ sub usage () {
 }
 
 sub main() {
-    my %options = (xml_media_info => 'auto');
+    my %options = (xml_info => 'auto');
 
     GetOptions(
 	'clean' => \$options{no_incremental},
@@ -27,7 +27,7 @@ sub main() {
 	'no-hdlist' => \$options{no_hdlist},
 	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
-	'xml-media-info!' => \$options{xml_media_info},
+	'xml-info!' => \$options{xml_info},
 	'media_info-dir=s' => \$options{media_info_dir},
 	'h|help' => sub { usage(); exit 0 },
 	'q|quiet' => sub { $options{verbose} = -1 },
@@ -93,10 +93,10 @@ sub do_it {
 
     read_file_deps($urpm, $options{file_deps}) if $options{file_deps};
 
-    if ($options{xml_media_info} eq 'auto') {
-	$options{xml_media_info} = -e "$media_info_dir/info.xml.lzma";
+    if ($options{xml_info} eq 'auto') {
+	$options{xml_info} = -e "$media_info_dir/info.xml.lzma";
     }
-    my @xml_media_info = $options{xml_media_info} ? ('info', 'files', 'changelog') : ();
+    my @xml_media_info = $options{xml_info} ? ('info', 'files', 'changelog') : ();
 
     build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist});
     build_synthesis($urpm, "$synthesis.tmp");
@@ -527,6 +527,10 @@ To allow building empty media, use this option.
 
 Write hdlist/synthesis in this directory instead of <dir>/media_info
 (mostly useful for debugging)
+
+=item B<--xml-info>
+
+Force to generate xml info. By default genhdlist2 will only regenerate xml info files already there in media_info/
 
 =item B<-v>
 
