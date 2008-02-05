@@ -1,3 +1,5 @@
+Version 5.3.6 - 5 February 2007, by Pascal "Pixel" Rigaux
+
 - genhdlist2:
   o fix writing utf8 in xml info files (#37482)
 
