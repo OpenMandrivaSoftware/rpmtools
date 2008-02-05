@@ -244,6 +244,7 @@ sub ensure_utf8 {
 	Encode::_utf8_off($_[0]);
 	Encode::from_to($_[0], 'iso-8859-15', 'utf8');
     }
+    Encode::_utf8_on($_[0]); #- now we know it is valid utf8
 }
 
 sub encode_xml {
