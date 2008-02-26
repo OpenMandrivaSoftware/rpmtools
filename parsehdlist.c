@@ -17,9 +17,6 @@
 #define VERSION_STRING "0.0"
 #endif
 
-/* see rpm2header.c */
-#define FILENAME_TAG 1000000
-
 /* static data for very simple list */
 static struct {
   char *name;
@@ -177,12 +174,9 @@ void print_list_name(Header header, char *format, char print_sep, int extension)
   char *version = get_name(header, RPMTAG_VERSION);
   char *release = get_name(header, RPMTAG_RELEASE);
   char *arch = headerIsEntry(header, RPMTAG_SOURCERPM) ? get_name(header, RPMTAG_ARCH) : "src";
-  char *buff = alloca(strlen(name) + strlen(version) + strlen(release) + strlen(arch) + 1+1+1 + 5);
 
   printf(format, name, "");
 
-  sprintf(buff, "%s-%s-%s.%s.rpm", name, version, release, arch);
-  if (!strcmp(buff, get_name(header, FILENAME_TAG))) {
     if (extension)
       printf("%s-%s-%s.%s%c%u%c%u%c%s\n", name, version, release, arch,
 	     print_sep ? print_sep : ':', get_int(header, RPMTAG_EPOCH),
@@ -190,17 +184,16 @@ void print_list_name(Header header, char *format, char print_sep, int extension)
 	     print_sep ? print_sep : ':', get_name(header, RPMTAG_GROUP));
     else
       printf("%s-%s-%s.%s\n", name, version, release, arch);
-  } else {
-    if (extension)
-      printf("%s-%s-%s.%s%c%u%c%u%c%s%c%s\n", name, version, release, arch,
-	     print_sep ? print_sep : ':', get_int(header, RPMTAG_EPOCH),
-	     print_sep ? print_sep : ':', get_int(header, RPMTAG_SIZE),
-	     print_sep ? print_sep : ':', get_name(header, RPMTAG_GROUP),
-	     print_sep ? print_sep : ':', get_name(header, FILENAME_TAG));
-    else
-      printf("%s-%s-%s.%s%c%s\n", name, version, release, arch,
-	     print_sep ? print_sep : ':', get_name(header, FILENAME_TAG));
-  }
+}
+
+static
+void print_filename(Header header) {
+  char *name = get_name(header, RPMTAG_NAME);
+  char *version = get_name(header, RPMTAG_VERSION);
+  char *release = get_name(header, RPMTAG_RELEASE);
+  char *arch = headerIsEntry(header, RPMTAG_SOURCERPM) ? get_name(header, RPMTAG_ARCH) : "src";
+
+  printf("%s-%s-%s.%s.rpm\n", name, version, release, arch);
 }
 
 static
@@ -537,7 +530,7 @@ int main(int argc, char **argv)
 	    if (print_info) print_list_name(header, printable_header(print_quiet, "info", print_sep, 0), print_sep, 1);
 	    if ((print_name | print_info | print_group | print_size | print_epoch | print_summary | print_description |
 		 print_provides | print_requires | print_files | print_conflicts | print_obsoletes | print_prereqs | print_files_more_info) == 0) {
-	      printf("%s\n", get_name(header, FILENAME_TAG));
+	      print_filename(header);
 	    }
 	    headerFree(header);
 	  }

@@ -1,3 +1,6 @@
+- parsehdlist, rpm2header:
+  o do not add/use FILENAME_TAG and FILESIZE_TAG to/in hdlist anymore
+
 Version 5.3.6 - 5 February 2007, by Pascal "Pixel" Rigaux
 
 - genhdlist2:

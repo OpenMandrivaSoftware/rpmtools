@@ -8,9 +8,6 @@
 #include <rpmlib.h>
 #include <rpm/rpmts.h>
 
-#define FILENAME_TAG 1000000
-#define FILESIZE_TAG 1000001
-
 const char *basename(const char *f) {
     char *p = strrchr(f, '/');
     return p ? p + 1 : f;
@@ -76,8 +73,6 @@ int main(int argc, char **argv) {
 	    headerRemoveEntry(h, RPMTAG_EXCLUSIVE);
 	    headerRemoveEntry(h, RPMTAG_DISTRIBUTION);
 	    headerRemoveEntry(h, RPMTAG_VERIFYSCRIPT);
-	    headerAddEntry(h, FILENAME_TAG, RPM_STRING_TYPE, name, 1);
-	    headerAddEntry(h, FILESIZE_TAG, RPM_INT32_TYPE, &size, 1);
 	    headerWrite(fout, h, HEADER_MAGIC_YES);
 	    headerFree(h);
 	}
