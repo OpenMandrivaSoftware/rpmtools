@@ -7,11 +7,17 @@
 #include <unistd.h>
 #include <signal.h>
 #include <errno.h>
-#include <rpm/rpmlib.h>
-#include <rpm/header.h>
+#include <stdint.h>
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
+
+#include <rpm/rpmlib.h>
+#if defined(RPM_FORMAT_VERSION) && RPM_FORMAT_VERSION >= 5
+#include "rpm5compat.h"
+#else
+#include <rpm/header.h>
+#endif
 
 #ifndef VERSION_STRING
 #define VERSION_STRING "0.0"

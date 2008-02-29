@@ -5,7 +5,11 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <unistd.h>
+#include <stdint.h>
 #include <rpmlib.h>
+#if defined(RPM_FORMAT_VERSION) && RPM_FORMAT_VERSION >= 5
+#include "rpm5compat.h"
+#endif
 #include <rpm/rpmts.h>
 
 const char *basename(const char *f) {
