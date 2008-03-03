@@ -8,7 +8,7 @@
 #include <stdint.h>
 #include <rpmlib.h>
 #if defined(RPM_FORMAT_VERSION) && RPM_FORMAT_VERSION >= 5
-#include "rpm5compat.h"
+#include <rpm/rpm4compat.h>
 #endif
 #include <rpm/rpmts.h>
 
