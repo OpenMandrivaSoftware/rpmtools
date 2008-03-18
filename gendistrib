@@ -90,8 +90,6 @@ EOF
 
 my @hdlists;
 foreach my $m ($distrib->listmedia) {
-    $distrib->getvalue($m, 'askmedia') || $distrib->getvalue($m, 'suppl') and next;
-
     my $path = $distrib->getfullpath($m, 'path');
     -d $path or next; # this has been checked earlier
 

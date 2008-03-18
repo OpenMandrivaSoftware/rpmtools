@@ -1,3 +1,6 @@
+- gendistrib:
+  o "askmedia" and "suppl" must not modify gendistrib behaviour (#39017)
+
 Version 5.5 - 5 March 2008, by Pascal "Pixel" Rigaux
 
 - genhdlist2:
