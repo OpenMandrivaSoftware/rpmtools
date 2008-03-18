@@ -1,3 +1,5 @@
+Version 5.6 - 18 March 2008, by Pascal "Pixel" Rigaux
+
 - gendistrib:
   o "askmedia" and "suppl" must not modify gendistrib behaviour (#39017)
 
