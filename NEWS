@@ -1,3 +1,6 @@
+- gendistrib:
+  o if "xml-info" is set in media.cfg, pass --xml-info to genhdlist2
+
 Version 5.6 - 18 March 2008, by Pascal "Pixel" Rigaux
 
 - gendistrib:

@@ -146,6 +146,7 @@ foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
 		       $nooutput ? '--quiet' : (),
 		       $nobadrpm ? '--no-bad-rpm' : (),
 		       $nomd5sum || $e->{noneedredomd5} ? "--no-md5sum" : (),
+		       $distrib->getvalue($e->{media}, 'xml-info') ? '--xml-info' : (),
 		       -e $file_deps ? "--file-deps $file_deps" : (),
 		   );
     my $cmd = "genhdlist2 $options $e->{path}";
