@@ -402,7 +402,7 @@ int main(int argc, char **argv)
       FD_t fd;
       pid_t pid = 0;
       if (strcmp(argv[i], "-") == 0) fd = fdDup(STDIN_FILENO);
-      else if (raw_hdlist)           fd = fdOpen(argv[i], O_RDONLY, 0);
+      else if (raw_hdlist)           fd = Fopen(argv[i], "r");
       else {
 	int fdno[2];
 	if (!pipe(fdno)) {
@@ -470,7 +470,7 @@ int main(int argc, char **argv)
 	  if (!silent) { fprintf(stderr, "parsehdlist: unable to create pipe for parsehdlist\n"); }
 	}
       }
-      if (fdFileno(fd) < 0) {
+      if (Fileno(fd) < 0) {
 	if (!silent) { fprintf(stderr, "parsehdlist: cannot open file %s\n", argv[i]); }
 	exit(1);
       } else  {

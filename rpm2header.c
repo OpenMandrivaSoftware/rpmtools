@@ -22,7 +22,7 @@ const char *basename(const char *f) {
 
 int_32 FD_size(FD_t fd) {
     struct stat sb;
-    fstat(fdFileno(fd), &sb);
+    fstat(Fileno(fd), &sb);
     return sb.st_size;
 }
 
@@ -46,7 +46,7 @@ int main(int argc, char **argv) {
 
 	fprintf(stderr, "%s\n", argv[i]);
 
-	if (!(fd = fdOpen(argv[i], O_RDONLY, 0666))) {
+	if (!(fd = Fopen(argv[i], "r"))) {
 	    perror("open");
 	    exit(1);
 	}
