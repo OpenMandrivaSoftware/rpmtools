@@ -162,7 +162,7 @@ void print_list_files(Header header, char *format, char *name, int moreinfo) {
   headerGetEntry(header, RPMTAG_DIRINDEXES, &type, (void **) &dirIndexes, NULL);
   headerGetEntry(header, RPMTAG_DIRNAMES, &type, (void **) &dirNames, NULL);
   if (moreinfo)
-    printf("NAME<%s> VERSION<%s> RELEASE<%s> ARCH<%s> EPOCH<%d> SIZE<%d> GROUP<%s>\n",
+    printf("NAME<%s> VERSION<%s> RELEASE<%s> ARCH<%s> EPOCH<%ld> SIZE<%ld> GROUP<%s>\n",
 	   get_name(header, RPMTAG_NAME), get_name(header, RPMTAG_VERSION), get_name(header, RPMTAG_RELEASE),
 	   get_name(header, RPMTAG_ARCH), (long)get_name(header, RPMTAG_EPOCH), (long)get_name(header, RPMTAG_SIZE), get_name(header, RPMTAG_GROUP));
   if (baseNames && dirNames && dirIndexes) {
