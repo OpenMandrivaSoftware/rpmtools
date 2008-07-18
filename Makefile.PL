@@ -5,15 +5,54 @@ use ExtUtils::MakeMaker;
 
 my $rpmtools_version = "5.6";
 
+# where to find the rpm utility
+
+my $rpm_path = $ENV{RPM_PATH}; # this overrides
+
+unless (defined $rpm_path) {
+    for (qw(/bin/rpm /usr/bin/rpm)) {
+	if (-x) {
+	    $rpm_path = $_;
+	    last;
+	}
+    }
+}
+
+defined $rpm_path or die "Can't find rpm on this system\n";
+
+sub hexversion {
+	my ($major, $minor, $micro) = (@_[0] =~ /(\d+)\.(\d+)\.?(\d+)?/);
+	return int($major<<16) + int($minor<<8) + int($micro<<0)
+}
+
+my $version = `LC_ALL=C $rpm_path --version`;
+# fix compiling with RCs:
+$version =~ s/(-.*)|(\.DEVEL)//;
+chomp $version;
+$version =~ s/(RPM version )|(rpm \(RPM\) )//;
+my $hversion = hexversion($version);
+
+my @rpmflags;
+if ($hversion ge hexversion("4.4.90") && $hversion lt hexversion("4.5")) {
+    # rpm.org version
+    push @rpmflags, "-DRPM_ORG";
+} else {
+    # rpm5.org version
+	push @rpmflags, "-DRPM_VERSION_CODE=$hversion";
+}
+my $ccflags = join(' ', '-Wall -fno-strict-aliasing', @rpmflags);
+
+print "Found RPM version $version (compiling with flags: $ccflags)\n";
+
 sub MY::postamble {
     <<MAKEMAKEFILE;
 .PHONY: ChangeLog
 
 \$(FROMCC): %: %.cc
-	\$(CXX) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) -o \$@
+	\$(CXX) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" $ccflags \$< \$(LIBRPM) \$(INCRPM) -o \$@
 
 \$(FROMC): %: %.c
-	\$(CC) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" \$< \$(LIBRPM) \$(INCRPM) -o \$@
+	\$(CC) \$(CCFLAGS) \$(OPTIMIZE) -DVERSION_STRING=\\"\$(RPMTOOLSVERSION)\\" $ccflags \$< \$(LIBRPM) \$(INCRPM) -o \$@
 
 buildc: \$(FROMC) \$(FROMCC)
 

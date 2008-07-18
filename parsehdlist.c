@@ -12,10 +12,12 @@
 #include <string.h>
 #include <ctype.h>
 
-#include <rpm/rpmlib.h>
-#if defined(RPM_FORMAT_VERSION) && RPM_FORMAT_VERSION >= 5
+#define RPM_VERSION(maj,min,pl) (((maj) << 16) + ((min) << 8) + (pl))
+
+#if RPM_VERSION_CODE >= RPM_VERSION(5,0,0)
 #include <rpm/rpm4compat.h>
 #else
+#include <rpm/rpmlib.h>
 #include <rpm/header.h>
 #endif
 
