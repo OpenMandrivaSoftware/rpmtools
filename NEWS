@@ -1,3 +1,10 @@
+- genhdlist2:
+  o add xml header to xml files generated
+
+- parsehdlist, rpm2header
+  o fix support for rpm5
+  o update deprecated code
+
 - gendistrib:
   o if "xml-info" is set in media.cfg, pass --xml-info to genhdlist2
 

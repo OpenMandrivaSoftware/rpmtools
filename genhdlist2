@@ -226,6 +226,7 @@ sub open_xml_lzma {
     my ($file) = @_;
     open(my $F, "| lzma -5 > $file") or die "can't open $file\n";
     binmode $F, ':utf8';
+    print $F qq(<?xml version="1.0" encoding="utf-8"?>\n);
     print $F "<media_info>";
     $F;
 }
