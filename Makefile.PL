@@ -84,7 +84,7 @@ WriteMakefile(
     PM => {
         'packdrake.pm' => '$(INST_LIBDIR)/packdrake.pm',
     },
-    EXE_FILES	    => [ qw(gendistrib genhdlist genhdlist2 packdrake rpm2header parsehdlist rpm2cpio.pl dumpdistribconf) ],
+    EXE_FILES	    => [ qw(gendistrib genhdlist-old genhdlist2 packdrake rpm2header parsehdlist rpm2cpio.pl dumpdistribconf) ],
     C		    => [],
     OBJECT	    => '',
     CCFLAGS	    => '-Wall',
@@ -95,7 +95,7 @@ WriteMakefile(
     MAN1PODS	    => {
 	dumpdistribconf	=> '$(INST_MAN1DIR)/dumpdistribconf.1',
 	gendistrib	=> '$(INST_MAN1DIR)/gendistrib.1',
-	genhdlist	=> '$(INST_MAN1DIR)/genhdlist.1',
+	'genhdlist-old'	=> '$(INST_MAN1DIR)/genhdlist-old.1',
 	genhdlist2	=> '$(INST_MAN1DIR)/genhdlist2.1',
 	packdrake	=> '$(INST_MAN1DIR)/packdrake.1',
     },

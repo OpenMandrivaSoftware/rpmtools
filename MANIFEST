@@ -2,7 +2,7 @@ ChangeLog
 dumpdistribconf
 editdistrib
 gendistrib
-genhdlist
+genhdlist-old
 genhdlist2
 Makefile.PL
 MANIFEST

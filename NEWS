@@ -5,6 +5,8 @@
 - parsehdlist, rpm2header
   o fix support for rpm5
   o update deprecated code
+- genhdlist-old
+  o genhdlist is now renamed as genhdlist-old
 
 Version 5.6 - 18 March 2008, by Pascal "Pixel" Rigaux
 

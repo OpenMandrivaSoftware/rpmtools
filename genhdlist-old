@@ -111,11 +111,11 @@ __END__
 
 =head1 NAME
 
-genhdlist - generates an hdlist and a synthesis file
+genhdlist-old - generates an hdlist and a synthesis file
 
 =head1 SYNOPSIS
 
-    genhdlist [options] dir [dir...]
+    genhdlist-old [options] dir [dir...]
 
 =head1 OPTIONS
 
@@ -158,17 +158,17 @@ Put a suffix on list/hdlist/synthesis names (for example, C<_main>).
 
 =head1 DESCRIPTION
 
-F<genhdlist> is used to generate an hdlist and an associated synthesis file
+F<genhdlist-old> is used to generate an hdlist and an associated synthesis file
 from a set of RPM packages found in the directories passed on the command-line.
 By default it will put the hdlist and synthesis files in the current directory.
 
 If the option B<--list> is given, it will also generate a F<list> file containing
 the relative paths to all RPMs. Consequently, the paths to the directories
-passed to F<genhdlist> must be relative ones.
+passed to F<genhdlist-old> must be relative ones.
 
 =head1 SEE ALSO
 
-gendistrib(1), parsehdlist(1)
+genhdlist2(1), gendistrib(1), parsehdlist(1)
 
 =head1 COPYRIGHT
 
