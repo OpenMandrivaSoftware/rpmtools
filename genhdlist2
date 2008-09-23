@@ -14,7 +14,7 @@ sub usage () {
 }
 
 sub main() {
-    my %options = (xml_info => 'auto');
+    my %options = (xml_info => 'auto', versioned => 'auto');
 
     GetOptions(
 	'clean' => \$options{no_incremental},
@@ -27,6 +27,7 @@ sub main() {
 	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
 	'xml-info!' => \$options{xml_info},
+	'versioned!' => \$options{versioned},
 	'media_info-dir=s' => \$options{media_info_dir},
 	'h|help' => sub { usage(); exit 0 },
 	'q|quiet' => sub { $options{verbose} = -1 },
@@ -106,6 +107,10 @@ sub do_it {
 	foreach my $name (@media_info_files) {
 	    print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
 	    rename "$media_info_dir/$name.tmp", "$media_info_dir/$name" or die "rename $media_info_dir/$name failed: $!\n";
+	}
+	my $existed = remove_versioned_media_info($media_info_dir);
+	if ($options{versioned} && ($options{versioned} ne 'auto' || $existed)) {
+	    push @media_info_files, generate_versioned_media_info($media_info_dir, \@media_info_files);
 	}
 	generate_md5sum($media_info_dir, \@media_info_files) if !$options{no_md5sum};
     }
@@ -342,6 +347,31 @@ sub build_synthesis {
     }
 }
 
+sub remove_versioned_media_info {
+    my ($media_info_dir) = @_;
+
+    my @l = grep { /^\d{8}-\d{6}-/ && -l "$media_info_dir/$_" } all($media_info_dir) or return;
+
+    foreach (@l) {
+	print "removing previous versioned $_\n" if $verbose > 0;
+	unlink "$media_info_dir/$_";
+    }
+    1;
+}
+
+sub generate_versioned_media_info {
+    my ($media_info_dir, $media_info_files) = @_;
+
+    require POSIX;
+    my $version = POSIX::strftime("%Y%m%d-%H%M%S", gmtime);
+
+    map {
+	print "creating versioned media_info $_: $version-$_\n" if $verbose > 0;
+	symlink $_, "$media_info_dir/$version-$_";
+	"$version-$_";
+    } @$media_info_files;
+}
+
 sub generate_md5sum {
     my ($media_info_dir, $media_info_files) = @_;
     print "updating $media_info_dir/MD5SUM\n" if $verbose >= 0;
@@ -534,6 +564,10 @@ Write hdlist/synthesis in this directory instead of <dir>/media_info
 =item B<--xml-info>
 
 Force to generate xml info. By default genhdlist2 will only regenerate xml info files already there in media_info/
+
+=item B<--versioned>
+
+Force to generate versioned media info.
 
 =item B<-v>
 

@@ -1,4 +1,5 @@
 - genhdlist2:
+  o with --versioned, create "versioned" metadata
   o add xml header to xml files generated
 - gendistrib:
   o if "xml-info" is set in media.cfg, pass --xml-info to genhdlist2
