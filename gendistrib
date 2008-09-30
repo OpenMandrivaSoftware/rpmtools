@@ -105,7 +105,6 @@ foreach my $m ($distrib->listmedia) {
         synthesis     => "$path/media_info/synthesis.hdlist.cz",
         pubkey        => "$path/media_info/pubkey",
         noneedrebuild => $blind ? 0 : $distrib->check_index_sync($m, 'formedia'),
-        noneedredomd5 => $blind ? 0 : $distrib->check_media_md5($m),
     };
 }
 
@@ -145,7 +144,7 @@ foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
 		       '--allow-empty-media', 
 		       $nooutput ? '--quiet' : (),
 		       $nobadrpm ? '--no-bad-rpm' : (),
-		       $nomd5sum || $e->{noneedredomd5} ? "--no-md5sum" : (),
+		       $nomd5sum ? "--no-md5sum" : (),
 		       $distrib->getvalue($e->{media}, 'xml-info') ? '--xml-info' : (),
 		       -e $file_deps ? "--file-deps $file_deps" : (),
 		   );
@@ -173,7 +172,7 @@ if (grep { ! $_->{noneedrebuild} } @hdlists) {
 	}
     }
 }
-if (grep { ! ($_->{noneedrebuild} && $_->{noneedredomd5}) } @hdlists) {
+if (grep { !$_->{noneedrebuild} } @hdlists) {
     unlink "$destinfodir/MD5SUM"; #- safety cleaning
     unless ($nomd5sum) {
 	# this MD5SUM is mostly obsolete, but is still needed up to 2007.1

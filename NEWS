@@ -1,3 +1,6 @@
+- gendistrib:
+  o don't call genhdlist2 with --no-md5sum for no good reason
+
 Version 5.7 - 23 September 2008, by Pascal "Pixel" Rigaux
 
 - genhdlist2:
