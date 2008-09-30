@@ -3,7 +3,7 @@
 use strict;
 use ExtUtils::MakeMaker;
 
-my $rpmtools_version = "5.7";
+my $rpmtools_version = "5.8";
 
 # where to find the rpm utility
 
