@@ -139,6 +139,7 @@ sub read_file_deps {
 
     foreach (cat_($file_deps)) {
 	chomp;
+	# mark that this "file provide" is required:
 	$urpm->{provides}{$_} = undef;
     }
 }
