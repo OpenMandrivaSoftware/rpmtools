@@ -9,7 +9,4 @@ MANIFEST
 NEWS
 packdrake
 packdrake.pm
-parsehdlist.c
-rpm2cpio.pl
-rpm2header.c
 t/01packdrake.t
