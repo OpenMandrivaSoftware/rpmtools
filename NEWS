@@ -1,5 +1,5 @@
 Version ?.? - ? ? 2009, by ?
-- add support for arbitrary compression filter used for xml-info.
+- add support for custom compression filter used for xml-info & synthesis.
 
 Version 5.9 - 20 January 2008, by Pascal "Pixel" Rigaux
 

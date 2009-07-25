@@ -14,7 +14,12 @@ sub usage () {
 }
 
 sub main() {
-    my %options = (xml_info => 'auto', xml_info_filter => '.lzma:lzma -5', versioned => 'auto');
+    my %options = (
+	synthesis_filter => '.cz:gzip -9',
+	xml_info => 'auto',
+	xml_info_filter => '.lzma:lzma -5',
+	versioned => 'auto'
+    );
 
     GetOptions(
 	'clean' => \$options{no_incremental},
@@ -26,6 +31,7 @@ sub main() {
 	'no-hdlist' => \$options{no_hdlist},
 	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
+	'synthesis-filter=s' => \$options{synthesis_filter},
 	'xml-info!' => \$options{xml_info},
 	'xml-info-filter=s' => \$options{xml_info_filter},
 	'versioned!' => \$options{versioned},
@@ -61,7 +67,10 @@ sub do_it {
     -e $media_info_dir || mkdir $media_info_dir or die "Can't mkdir $media_info_dir: $!n";
     -d $media_info_dir && -w _ && -x _ or die "$media_info_dir isn't a writable directory, bailing out\n";
 
-    my $synthesis = "$media_info_dir/synthesis.hdlist.cz";
+    my ($synthesis_suffix, $synthesis_filter) = split(":", $options{synthesis_filter});
+    my ($xml_info_suffix, $xml_info_filter) = split(":", $options{xml_info_filter});
+
+    my $synthesis = "$media_info_dir/synthesis.hdlist$synthesis_suffix";
     my $lock_file = "$media_info_dir/UPDATING";
     $tmp_header = "$media_info_dir/.tmp-header";
 
@@ -94,19 +103,17 @@ sub do_it {
 
     read_file_deps($urpm, $options{file_deps}) if $options{file_deps};
 
-    my ($suffix, $filter) = split(":", $options{xml_info_filter});
-
     if ($options{xml_info} eq 'auto') {
-	$options{xml_info} = -e "$media_info_dir/info.xml$suffix";
+	$options{xml_info} = -e "$media_info_dir/info.xml$xml_info_suffix";
     }
     my @xml_media_info = $options{xml_info} ? ('info', 'files', 'changelog') : ();
 
-    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist}, $options{xml_info_filter});
-    build_synthesis($urpm, "$synthesis.tmp");
+    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist}, $xml_info_suffix, $xml_info_filter);
+    build_synthesis($urpm, "$synthesis.tmp", $synthesis_filter);
 
     if (1) {
 	my @media_info_files = ($options{no_hdlist} ? () : 'hdlist.cz', 
-				'synthesis.hdlist.cz', map { "$_.xml$suffix" } @xml_media_info);
+				"synthesis.hdlist$synthesis_suffix", map { "$_.xml$xml_info_suffix" } @xml_media_info);
 	foreach my $name (@media_info_files) {
 	    print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
 	    rename "$media_info_dir/$name.tmp", "$media_info_dir/$name" or die "rename $media_info_dir/$name failed: $!\n";
@@ -148,7 +155,7 @@ sub read_file_deps {
 }
 
 sub build {
-    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist, $xml_info_filter) = @_;
+    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist, $xml_info_suffix, $xml_info_filter) = @_;
 
     my $hdlist = "$media_info_dir/hdlist.cz";
 
@@ -162,11 +169,9 @@ sub build {
 	) or die "Can't create archive";
     }
 
-    my ($suffix, $filter) = split(":", $xml_info_filter);
-
     my $out = {
 	hdlist => $out_hdlist,
-	map { $_ => open_xml_filter("$media_info_dir/$_.xml${suffix}.tmp", $filter) } @$xml_media_info
+	map { $_ => open_xml_filter("$media_info_dir/$_.xml${xml_info_suffix}.tmp", $xml_info_filter) } @$xml_media_info
     };
 
     if (-e $hdlist && !$b_no_incremental) {
@@ -234,9 +239,9 @@ sub add_new_rpms_to_hdlist {
 }
 
 sub open_xml_filter {
-    my ($file, $filter) = @_;
+    my ($file, $xml_info_filter) = @_;
 
-    open(my $F, "| $filter > $file") or die "can't open $file\n";
+    open(my $F, "| $xml_info_filter > $file") or die "can't open $file\n";
     binmode $F, ':utf8';
     print $F qq(<?xml version="1.0" encoding="utf-8"?>\n);
     print $F "<media_info>";
@@ -339,17 +344,18 @@ sub add_pkg_header {
 }
 
 sub build_synthesis {
-    my ($urpm, $synthesis) = @_;
+    my ($urpm, $synthesis, $synthesis_filter) = @_;
     # for compatibility with perl-URPM < 1.48 (ie < 2007.1),
     # creating empty synthesis by hand. This is only needed to run on old distros
     if (@{$urpm->{depslist}} == 0) {
-        open(my $hsynth, "| /bin/gzip > $synthesis");
+        open(my $hsynth, "| $synthesis_filter > $synthesis");
 	close $hsynth or die "Can't create empty synthesis $synthesis: $!\n";
     } else {
 	$urpm->build_synthesis(
 	    start     => 0,
 	    end       => $#{$urpm->{depslist}},
 	    synthesis => $synthesis,
+	    filter    => $synthesis_filter,
 	) or die "build_synthesis failed (disk full?)\n";
     }
 }
@@ -567,6 +573,11 @@ To allow building empty media, use this option.
 
 Write hdlist/synthesis in this directory instead of <dir>/media_info
 (mostly useful for debugging)
+
+=item B<--synthesis-filter SUFFIX:FILTER>
+
+Use SUFFIX for filename suffix and filter through FILTER for compression.
+By default genhdlist2 will use '.cz:gzip -9'.
 
 =item B<--xml-info>
 

@@ -102,7 +102,7 @@ foreach my $m ($distrib->listmedia) {
         synthesis2    => $distrib->getfullpath($m, 'synthesis'),
         pubkey2       => $distrib->getfullpath($m, 'pubkey'),
         hdlist        => "$path/media_info/hdlist.cz",
-        synthesis     => "$path/media_info/synthesis.hdlist.cz",
+        synthesis     => "$path/media_info/synthesis.hdlist" . $distrib->getvalue($m, 'synthesis-suffix'),
         pubkey        => "$path/media_info/pubkey",
         noneedrebuild => $blind ? 0 : $distrib->check_index_sync($m, 'formedia'),
     };
@@ -137,16 +137,18 @@ if ($noemptymedia) {
     }
 }
 
+my $synthesis_filter = $distrib->getvalue(undef, 'synthesis-filter');
+my $xml_info_filter = $distrib->getvalue(undef, 'xml-info-filter');
 foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
     print STDERR qq(building hdlist & synthesis for medium "$e->{descr}"\n) unless $nooutput;
     my $file_deps = "$destinfodir/file-deps";
-    my $xml_info_filter = $distrib->getvalue($e->{media}, 'xml-info-filter');
     my $options = join(' ', 
 		       '--allow-empty-media', 
 		       $nooutput ? '--quiet' : (),
 		       $nobadrpm ? '--no-bad-rpm' : (),
 		       $nomd5sum ? "--no-md5sum" : (),
 		       $distrib->getvalue($e->{media}, 'xml-info') ? '--xml-info' : (),
+		       $synthesis_filter ? "--synthesis-filter \'$synthesis_filter\'" : (),
 		       $xml_info_filter ? "--xml-info-filter \'$xml_info_filter\'" : (),
 		       -e $file_deps ? "--file-deps $file_deps" : (),
 		   );
