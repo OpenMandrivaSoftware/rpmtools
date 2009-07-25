@@ -14,7 +14,7 @@ sub usage () {
 }
 
 sub main() {
-    my %options = (xml_info => 'auto', versioned => 'auto');
+    my %options = (xml_info => 'auto', xml_info_filter => '.lzma:lzma -5', versioned => 'auto');
 
     GetOptions(
 	'clean' => \$options{no_incremental},
@@ -27,6 +27,7 @@ sub main() {
 	'allow-empty-media' => \$options{allow_empty_media},
 	'file-deps=s' => \$options{file_deps},
 	'xml-info!' => \$options{xml_info},
+	'xml-info-filter=s' => \$options{xml_info_filter},
 	'versioned!' => \$options{versioned},
 	'media_info-dir=s' => \$options{media_info_dir},
 	'h|help' => sub { usage(); exit 0 },
@@ -93,17 +94,19 @@ sub do_it {
 
     read_file_deps($urpm, $options{file_deps}) if $options{file_deps};
 
+    my ($suffix, $filter) = split(":", $options{xml_info_filter});
+
     if ($options{xml_info} eq 'auto') {
-	$options{xml_info} = -e "$media_info_dir/info.xml.lzma";
+	$options{xml_info} = -e "$media_info_dir/info.xml$suffix";
     }
     my @xml_media_info = $options{xml_info} ? ('info', 'files', 'changelog') : ();
 
-    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist});
+    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist}, $options{xml_info_filter});
     build_synthesis($urpm, "$synthesis.tmp");
 
     if (1) {
 	my @media_info_files = ($options{no_hdlist} ? () : 'hdlist.cz', 
-				'synthesis.hdlist.cz', map { "$_.xml.lzma" } @xml_media_info);
+				'synthesis.hdlist.cz', map { "$_.xml$suffix" } @xml_media_info);
 	foreach my $name (@media_info_files) {
 	    print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
 	    rename "$media_info_dir/$name.tmp", "$media_info_dir/$name" or die "rename $media_info_dir/$name failed: $!\n";
@@ -145,7 +148,7 @@ sub read_file_deps {
 }
 
 sub build {
-    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist) = @_;
+    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist, $xml_info_filter) = @_;
 
     my $hdlist = "$media_info_dir/hdlist.cz";
 
@@ -159,9 +162,11 @@ sub build {
 	) or die "Can't create archive";
     }
 
+    my ($suffix, $filter) = split(":", $xml_info_filter);
+
     my $out = {
 	hdlist => $out_hdlist,
-	map { $_ => open_xml_lzma("$media_info_dir/$_.xml.lzma.tmp") } @$xml_media_info
+	map { $_ => open_xml_filter("$media_info_dir/$_.xml${suffix}.tmp", $filter) } @$xml_media_info
     };
 
     if (-e $hdlist && !$b_no_incremental) {
@@ -228,9 +233,10 @@ sub add_new_rpms_to_hdlist {
     }
 }
 
-sub open_xml_lzma {
-    my ($file) = @_;
-    open(my $F, "| lzma -5 > $file") or die "can't open $file\n";
+sub open_xml_filter {
+    my ($file, $filter) = @_;
+
+    open(my $F, "| $filter > $file") or die "can't open $file\n";
     binmode $F, ':utf8';
     print $F qq(<?xml version="1.0" encoding="utf-8"?>\n);
     print $F "<media_info>";
@@ -565,6 +571,11 @@ Write hdlist/synthesis in this directory instead of <dir>/media_info
 =item B<--xml-info>
 
 Force to generate xml info. By default genhdlist2 will only regenerate xml info files already there in media_info/
+
+=item B<--xml-info-filter SUFFIX:FILTER>
+
+Use SUFFIX for filename suffix and filter through FILTER for compression.
+By default genhdlist2 will use '.lzma:lzma -5'.
 
 =item B<--versioned>
 
