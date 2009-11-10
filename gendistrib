@@ -17,6 +17,7 @@ my %old;
 
 GetOptions(
     'blind' => \my $blind,
+    'clean' => \my $clean,
     'hdlists=s' => \$urpmfiles{hdlists},
     'help|h' => \&usage,
     'mediacfg=s' => \$urpmfiles{mediacfg},
@@ -104,7 +105,7 @@ foreach my $m ($distrib->listmedia) {
         hdlist        => "$path/media_info/hdlist.cz",
         synthesis     => "$path/media_info/synthesis.hdlist" . $distrib->getvalue($m, 'synthesis-suffix'),
         pubkey        => "$path/media_info/pubkey",
-        noneedrebuild => $blind ? 0 : $distrib->check_index_sync($m, 'formedia'),
+        noneedrebuild => $blind || $clean ? 0 : $distrib->check_index_sync($m, 'formedia'),
     };
 }
 
@@ -145,6 +146,7 @@ foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
     my $options = join(' ', 
 		       '--allow-empty-media', 
 		       $nooutput ? '--quiet' : (),
+		       $clean ? '--clean' : (),
 		       $nobadrpm ? '--no-bad-rpm' : (),
 		       $nomd5sum ? "--no-md5sum" : (),
 		       $distrib->getvalue($e->{media}, 'xml-info') ? '--xml-info' : (),
@@ -275,6 +277,10 @@ gendistrib - generates a mirror tree for a distribution
 =item --blind
 
 Always rebuild indexes, without checking whether it's needed.
+
+=item --clean
+
+Force rebuild of indexes from scratch.
 
 =item --hdlists file
 
