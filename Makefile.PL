@@ -49,7 +49,7 @@ WriteMakefile(
     },
     MAN3PODS	    => {},
     dist	    => {
-        COMPRESS => 'bzip2 --best',
-        SUFFIX => '.bz2',
+        COMPRESS => 'xz -f --best --text',
+        SUFFIX => '.xz',
     },
 );
