@@ -1,4 +1,6 @@
-Version ?.? - ? ? 2009, by ?
+Version 6.0 - 15 December 2010, by Per Øyvind Karlsen
+- compress xml files with '--text' flag passed to lzma (shrinks
+  files.xml.lzma by 25% \o/)
 - add support for custom compression filter used for xml-info & synthesis.
 
 Version 5.9 - 20 January 2008, by Pascal "Pixel" Rigaux
