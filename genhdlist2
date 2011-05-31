@@ -47,6 +47,12 @@ sub main() {
 
     $options{no_incremental} ||= $options{no_hdlist};
 
+    # Force locale to be C
+    # We don't translate anything but we would get translated package info and
+    # wrongly put it in hdlists
+    # https://bugs.mageia.org/show_bug.cgi?id=95
+    $ENV{LC_ALL} = 'C';
+
     do_it($rpms_dir, %options);
 }
 

@@ -1,5 +1,6 @@
 Version 6.1 - 31 May 2011, by Per Øyvind Karlsen
 
+- force locale to be C (#63229, from Pascal Terjan)
 - add disttag & distepoch to .xml.lzma metadata so that we can parse name,
   version, release & arch properly from filename
 
