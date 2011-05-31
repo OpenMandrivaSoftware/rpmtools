@@ -299,7 +299,9 @@ sub add_pkg {
 
     if ($out->{files}) {
 	my $F = $out->{files};
-	print $F qq(<files fn="$fullname">\n);
+	print $F qq(<files fn="$fullname");
+	$pkg->$_ && printf $F qq( $_=%s), encode_xml_attribute($pkg->$_) foreach qw(disttag distepoch);
+	print $F qq(>\n);
 	print $F encode_xml($_), "\n" foreach $pkg->files;
 	print $F qq(</files>);
     }
@@ -307,6 +309,7 @@ sub add_pkg {
     if ($out->{info}) {
 	my $F = $out->{info};
 	print $F qq(<info fn="$fullname");
+	$pkg->$_ && printf $F qq(\n $_=%s), encode_xml_attribute($pkg->$_) foreach qw(disttag distepoch);
 	printf $F qq(\n $_=%s), encode_xml_attribute($pkg->$_) foreach qw(sourcerpm url license);
 	print $F qq(>\n);
 	print $F encode_xml($pkg->description), "\n";
@@ -319,7 +322,9 @@ sub add_pkg {
 	my @na = $pkg->changelog_name;
 	my @te = $pkg->changelog_text;
 
-	print $F qq(<changelogs fn="$fullname">\n);
+	print $F qq(<changelogs fn="$fullname");
+	$pkg->$_ && printf $F qq( $_=%s), encode_xml_attribute($pkg->$_) foreach qw(disttag distepoch);
+	print $F qq(>\n);
 	foreach (0 .. $#ti) {
 	    print $F qq(<log time="$ti[$_]">\n);
 	    print $F qq(<log_name>), encode_xml($na[$_]), qq(</log_name>\n);

@@ -1,3 +1,8 @@
+Version 6.1 - 31 May 2011, by Per Øyvind Karlsen
+
+- add disttag & distepoch to .xml.lzma metadata so that we can parse name,
+  version, release & arch properly from filename
+
 Version 6.0 - 15 December 2010, by Per Øyvind Karlsen
 - compress xml files with '--text' flag passed to lzma (shrinks
   files.xml.lzma by 25% \o/)
