@@ -171,6 +171,7 @@ sub build {
 	    archive => "$hdlist.tmp",
 	    compress => "gzip",
 	    uncompress => "gzip -d",
+        extern => 1,
 	    comp_level => 9,
 	) or die "Can't create archive";
     }
