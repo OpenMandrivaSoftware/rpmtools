@@ -5,6 +5,7 @@
 use URPM;
 use MDV::Packdrakeng;
 use Getopt::Long;
+use XML::LibXML qw( );
 
 main();
 
@@ -26,6 +27,7 @@ sub main() {
 	'no-bad-rpm' => \$options{no_bad_rpm},
 	'no-md5sum' => \$options{no_md5sum},
 	'no-clean-old-rpms' => \$options{no_clean_old_rpms},
+	'merge' => \$options{merge},
 	'only-clean-old-rpms' => \$options{only_clean_old_rpms},
 	'nolock' => \$options{nolock},
 	'no-hdlist' => \$options{no_hdlist},
@@ -44,6 +46,11 @@ sub main() {
 
     @ARGV == 1 or usage();
     my $rpms_dir = $ARGV[0];
+
+    if ($options{merge} && !$options{no_hdlist}) {
+        print "--merge implies --no-hdlist!\n";
+        $options{no_hdlist} = 1;
+    }
 
     $options{no_incremental} ||= $options{no_hdlist};
 
@@ -83,12 +90,11 @@ sub do_it {
     my $lock = !$options{nolock} && global_lock($lock_file);
 
     $SIG{INT} = sub { 
-	unlink "$media_info_dir/hdlist.cz.tmp", "$synthesis.tmp", $tmp_header;
+	unlink "$media_info_dir/hdlist.cz.tmp", "$synthesis.tmp", $tmp_header, "files.xml.tmp", "changelog.xml.tmp", "info.xml.tmp";
 	unlink $lock_file if $lock;
 	exit 1;
     };
     END { unlink $lock_file if $lock }
-
 
     #- handle old-rpms.lst
     my $old_rpms_file = "$media_info_dir/old-rpms.lst";
@@ -102,7 +108,6 @@ sub do_it {
     }
     $options{only_clean_old_rpms} and return;
 
-
     my %rpms_todo = map { /(.*)\.rpm/ => 1 } @rpms;
 
     my $urpm = new URPM;
@@ -114,16 +119,66 @@ sub do_it {
     }
     my @xml_media_info = $options{xml_info} ? ('info', 'files', 'changelog') : ();
 
-    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist}, $xml_info_suffix, $xml_info_filter);
+
+    #- handle old-metadata.lst - drop packages listed there from metadata
+    if ($options{merge} ) {
+        my $old_metadata_file = "$media_info_dir/old-metadata.lst";
+
+        # Unpack all files to be processed
+        my @files_to_clean = ("synthesis.hdlist$synthesis_suffix", map { "$_.xml$xml_info_suffix" } @xml_media_info);
+	foreach my $name (@xml_media_info) {
+	    system("$xml_info_filter -d -S $xml_info_suffix $media_info_dir/$name.xml$xml_info_suffix") == 0 or die("Failed to unpack xml metadata files");
+	}
+        system("$synthesis_filter -d -S $synthesis_suffix $media_info_dir/synthesis.hdlist$synthesis_suffix") == 0 or die("Failed to unpack synthesis file");
+
+        print "removing obsolete metadata...\n" if $verbose >= 0;
+	filter_out_old_metadata($media_info_dir, $old_metadata_file, "$media_info_dir/synthesis.hdlist");
+
+	# Rename the temporary metadata files
+	foreach my $name (@xml_media_info) {
+	    rename "$media_info_dir/$name.xml.tmp", "$media_info_dir/$name.xml" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
+	}
+	rename "$media_info_dir/synthesis.hdlist.tmp", "$media_info_dir/synthesis.hdlist" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
+
+#	return;
+    }
+
+    my $dump_header = $options{merge} ? 0 : 1;
+    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist}, $xml_info_suffix, $xml_info_filter, $dump_header);
     build_synthesis($urpm, "$synthesis.tmp", $synthesis_filter);
 
     if (1) {
 	my @media_info_files = ($options{no_hdlist} ? () : 'hdlist.cz', 
 				"synthesis.hdlist$synthesis_suffix", map { "$_.xml$xml_info_suffix" } @xml_media_info);
 	foreach my $name (@media_info_files) {
-	    print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
-	    rename "$media_info_dir/$name.tmp", "$media_info_dir/$name" or die "rename $media_info_dir/$name failed: $!\n";
+            if ($options{merge} ) {
+                print "Merging metadata...\n";
+                if ($name =~/^synthesis.hdlist/) {
+                    os.system("$synthesis_filter -dc -S $synthesis_suffix  $media_info_dir/$name.tmp >> $media_info_dir/synthesis.hdlist" );
+                    unlink "$media_info_dir/synthesis.hdlist$synthesis_suffix.tmp";
+                }
+                else {
+                    my $clear_name = $name;
+                    $clear_name =~ s/$xml_info_suffix//;
+                    os.system("sed -i '/<\\/media_info>/d' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
+                    os.system("$xml_info_filter -dc -S $xml_info_suffix $media_info_dir/$name.tmp >> $media_info_dir/$clear_name" ) == 0 or die("Failed to concat $name.tmp with $clear_name");
+                    unlink "$media_info_dir/$name.tmp";
+                }
+            }
+            else {
+	        print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
+	        rename "$media_info_dir/$name.tmp", "$media_info_dir/$name" or die "rename $media_info_dir/$name failed: $!\n";
+	    }
 	}
+
+        if ($options{merge} ) {
+            # Pack the metadata files
+	    foreach my $name (@xml_media_info) {
+	        system("$xml_info_filter -S $xml_info_suffix $media_info_dir/$name.xml") == 0 or die("Failed to pack xml metadata files");
+	    }
+            system("$synthesis_filter -S $synthesis_suffix $media_info_dir/synthesis.hdlist") == 0 or die("Failed to pack synthesis file");
+        }
+
 	my $existed = remove_versioned_media_info($media_info_dir);
 	if ($options{versioned} && ($options{versioned} ne 'auto' || $existed)) {
 	    push @media_info_files, generate_versioned_media_info($media_info_dir, \@media_info_files);
@@ -161,7 +216,7 @@ sub read_file_deps {
 }
 
 sub build {
-    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist, $xml_info_suffix, $xml_info_filter) = @_;
+    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist, $xml_info_suffix, $xml_info_filter, $dump_header) = @_;
 
     my $hdlist = "$media_info_dir/hdlist.cz";
 
@@ -178,7 +233,7 @@ sub build {
 
     my $out = {
 	hdlist => $out_hdlist,
-	map { $_ => open_xml_filter("$media_info_dir/$_.xml${xml_info_suffix}.tmp", $xml_info_filter) } @$xml_media_info
+	map { $_ => open_xml_filter("$media_info_dir/$_.xml${xml_info_suffix}.tmp", $xml_info_filter, $dump_header) } @$xml_media_info
     };
 
     if (-e $hdlist && !$b_no_incremental) {
@@ -246,12 +301,14 @@ sub add_new_rpms_to_hdlist {
 }
 
 sub open_xml_filter {
-    my ($file, $xml_info_filter) = @_;
+    my ($file, $xml_info_filter, $dump_header) = @_;
 
     open(my $F, "| $xml_info_filter > $file") or die "can't open $file\n";
     binmode $F, ':utf8';
-    print $F qq(<?xml version="1.0" encoding="utf-8"?>\n);
-    print $F "<media_info>";
+    if ($dump_header) {
+        print $F qq(<?xml version="1.0" encoding="utf-8"?>\n);
+        print $F "<media_info>";
+    }
     $F;
 }
 
@@ -504,6 +561,59 @@ sub filter_out_old_rpms {
 
     @$rpms_list = grep { !$old{$_} } @$rpms_list;
 }
+
+sub filter_out_old_metadata {
+    my ($media_info_dir, $old_metadata_file, $synthesis_name) = @_;
+
+    open(M, "cat $old_metadata_file | sed s/\.rpm\$// |");
+    my @to_remove = <M>;
+    close M or die "Cannot close $old_metadata_file: $!";
+    chomp(@to_remove);
+
+    my %tags = ( "$media_info_dir/files.xml" => "files",
+		    "$media_info_dir/changelog.xml" => "changelogs",
+                    "$media_info_dir/info.xml" => "info"
+                );
+
+    for my $file ("$media_info_dir/files.xml", "$media_info_dir/changelog.xml", "$media_info_dir/info.xml") {
+        my $parser = XML::LibXML->new();
+        my $doc = $parser->parse_file($file);
+        my $top_tag = $tags{$file};
+
+        for my $node ($doc->findnodes("/media_info/$top_tag")) {
+            if (grep {$_ eq $node->getAttribute("fn")} @to_remove) {
+                my $parent = $node->parentNode;
+                $parent->removeChild($node);
+            }
+	}
+
+	$doc->toFile($file.".tmp");
+    }
+
+    open(S, "< $synthesis_name");
+    open(NS, "> $synthesis_name.tmp");
+
+    my $buff = "";
+    while(<S>) {
+        my $line = $_;
+        if (!/^\@info/ ) {
+            $buff .= $line;
+            next;
+        }
+        if (/\@info\@([^@]+)\@/) {
+            my $name = $1;
+            print $name."\n";
+            if (! grep(/^$name$/, @to_remove) ) {
+                print NS $buff;
+                print NS $line;
+            }
+            $buff = "";
+        }
+    }
+    close S or die "Cannot close $synthesis_name: $!";
+    close NS or die "Cannot close $synthesis_name.tmp: $!";
+}
+
 ################################################################################
 
 
