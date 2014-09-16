@@ -15,9 +15,9 @@ sub usage () {
 
 sub main() {
     my %options = (
-    synthesis_filter => '.cz:xz -5 --text'
+    synthesis_filter => '.cz:xz -7'
 	xml_info => 'auto',
-    xml_info_filter => '.lzma:xz -5 --text',
+    xml_info_filter => '.lzma:xz -7',
 	versioned => 'auto'
     );
 
@@ -589,7 +589,7 @@ Write hdlist/synthesis in this directory instead of <dir>/media_info
 =item B<--synthesis-filter SUFFIX:FILTER>
 
 Use SUFFIX for filename suffix and filter through FILTER for compression.
-By default genhdlist2 will use '.cz:gzip -9'.
+By default genhdlist2 will use '.cz:xz -7'.
 
 =item B<--xml-info>
 
@@ -598,7 +598,7 @@ Force to generate xml info. By default genhdlist2 will only regenerate xml info 
 =item B<--xml-info-filter SUFFIX:FILTER>
 
 Use SUFFIX for filename suffix and filter through FILTER for compression.
-By default genhdlist2 will use '.cz:xz -5'.
+By default genhdlist2 will use '.cz:xz -7'.
 
 =item B<--versioned>
 
