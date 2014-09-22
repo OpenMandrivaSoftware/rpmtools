@@ -108,7 +108,21 @@ sub do_it {
     }
     $options{only_clean_old_rpms} and return;
 
-    my %rpms_todo = map { /(.*)\.rpm/ => 1 } @rpms;
+    my %rpms_todo;
+    if ($options{merge} && -e "$media_info_dir/new-metadata.lst") {
+        my $new_metadata_file = "$media_info_dir/new-metadata.lst";
+        open(N, "$media_info_dir/new-metadata.lst");
+        while(<N>) {
+            chomp;
+            my $pkg = $_;
+            $pkg =~ s/\.rpm$//;
+            $rpms_todo{$pkg} = 1;
+        }
+        close(N);
+    }
+    else {
+        %rpms_todo = map { /(.*)\.rpm/ => 1 } @rpms;
+    }
 
     my $urpm = new URPM;
 
@@ -119,32 +133,29 @@ sub do_it {
     }
     my @xml_media_info = $options{xml_info} ? ('info', 'files', 'changelog') : ();
 
-
     #- handle old-metadata.lst - drop packages listed there from metadata
     if ($options{merge} ) {
-        my $old_metadata_file = "$media_info_dir/old-metadata.lst";
-
         # Unpack all files to be processed
         my @files_to_clean = ("synthesis.hdlist$synthesis_suffix", map { "$_.xml$xml_info_suffix" } @xml_media_info);
 	foreach my $name (@xml_media_info) {
-	    system("$xml_info_filter -d -S $xml_info_suffix $media_info_dir/$name.xml$xml_info_suffix") == 0 or die("Failed to unpack xml metadata files");
+	    system("rm -f $media_info_dir/$name.xml; $xml_info_filter -d -S $xml_info_suffix $media_info_dir/$name.xml$xml_info_suffix") == 0 or die("Failed to unpack xml metadata files");
 	}
-        system("$synthesis_filter -d -S $synthesis_suffix $media_info_dir/synthesis.hdlist$synthesis_suffix") == 0 or die("Failed to unpack synthesis file");
+        system("rm -f $media_info_dir/synthesis.hdlist; $synthesis_filter -d -S $synthesis_suffix $media_info_dir/synthesis.hdlist$synthesis_suffix") == 0 or die("Failed to unpack synthesis file");
 
-        print "removing obsolete metadata...\n" if $verbose >= 0;
-	filter_out_old_metadata($media_info_dir, $old_metadata_file, "$media_info_dir/synthesis.hdlist");
+        my $old_metadata_file = "$media_info_dir/old-metadata.lst";
+        if (-e $old_metadata_file) {
+            print "removing obsolete metadata...\n" if $verbose >= 0;
+    	    filter_out_old_metadata($media_info_dir, $old_metadata_file, "$media_info_dir/synthesis.hdlist");
 
-	# Rename the temporary metadata files
-	foreach my $name (@xml_media_info) {
-	    rename "$media_info_dir/$name.xml.tmp", "$media_info_dir/$name.xml" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
+    	    # Rename the temporary metadata files
+    	    foreach my $name (@xml_media_info) {
+		rename "$media_info_dir/$name.xml.tmp", "$media_info_dir/$name.xml" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
+	    }
+	    rename "$media_info_dir/synthesis.hdlist.tmp", "$media_info_dir/synthesis.hdlist" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
 	}
-	rename "$media_info_dir/synthesis.hdlist.tmp", "$media_info_dir/synthesis.hdlist" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
-
-#	return;
     }
 
-    my $dump_header = $options{merge} ? 0 : 1;
-    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist}, $xml_info_suffix, $xml_info_filter, $dump_header);
+    build($urpm, \%rpms_todo, $media_info_dir, $rpms_dir, \@xml_media_info, $options{no_incremental}, $options{no_hdlist}, $xml_info_suffix, $xml_info_filter, $options{merge});
     build_synthesis($urpm, "$synthesis.tmp", $synthesis_filter);
 
     if (1) {
@@ -155,15 +166,14 @@ sub do_it {
                 print "Merging metadata...\n";
                 if ($name =~/^synthesis.hdlist/) {
                     os.system("$synthesis_filter -dc -S $synthesis_suffix  $media_info_dir/$name.tmp >> $media_info_dir/synthesis.hdlist" );
-                    unlink "$media_info_dir/synthesis.hdlist$synthesis_suffix.tmp";
                 }
                 else {
                     my $clear_name = $name;
                     $clear_name =~ s/$xml_info_suffix//;
-                    os.system("sed -i '/<\\/media_info>/d' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
+                    os.system("sed -i 's/<\\/media_info>//' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
                     os.system("$xml_info_filter -dc -S $xml_info_suffix $media_info_dir/$name.tmp >> $media_info_dir/$clear_name" ) == 0 or die("Failed to concat $name.tmp with $clear_name");
-                    unlink "$media_info_dir/$name.tmp";
                 }
+                unlink "$media_info_dir/$name.tmp";
             }
             else {
 	        print "replacing $media_info_dir/$name with $name.tmp\n" if $verbose >= 0;
@@ -216,9 +226,10 @@ sub read_file_deps {
 }
 
 sub build {
-    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist, $xml_info_suffix, $xml_info_filter, $dump_header) = @_;
+    my ($urpm, $rpms_todo, $media_info_dir, $rpms_dir, $xml_media_info, $b_no_incremental, $b_no_hdlist, $xml_info_suffix, $xml_info_filter, $b_merge) = @_;
 
     my $hdlist = "$media_info_dir/hdlist.cz";
+    my $dump_header = $b_merge ? 0 : 1;
 
     my $out_hdlist;
     if (!$b_no_hdlist) {
@@ -241,7 +252,7 @@ sub build {
 	filter_existing_hdlist($urpm, $rpms_todo, $hdlist, $out);
     }
 
-    add_new_rpms_to_hdlist($urpm, $rpms_todo, $out, $rpms_dir);
+    add_new_rpms_to_hdlist($urpm, $rpms_todo, $out, $rpms_dir, $b_merge);
 
     close_xml($out->{$_}) foreach @$xml_media_info;
 }
