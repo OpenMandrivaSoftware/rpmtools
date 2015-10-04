@@ -1,11 +1,12 @@
 #!/usr/bin/perl
 
-(our $VERSION) = q(Id: genhdlist2 20460 2006-11-23 13:19:11Z pixel ) =~ /(\d+\.\d+)/;
+our ($VERSION) = q(Id: genhdlist2 20460 2006-11-23 13:19:11Z pixel ) =~ /(\d+\.\d+)/;
 
 use URPM;
+use List::Util 'any';
 use MDV::Packdrakeng;
 use Getopt::Long;
-use XML::LibXML qw( );
+use strict;
 
 main();
 
@@ -16,9 +17,9 @@ sub usage () {
 
 sub main() {
     my %options = (
-    synthesis_filter => '.cz:xz -7'
+	synthesis_filter => '.cz:xz -T0 -5 --text',
 	xml_info => 'auto',
-    xml_info_filter => '.lzma:xz -7',
+	xml_info_filter => '.lzma:xz -T0 -7 --text',
 	versioned => 'auto'
     );
 
@@ -241,7 +242,7 @@ sub build {
 	    archive => "$hdlist.tmp",
 	    compress => "gzip",
 	    uncompress => "gzip -d",
-        extern => 1,
+	    extern => 1,
 	    comp_level => 9,
 	) or die "Can't create archive";
     }
@@ -428,13 +429,7 @@ sub add_pkg_header {
 }
 
 sub build_synthesis {
-    my ($urpm, $synthesis, $synthesis_filter) = @_;
-    # for compatibility with perl-URPM < 1.48 (ie < 2007.1),
-    # creating empty synthesis by hand. This is only needed to run on old distros
-    if (@{$urpm->{depslist}} == 0) {
-        open(my $hsynth, "| $synthesis_filter > $synthesis");
-	close $hsynth or die "Can't create empty synthesis $synthesis: $!\n";
-    } else {
+    my ($urpm, $synthesis, $synthesis_filter, $output_recommends) = @_;
 	$urpm->build_synthesis(
 	    start     => 0,
 	    end       => $#{$urpm->{depslist}},
@@ -460,7 +455,7 @@ sub generate_versioned_media_info {
     my ($media_info_dir, $media_info_files) = @_;
 
     require POSIX;
-    my $version = POSIX::strftime("%Y%m%d-%H%M%S", gmtime);
+    my $version = POSIX::strftime("%Y%m%d-%H%M%S", gmtime());
 
     map {
 	print "creating versioned media_info $_: $version-$_\n" if $verbose > 0;
@@ -714,7 +709,7 @@ Write hdlist/synthesis in this directory instead of <dir>/media_info
 =item B<--synthesis-filter SUFFIX:FILTER>
 
 Use SUFFIX for filename suffix and filter through FILTER for compression.
-By default genhdlist2 will use '.cz:xz -7'.
+By default genhdlist2 will use '.cz:xz -T0 -7 --text'.
 
 =item B<--xml-info>
 
@@ -723,7 +718,7 @@ Force to generate xml info. By default genhdlist2 will only regenerate xml info 
 =item B<--xml-info-filter SUFFIX:FILTER>
 
 Use SUFFIX for filename suffix and filter through FILTER for compression.
-By default genhdlist2 will use '.cz:xz -7'.
+By default genhdlist2 will use '.lzma:xz -T0 -5 --text'.
 
 =item B<--versioned>
 

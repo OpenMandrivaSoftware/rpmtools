@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
+(our $VERSION) = q$Id: dumpdistribconf 12157 2005-11-15 11:22:04Z rgarciasuarez $ =~ /(\d+\.\d+)/;
 
 use strict;
 use Getopt::Long;

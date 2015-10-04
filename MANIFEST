@@ -2,7 +2,6 @@ ChangeLog
 dumpdistribconf
 editdistrib
 gendistrib
-genhdlist-old
 genhdlist2
 Makefile.PL
 MANIFEST
@@ -10,3 +9,5 @@ NEWS
 packdrake
 packdrake.pm
 t/01packdrake.t
+META.yml                                 Module meta-data (added by MakeMaker)
+META.json                                Module JSON meta-data (added by MakeMaker)

@@ -8,7 +8,7 @@ use Term::ReadLine;
 use Text::ParseWords;
 use Getopt::Long;
 
-(our $VERSION) = q$Id$ =~ /(\d+\.\d+)/;
+(our $VERSION) = q$Id: editdistrib 12165 2005-11-16 14:28:27Z rgarciasuarez $ =~ /(\d+\.\d+)/;
 
 my @distribs;
 

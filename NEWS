@@ -1,5 +1,45 @@
+Version 7.00.1 - 18 May 2015, by Per Øyvind
+
+- revert to -5 --text for synthesis (better compression, while only taking 50%
+  longer (local testing: -7, 4 seconds, -5 --text 6 seconds). Quite acceptable.
+- use multithreaded compressesion for xz
+
+Version 7.00 - 7 September 2014, by Thierry Vignaud
+
+- synthesis format change:
+  o generates @recommends@ lines (instead of @suggests@ ones) on mga5+
+
+Version 6.6 - 6 September 2014, by Thierry Vignaud
+
+- switch from 'xz -5 --text' to 'xz -7' (much faster for little space overhead)
+- use external gzip for decompression, faster
+
+Version 6.5 - 5 September 2012, by Thierry Vignaud
+
+- compress XML data with xz instead of lzma
+  (keeping .lzma extension for compatibility, just adding the magic value)
+
+Version 6.4 - 26 August 2012, by Thierry Vignaud
+
+- compress synthesis files with '--text' flag passed to xz (shrinks
+  synthesis.cz by 4-7%)
+
+Version 6.3 - 25 June 2012, by Thierry Vignaud
+
+- actually compress xml files with '--text' flag passed to lzma (shrinks
+  files.xml.lzma by 25% \o/)
+- compress synthesis with XZ too (40% saving)
+- drop compatibility with perl-URPM < 1.48 (ie < 2007.1)
+- drop genhdlist-old (genhdlist2 was introduced 4 years ago)
+
 Version 6.2 - 30 July 2013, by Tomasz Paweł Gajc
 - use xz compression everywhere
+
+Version 6.1 - 09 September 2011, by Thierry Vignaud
+
+- force locale to be C (mga#95, Pascal Terjan)
+  (when packages contain translated summary/description genhdlist2 would embed
+  them instead of the English version)
 
 Version 6.1 - 31 May 2011, by Per Øyvind Karlsen
 
@@ -8,6 +48,7 @@ Version 6.1 - 31 May 2011, by Per Øyvind Karlsen
   version, release & arch properly from filename
 
 Version 6.0 - 15 December 2010, by Per Øyvind Karlsen
+
 - compress xml files with '--text' flag passed to lzma (shrinks
   files.xml.lzma by 25% \o/)
 - add support for custom compression filter used for xml-info & synthesis.

@@ -150,8 +150,8 @@ foreach my $e (grep { !$_->{noneedrebuild} } @hdlists) {
 		       $nobadrpm ? '--no-bad-rpm' : (),
 		       $nomd5sum ? "--no-md5sum" : (),
 		       $distrib->getvalue($e->{media}, 'xml-info') ? '--xml-info' : (),
-		       $synthesis_filter ? "--synthesis-filter \'$synthesis_filter\'" : (),
-		       $xml_info_filter ? "--xml-info-filter \'$xml_info_filter\'" : (),
+		       $synthesis_filter ? "--synthesis-filter '$synthesis_filter'" : (),
+		       $xml_info_filter ? "--xml-info-filter '$xml_info_filter'" : (),
 		       -e $file_deps ? "--file-deps $file_deps" : (),
 		   );
     my $cmd = "genhdlist2 $options $e->{path}";
