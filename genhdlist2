@@ -1,5 +1,8 @@
 #!/usr/bin/perl
 
+eval 'exec /usr/bin/perl  -S $0 ${1+"$@"}'
+    if 0; # not running under some shell
+
 our ($VERSION) = q(Id: genhdlist2 20460 2006-11-23 13:19:11Z pixel ) =~ /(\d+\.\d+)/;
 
 use URPM;
@@ -154,7 +157,7 @@ sub do_it {
     	    foreach my $name (@xml_media_info) {
 		rename "$media_info_dir/$name.xml.tmp", "$media_info_dir/$name.xml" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
 	    }
-	    rename "$media_info_dir/synthesis.hdlist.tmp", "$media_info_dir/synthesis.hdlist" or die "rename $media_info_dir/$name.xml.tmp failed: $!\n";
+	    rename "$media_info_dir/synthesis.hdlist.tmp", "$media_info_dir/synthesis.hdlist" or die "rename $media_info_dir/synthesis.hdlist.tmp failed: $!\n";
 	}
     }
 
@@ -168,15 +171,15 @@ sub do_it {
             if ($options{merge} ) {
                 print "Merging metadata...\n";
                 if ($name =~/^synthesis.hdlist/) {
-                    os.system("$synthesis_filter -dc -S $synthesis_suffix  $media_info_dir/$name.tmp >> $media_info_dir/synthesis.hdlist" );
+                    system("$synthesis_filter -dc -S $synthesis_suffix  $media_info_dir/$name.tmp >> $media_info_dir/synthesis.hdlist" );
                 }
                 else {
                     my $clear_name = $name;
                     $clear_name =~ s/$xml_info_suffix//;
-                    os.system("sed -i 's/<\\/media_info>//' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
+                    system("sed -i 's/<\\/media_info>//' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
                     # A hack - remove last EOL at EOF
-                    os.system("perl -0 -pe 's/\\n\\Z//' -i $media_info_dir/$clear_name");
-                    os.system("$xml_info_filter -dc -S $xml_info_suffix $media_info_dir/$name.tmp >> $media_info_dir/$clear_name" ) == 0 or die("Failed to concat $name.tmp with $clear_name");
+                    system("perl -0 -pe 's/\\n\\Z//' -i $media_info_dir/$clear_name");
+                    system("$xml_info_filter -dc -S $xml_info_suffix $media_info_dir/$name.tmp >> $media_info_dir/$clear_name" ) == 0 or die("Failed to concat $name.tmp with $clear_name");
                 }
                 unlink "$media_info_dir/$name.tmp";
             }
@@ -436,7 +439,6 @@ sub build_synthesis {
 	    synthesis => $synthesis,
 	    filter    => $synthesis_filter,
 	) or die "build_synthesis failed (disk full?)\n";
-    }
 }
 
 sub remove_versioned_media_info {
