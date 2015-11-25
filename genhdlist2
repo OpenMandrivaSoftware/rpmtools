@@ -9,6 +9,7 @@ use URPM;
 use List::Util 'any';
 use MDV::Packdrakeng;
 use Getopt::Long;
+use XML::LibXML;
 use strict;
 
 main();
