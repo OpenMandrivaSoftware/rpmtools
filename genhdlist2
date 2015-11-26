@@ -203,7 +203,7 @@ sub do_it {
                     $clear_name =~ s/$xml_info_suffix//;
                     system("sed -i 's/<\\/media_info>//' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
                     # If we have an empty <media_info/> tag, replace it with opening tag
-                    os.system("sed -i 's/<media_info\\/>/<media_info>/' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
+                    system("sed -i 's/<media_info\\/>/<media_info>/' $media_info_dir/$clear_name") == 0 or die("Failed to drop leading tag from $clear_name");
                     # A hack - remove last EOL at EOF
                     system("perl -0 -pe 's/\\n\\Z//' -i $media_info_dir/$clear_name");
                     system("$xml_info_filter -dc -S $xml_info_suffix $media_info_dir/$name.tmp >> $media_info_dir/$clear_name" ) == 0 or die("Failed to concat $name.tmp with $clear_name");
