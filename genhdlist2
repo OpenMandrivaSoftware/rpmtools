@@ -144,7 +144,7 @@ sub do_it {
         my @files_to_clean = ("synthesis.hdlist$synthesis_suffix", map { "$_.xml$xml_info_suffix" } @xml_media_info);
 	foreach my $name (@xml_media_info) {
 	    system("rm -f $media_info_dir/$name.xml");
-	    system("$xml_info_filter -d -S $xml_info_suffix $media_info_dir/$name.xml$xml_info_suffix || touch $media_info_dir/$name.xml") == 0 or die("Failed to unpack xml metadata files");
+	    system("$xml_info_filter -d -S $xml_info_suffix $media_info_dir/$name.xml$xml_info_suffix || echo -e '<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<media_info>' > $media_info_dir/$name.xml") == 0 or die("Failed to unpack xml metadata files");
 	}
 	system("rm -f $media_info_dir/synthesis.hdlist");
 	system("$synthesis_filter -d -S $synthesis_suffix $media_info_dir/synthesis.hdlist$synthesis_suffix || touch $media_info_dir/synthesis.hdlist") == 0 or die("Failed to unpack synthesis file");
