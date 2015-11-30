@@ -21,9 +21,9 @@ sub usage () {
 
 sub main() {
     my %options = (
-	synthesis_filter => '.cz:xz -T0 -7',
+	synthesis_filter => '.cz:xz -7 -T0',
 	xml_info => 'auto',
-	xml_info_filter => '.lzma:xz -T0 -7',
+	xml_info_filter => '.lzma:xz -7 -T0',
 	versioned => 'auto'
     );
 
